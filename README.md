@@ -112,18 +112,3 @@ Several skills expose `origin: ECC` — shorthand for bundles commonly synced fr
 [`frontend-slides`](./skills/frontend-slides/) cites inspiration from **`@zarazhangrui`** (named in SKILL body).
 
 ---
-
-## Legal & redistribution
-
-**Do not assume everything is uniformly MIT or Apache.**
-
-- Respect each folder’s **`LICENSE.txt`** / frontmatter **`license`** before republishing merged or copied skills.
-- When you remix skills, preserve upstream copyright notices already present.
-
----
-
-## Maintainer note — research method
-
-Upstream links were grounded with **repository frontmatter**, **bundled licenses**, **[Exa](https://exa.ai/) web search**, and supplementary web lookups (Exa MCP hit a transient free-tier rate limit while batching lookups; remaining URLs were corroborated with direct documentation and authoritative repositories listed above).
-
-If you add a skill, extend this README with its canonical source URL so future forks keep credit obvious.
