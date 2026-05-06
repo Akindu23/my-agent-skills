@@ -1,7 +1,6 @@
 ---
 name: frontend-slides
 description: Create stunning, animation-rich HTML presentations from scratch or by converting PowerPoint files. Use when the user wants to build a presentation, convert a PPT/PPTX to web, or create slides for a talk/pitch. Helps non-designers discover their aesthetic through visual exploration rather than abstract choices.
-origin: ECC
 ---
 
 # Frontend Slides
@@ -26,6 +25,14 @@ Inspired by the visual exploration approach showcased in work by zarazhangrui (c
 5. **Production quality**: keep code commented, accessible, responsive, and performant.
 
 Before generating, read `STYLE_PRESETS.md` for the viewport-safe CSS base, density limits, preset catalog, and CSS gotchas.
+
+## User clarifications (Cursor)
+
+When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+
+If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+
+Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
 
 ## Workflow
 

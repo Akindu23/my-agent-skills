@@ -4,6 +4,9 @@ description: >-
   Postgres performance and schema guidance from Supabase: queries, indexes,
   connection pooling, RLS, and monitoring. Use when writing or reviewing SQL,
   designing schemas, tuning Supabase/Postgres, or debugging database performance.
+paths:
+  - "**/*.sql"
+  - "supabase/**"
 ---
 
 # Supabase Postgres Best Practices

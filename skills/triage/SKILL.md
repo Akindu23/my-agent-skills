@@ -18,6 +18,14 @@ Every comment or issue posted to the issue tracker during triage **must** start 
 - [AGENT-BRIEF.md](AGENT-BRIEF.md) — how to write durable agent briefs
 - [OUT-OF-SCOPE.md](OUT-OF-SCOPE.md) — how the `.out-of-scope/` knowledge base works
 
+## User clarifications (Cursor)
+
+When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+
+If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+
+Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+
 ## Roles
 
 Two **category** roles:

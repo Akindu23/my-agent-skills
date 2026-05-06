@@ -38,7 +38,7 @@ You will analyze the entire codebase and apply refinements that:
 - Prioritize "fewer lines" over readability (e.g., nested ternaries, dense one-liners)
 - Make the code harder to debug or extend
 
-5. **Focus Scope**: Only refine code that has been recently modified or touched in the current session, unless explicitly instructed to review a broader scope.
+5. **Focus scope:** Default to reviewing the **whole codebase** or whatever scope the user names (directory, module, feature seam). Treat “only files touched this session / recently modified” as an **optional** narrow pass when the user explicitly asks for speed or cost savings—not the default.
 
 Your refinement process:
 

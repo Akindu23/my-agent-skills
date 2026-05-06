@@ -117,7 +117,7 @@ Map intent + scope + tech stack (from Phase 0) to **Cursor-native** levers: **Ru
 | Intent | Modes & tools | Typical skills (examples — pick what exists; user invokes with `/name` in Agent) |
 |--------|---------------|------------------------------------------------------------------|
 | New Feature | Plan → Agent; `/tdd` / `/tdd-workflow`; review pass | `tdd`, `tdd-workflow`, `coding-standards`, stack-specific skills |
-| Bug Fix | Agent; failing test first | `tdd`, `triage-issue` (if filing GH issue) |
+| Bug Fix | Agent; failing test first | `tdd`, `triage` or `to-issues` (when turning findings into tracker work) |
 | Refactor | Plan if seam unclear; Agent | `coding-standards`, `improve-codebase-architecture` |
 | Research | Agent + **Task** `explore` readonly | `recursive-decomposition` or `council` for broad codebase scans |
 | Testing | Agent | `tdd`, `tdd-workflow` |
@@ -155,6 +155,14 @@ whether Phase 0 auto-detected it or the user must supply it:
 - [ ] **Database changes** — Schema, migrations, indexes? (if data layer)
 - [ ] **Existing patterns** — Reference files or conventions to follow?
 - [ ] **Scope boundaries** — What NOT to do?
+
+## User clarifications (Cursor)
+
+When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+
+If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+
+Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
 
 **If 3+ critical items are missing**, ask the user up to 3 clarification
 questions before generating the optimized prompt. Then incorporate the

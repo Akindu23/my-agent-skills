@@ -18,7 +18,7 @@ Consult these resources as needed:
 - ./references/cost-analysis.md — When to apply recursive vs. direct approaches
 - ./references/codebase-analysis.md — Full walkthrough of codebase-wide analysis
 - ./references/document-aggregation.md — Multi-document information extraction
-- ../council/references/cursor-subagent-model-matrix.md — Task `model` (`composer-2` vs `composer-2-fast`) when using **Task** subagents from Cursor (pairs with the **council** skill)
+- ./references/task-model-summary.md — Task `model` (`composer-2` vs `composer-2-fast`) when using **Task** subagents (full matrix may live under the **council** skill if installed)
 
 ## Core Principles
 
@@ -78,7 +78,7 @@ Use the **Task** tool for independent segments (read-only sweeps, parallel batch
 - Use **`readonly: true`** when the subagent must not write files; omit or set `false` when it should implement changes.
 - Prefer **depth limits** and **non-overlapping partitions** to avoid redundant sub-calls.
 - **Parallel work**: when launching multiple subagents, use **one message with several Task calls** (the usual pattern) so independent partitions run together when appropriate; then synthesize results.
-- **Task `model`**: set `model` on every Task call to `composer-2-fast` or `composer-2` per job risk and depth — see `../council/references/cursor-subagent-model-matrix.md` (this skill does not duplicate the full matrix; it optimizes cost via `subagent_type`, `readonly`, and batching).
+- **Task `model`**: set `model` on every Task call to `composer-2-fast` or `composer-2` per job risk and depth — see `./references/task-model-summary.md` (expanded tables: **council** skill’s matrix if installed).
 
 ## Empowering Agentic Behavior
 

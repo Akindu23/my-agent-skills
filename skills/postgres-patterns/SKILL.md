@@ -1,7 +1,13 @@
 ---
 name: postgres-patterns
-description: PostgreSQL database patterns for query optimization, schema design, indexing, and security. Based on Supabase best practices.
-origin: ECC
+description: >-
+  PostgreSQL database patterns for query optimization, schema design, indexing, and
+  security. Use when writing SQL or migrations, designing schemas, troubleshooting slow
+  queries, implementing Row Level Security, tuning connection pooling, or reviewing
+  database changes. Based on Supabase-leaning Postgres practice.
+paths:
+  - "**/*.sql"
+  - "**/migrations/**"
 ---
 
 # PostgreSQL Patterns

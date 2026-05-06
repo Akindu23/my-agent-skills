@@ -1,13 +1,14 @@
 ---
 name: ui-ux-pro-max
 description: "Provides UI/UX design intelligence via a searchable style and guideline database (50+ styles, palettes, font pairings, charts, 9 stacks including React, Next.js, Vue, Svelte, Tailwind, shadcn/ui). Use when planning, building, reviewing, or refactoring UIs, choosing palettes and typography, or when the user mentions design systems, accessibility, layout, or stack-specific UI patterns (dashboard, landing page, e-commerce, mobile app, .html, .tsx, and related keywords)."
+compatibility: "Python 3+ required to run scripts/search.py and related tooling in this skill folder."
 ---
 
 # UI/UX Pro Max - Design Intelligence
 
 Comprehensive design guide for web and mobile applications. Contains 50+ styles, 97 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 9 technology stacks. Searchable database with priority-based recommendations.
 
-**Script layout (Cursor):** Search scripts live under `~/.cursor/skills/ui-ux-pro-max/`. From Shell, use the full path to `search.py` as shown below, or `cd ~/.cursor/skills/ui-ux-pro-max` and run `python3 scripts/...` so the working directory is not assumed to be a project repo.
+**Script layout:** Search scripts live next to this skill’s `SKILL.md`. In Shell, `cd` to the directory containing this `SKILL.md` (the `ui-ux-pro-max` skill root), then invoke `python3 scripts/search.py …` as below. **Python 3** is required.
 
 ## When to Apply
 
@@ -137,7 +138,7 @@ Extract key information from user request:
 **Always start with `--design-system`** to get comprehensive recommendations with reasoning:
 
 ```bash
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"]
+python3 scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"]
 ```
 
 This command:
@@ -148,7 +149,7 @@ This command:
 
 **Example:**
 ```bash
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "beauty spa wellness service" --design-system -p "Serenity Spa"
+python3 scripts/search.py "beauty spa wellness service" --design-system -p "Serenity Spa"
 ```
 
 ### Step 2b: Persist Design System (Master + Overrides Pattern)
@@ -156,7 +157,7 @@ python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "beauty spa wellness se
 To save the design system for **hierarchical retrieval across sessions**, add `--persist`:
 
 ```bash
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "<query>" --design-system --persist -p "Project Name"
+python3 scripts/search.py "<query>" --design-system --persist -p "Project Name"
 ```
 
 This creates:
@@ -165,7 +166,7 @@ This creates:
 
 **With page-specific override:**
 ```bash
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard"
+python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard"
 ```
 
 This also creates:
@@ -190,7 +191,7 @@ Now, generate the code...
 After getting the design system, use domain searches to get additional details:
 
 ```bash
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "<keyword>" --domain <domain> [-n <max_results>]
+python3 scripts/search.py "<keyword>" --domain <domain> [-n <max_results>]
 ```
 
 **When to use detailed searches:**
@@ -208,7 +209,7 @@ python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "<keyword>" --domain <d
 Get implementation-specific best practices. If user doesn't specify a stack, **default to `html-tailwind`**.
 
 ```bash
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "<keyword>" --stack html-tailwind
+python3 scripts/search.py "<keyword>" --stack html-tailwind
 ```
 
 Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`
@@ -262,7 +263,7 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`
 ### Step 2: Generate Design System (REQUIRED)
 
 ```bash
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "beauty spa wellness service elegant" --design-system -p "Serenity Spa"
+python3 scripts/search.py "beauty spa wellness service elegant" --design-system -p "Serenity Spa"
 ```
 
 **Output:** Complete design system with pattern, style, colors, typography, effects, and anti-patterns.
@@ -271,16 +272,16 @@ python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "beauty spa wellness se
 
 ```bash
 # Get UX guidelines for animation and accessibility
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "animation accessibility" --domain ux
+python3 scripts/search.py "animation accessibility" --domain ux
 
 # Get alternative typography options if needed
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "elegant luxury serif" --domain typography
+python3 scripts/search.py "elegant luxury serif" --domain typography
 ```
 
 ### Step 4: Stack Guidelines
 
 ```bash
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "layout responsive form" --stack html-tailwind
+python3 scripts/search.py "layout responsive form" --stack html-tailwind
 ```
 
 **Then:** Synthesize design system + detailed searches and implement the design.
@@ -293,10 +294,10 @@ The `--design-system` flag supports two output formats:
 
 ```bash
 # ASCII box (default) - best for terminal display
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "fintech crypto" --design-system
+python3 scripts/search.py "fintech crypto" --design-system
 
 # Markdown - best for documentation
-python3 ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "fintech crypto" --design-system -f markdown
+python3 scripts/search.py "fintech crypto" --design-system -f markdown
 ```
 
 ---

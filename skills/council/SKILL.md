@@ -36,3 +36,5 @@ Full tables for **`ce-*`** agents and other Task types: `references/cursor-subag
 ## Slugs
 
 Use only **`composer-2`** and **`composer-2-fast`** unless the session's Task tool rejects a slug; then follow the product schema for that build. Both slugs are valid in current Cursor Task invocations.
+
+If Task returns an unsupported-model error, check the Task/subagent schema for your Cursor build and substitute the closest allowed slug while keeping the same tier intent (`composer-2-fast`-class vs `composer-2`-class).

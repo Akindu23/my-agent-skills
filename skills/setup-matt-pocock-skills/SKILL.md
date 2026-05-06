@@ -31,6 +31,14 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 Summarise what's present and what's missing. Then walk the user through the three decisions **one at a time** — present a section, get the user's answer, then move to the next. Don't dump all three at once.
 
+## User clarifications (Cursor)
+
+When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+
+If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+
+Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+
 Assume the user does not know what these terms mean. Each section starts with a short explainer (what it is, why these skills need it, what changes if they pick differently). Then show the choices and the default.
 
 **Section A — Issue tracker.**

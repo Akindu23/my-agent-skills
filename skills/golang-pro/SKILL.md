@@ -1,6 +1,10 @@
 ---
 name: golang-pro
 description: Guides high-performance and concurrent Go patterns including goroutines, channels, generics, gRPC, and microservice-oriented structure. Use when building Go services that are concurrent, network-heavy, or performance-sensitive, or when the user names goroutines, channels, gRPC, or Go generics.
+paths:
+  - "**/*.go"
+  - "go.mod"
+  - "go.work"
 license: MIT
 metadata:
   author: https://github.com/Jeffallan

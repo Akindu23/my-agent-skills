@@ -1,6 +1,10 @@
 ---
 name: golang
 description: Routes Go work to the right reference guides and conventions for the task. Use when working on Go architecture, implementation, refactoring, concurrency, error handling, testing, performance, or code review.
+paths:
+  - "**/*.go"
+  - "go.mod"
+  - "go.work"
 disable-model-invocation: true
 ---
 

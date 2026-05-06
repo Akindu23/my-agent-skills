@@ -17,6 +17,14 @@ Review files for compliance with Web Interface Guidelines.
 3. Check against all rules in the fetched guidelines
 4. Output findings in the terse `file:line` format
 
+## User clarifications (Cursor)
+
+When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+
+If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+
+Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+
 ## Guidelines Source
 
 Fetch fresh guidelines before each review:

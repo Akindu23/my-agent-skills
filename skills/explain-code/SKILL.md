@@ -59,6 +59,14 @@ Separate body sections with a horizontal rule: `---`.
 - Every snippet must include short intent comments on the key lines. Use them to tell the reader what this line is doing here and why it matters.
 - Prefer behavior-faithful sketches over verbatim excerpts.
 
+## User clarifications (Cursor)
+
+When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+
+If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+
+Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+
 ## Scope fallback
 
 - If the user gives no scope and there are unstaged changes, default to the unstaged diff.

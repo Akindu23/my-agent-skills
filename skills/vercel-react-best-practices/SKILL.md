@@ -5,6 +5,9 @@ description: >-
   bundle size, re-renders, waterfalls). Use when writing, reviewing, or refactoring
   React/Next.js code, optimizing bundles, or when the user mentions performance,
   Server Components, or Next.js app router patterns.
+paths:
+  - "**/*.{tsx,ts,jsx,js}"
+  - "next.config.*"
 ---
 
 # Vercel React Best Practices
@@ -12,7 +15,7 @@ description: >-
 _Source: Vercel Engineering. License: MIT. Pack version 1.0.0._
 
 
-Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. Contains 70 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation.
+Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. **70 rules** documented as separate markdown articles under `rules/` (plus section metadata templates), grouped into **8 categories** prioritized by impact to guide automated refactoring and code generation.
 
 ## When to Apply
 
