@@ -77,5 +77,17 @@ func putBuffer(b *Buffer) {
 - Thread-safe by design
 - Better performance under high concurrency
 
+**Hazards (see [sync.Pool](https://pkg.go.dev/sync#Pool)):**
+
+- **Not a cache** — pooled objects may be **cleared between GC cycles**; any
+  object you `Put` can disappear before reuse. Only store scratch buffers or
+  other values where loss on eviction is safe.
+- **Do not assume retention** — the pool can empty at any time; always handle a
+  `Get` that returns `nil` / zero from `New` as normal.
+- **Avoid heterogeneous sizes** — pooling wildly different allocation sizes can
+  **pin memory** and defeat the allocator; prefer one pool per size class or a
+  narrow range of buffer capacities.
+- **Avoid pooling tiny allocations** — overhead can exceed the benefit; measure.
+
 The channel-based approach is still valuable for understanding Go's concurrency
 primitives and for cases where you need more control over pool behavior.

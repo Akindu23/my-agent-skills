@@ -212,18 +212,41 @@ ctx = context.WithValue(ctx, requestIDKey, reqID)
 
 ### Checking Cancellation
 
+**Avoid** a `select` with a tight `default` branch — that **busy-spins** and
+wastes CPU. Prefer **blocking** on `ctx`, on real I/O, or on a **ticker** with
+`defer ticker.Stop()` when work is paced on a schedule.
+
+Wait until the context is done (no loop needed):
+
+```go
+func WaitForShutdown(ctx context.Context) error {
+    <-ctx.Done()
+    return ctx.Err()
+}
+```
+
+Loop with periodic work and clean cancellation (ticker cleanup is required):
+
 ```go
 func LongRunningOperation(ctx context.Context) error {
+    ticker := time.NewTicker(100 * time.Millisecond)
+    defer ticker.Stop()
     for {
         select {
         case <-ctx.Done():
             return ctx.Err()
-        default:
-            // Do work
+        case <-ticker.C:
+            if err := doWorkChunk(); err != nil {
+                return err
+            }
         }
     }
 }
 ```
+
+If work is driven by blocking calls (database, channels, `Read`), pass `ctx` into
+those APIs or combine `ctx.Done()` with the blocking operation in one `select`
+instead of spinning.
 
 ### Respecting Cancellation in HTTP Handlers
 
@@ -258,6 +281,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 | Request-scoped data | Appropriate for context values |
 | Sharing context | Safe - contexts are immutable |
 | `context.Background()` | Only for non-request-specific code |
+| Cancellation waits | Block on `<-ctx.Done()`, blocking I/O, or a ticker — no tight `select`/`default` spin |
 | Default | Pass context even if you think you don't need it |
 
 ---

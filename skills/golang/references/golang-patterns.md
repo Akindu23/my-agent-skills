@@ -69,9 +69,23 @@ type BadCounter struct {
 }
 ```
 
-### 3. Accept Interfaces, Return Structs
+### 3. Accept Interfaces, Return Concrete Types
 
-Functions should accept interface parameters and return concrete types.
+**Default:** accept interfaces, return **concrete types** (structs, named types,
+slices, and other non-interface types). Callers stay decoupled at the boundary
+you control; return types stay specific and easy to evolve.
+
+See also **[go-interfaces](go-interfaces.md)** for the same rule and the
+exceptions below (wording aligned so the two references do not contradict).
+
+**Exceptions — returning a small interface is appropriate when:**
+
+- **Hiding implementation** — the concrete type is unexported and the public
+  surface is the interface (for example `hash.Hash`, `hash.Hash32`, or a
+  constructor that returns only the behavior you promise).
+- **Matching standard library or domain idioms** — the API mirrors patterns
+  callers already use (`io.Reader`, `io.Writer`, `fmt.Stringer`, `sort.Interface`,
+  etc.).
 
 ```go
 // Good: Accepts interface, returns concrete type
@@ -83,7 +97,7 @@ func ProcessData(r io.Reader) (*Result, error) {
     return &Result{Data: data}, nil
 }
 
-// Bad: Returns interface (hides implementation details unnecessarily)
+// Bad: Returns a broad interface without a hiding/stdlib reason
 func ProcessData(r io.Reader) (io.Reader, error) {
     // ...
 }
@@ -625,7 +639,7 @@ issues:
 
 | Idiom | Description |
 |-------|-------------|
-| Accept interfaces, return structs | Functions accept interface params, return concrete types |
+| Accept interfaces, return concrete types | Default API shape; exceptions in [go-interfaces](go-interfaces.md) |
 | Errors are values | Treat errors as first-class values, not exceptions |
 | Don't communicate by sharing memory | Use channels for coordination between goroutines |
 | Make the zero value useful | Types should work without explicit initialization |

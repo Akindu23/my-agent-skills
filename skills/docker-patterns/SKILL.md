@@ -1,10 +1,11 @@
 ---
 name: docker-patterns
 description: >-
-  Docker and Docker Compose patterns for local development, container security,
-  networking, volume strategies, and multi-service orchestration. Use when authoring
-  Dockerfiles, compose files, troubleshooting container networking or volumes, hardening
-  images, or migrating a team to a containerized dev workflow.
+  Applies Dockerfile, Docker Compose, BuildKit, and container security patterns for
+  local development and hardened deployable images. Use when authoring Dockerfiles or
+  compose files, wiring secrets (runtime vs build-time), reproducible bases, PID 1 and
+  healthchecks, volumes and networking, supply-chain hygiene, or troubleshooting compose
+  stacks.
 paths:
   - "Dockerfile*"
   - "**/docker-compose*.yml"
@@ -13,7 +14,7 @@ paths:
 
 # Docker Patterns
 
-Docker and Docker Compose best practices for containerized development.
+Docker and Docker Compose best practices for containerized development and safer images.
 
 ## Docker Compose for Local Development
 
@@ -26,6 +27,7 @@ services:
     build:
       context: .
       target: dev                     # Use dev stage of multi-stage Dockerfile
+    init: true                       # Subreaper for Node; helps SIGTERM propagation (see Ops / PID 1)
     ports:
       - "3000:3000"
     volumes:
@@ -79,15 +81,25 @@ volumes:
 
 ### Development vs Production Dockerfile
 
+Enable BuildKit (`DOCKER_BUILDKIT=1` or default in modern Docker). Use a syntax directive so cache mounts and secret mounts parse reliably.
+
 ```dockerfile
-# Stage: dependencies
-FROM node:22-alpine AS deps
+# syntax=docker/dockerfile:1
+
+# Pin ONE reproducibility strategy per pipeline: immutable digest (strongest) or patch-level tag (weaker).
+# Moving minor tags (e.g. node:22-alpine) trade reproducibility for silent upstream updates—document that trade-off if you use them.
+FROM node:22.12-alpine3.20 AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# Persist npm cache across builds (requires BuildKit)
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+# Build-time tokens (private registry, git): supply files via BuildKit secrets—never COPY .npmrc with tokens into the image.
+#   docker build --secret id=npmrc,src=$HOME/.npmrc .
+# RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci
 
 # Stage: dev (hot reload, debug tools)
-FROM node:22-alpine AS dev
+FROM node:22.12-alpine3.20 AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -95,23 +107,27 @@ EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
 # Stage: build
-FROM node:22-alpine AS build
+FROM node:22.12-alpine3.20 AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build && npm prune --production
 
 # Stage: production (minimal image)
-FROM node:22-alpine AS production
+FROM node:22.12-alpine3.20 AS production
 WORKDIR /app
-RUN addgroup -g 1001 -S appgroup && adduser -S appuser -u 1001
+RUN addgroup -g 1001 -S appgroup && adduser -S appuser -u 1001 -G appgroup
+# Ensure runtime-owned tree before dropping privileges (skip only if the app never writes under WORKDIR)
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
+RUN chown -R appuser:appgroup /app
 USER appuser
-COPY --from=build --chown=appuser:appgroup /app/dist ./dist
-COPY --from=build --chown=appuser:appgroup /app/node_modules ./node_modules
-COPY --from=build --chown=appuser:appgroup /app/package.json ./
 ENV NODE_ENV=production
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:3000/health || exit 1
+# --start-period avoids failing fast while the server boots. BusyBox wget ships with Alpine; if your base lacks it, use a HEALTHCHECK CMD present in the image (e.g. curl, or a tiny Node probe).
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
+  CMD wget -qO- http://127.0.0.1:3000/health || exit 1
 CMD ["node", "dist/server.js"]
 ```
 
@@ -140,6 +156,8 @@ services:
           memory: 512M
 ```
 
+`deploy:` (limits, replicas, placement) is honored by **Docker Swarm** and Compose when deploying to a Swarm stack. Plain **`docker compose up`** on a single node often **does not enforce** `deploy.resources`—validate behavior for your Compose version/target or use a real orchestrator (Swarm/Kubernetes/ECS) when limits matter.
+
 ```bash
 # Development (auto-loads override)
 docker compose up
@@ -148,11 +166,21 @@ docker compose up
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
+## Ops / PID 1 and signals
+
+Node as PID 1 can mishandle signal forwarding and zombie children. Prefer one of:
+
+- **`init: true`** in Compose (tini-based init in container runtime), or
+- **`ENTRYPOINT ["dumb-init", "--"]`** / **`ENTRYPOINT ["tini", "--"]`** with `CMD ["node", "..."]` when not using Compose `init`.
+
+Combine with **`HEALTHCHECK --start-period=...`** so slow boots do not mark the container unhealthy immediately.
+
 ## Networking
 
 ### Service Discovery
 
 Services in the same Compose network resolve by service name:
+
 ```
 # From "app" container:
 postgres://postgres:postgres@db:5432/app_dev    # "db" resolves to the db container
@@ -223,19 +251,20 @@ services:
 
 ## Container Security
 
+Linux containers inherit the host’s **default seccomp** profile unless `security_opt` overrides it—avoid loosening seccomp/AppArmor unless required and reviewed.
+
 ### Dockerfile Hardening
 
 ```dockerfile
-# 1. Use specific tags (never :latest)
+# Use specific tags or digests (never :latest for anything you ship)
 FROM node:22.12-alpine3.20
 
-# 2. Run as non-root
-RUN addgroup -g 1001 -S app && adduser -S app -u 1001
-USER app
+RUN addgroup -g 1001 -S appgroup && adduser -S appuser -u 1001 -G appgroup
+WORKDIR /app
+RUN chown -R appuser:appgroup /app
+USER appuser
 
-# 3. Drop capabilities (in compose)
-# 4. Read-only root filesystem where possible
-# 5. No secrets in image layers
+# Drop capabilities (in compose), read-only root where viable, no secrets in layers
 ```
 
 ### Compose Security
@@ -247,8 +276,8 @@ services:
       - no-new-privileges:true
     read_only: true
     tmpfs:
-      - /tmp
-      - /app/.cache
+      - /tmp:size=64m
+      - /app/.cache:size=128m
     cap_drop:
       - ALL
     cap_add:
@@ -257,16 +286,17 @@ services:
 
 ### Secret Management
 
+- **Non-sensitive config** (feature flags, public URLs, log levels): environment variables, `environment:` / `env_file:` pointing at **`.env`** (gitignored) are fine.
+- **Secrets** (tokens, DB passwords, signing keys): **do not** treat “plain `.env` on disk” as strong secret storage for production. Prefer **orchestrator-backed secrets** (Kubernetes secrets + CSI, ECS secrets, Swarm secrets), **secret managers** (Vault, cloud SM) with injection at runtime, or **runtime-mounted secret files** on **tmpfs** with minimal permissions—**not** baking credentials into images or checked-in compose.
+
 ```yaml
-# GOOD: Use environment variables (injected at runtime)
+# Runtime injection from host env (secret value lives outside compose YAML)
 services:
   app:
-    env_file:
-      - .env                     # Never commit .env to git
     environment:
-      - API_KEY                  # Inherits from host environment
+      - API_KEY                    # sourced from shell or CI inject
 
-# GOOD: Docker secrets (Swarm mode)
+# Swarm: secrets as files under /run/secrets (example pattern)
 secrets:
   db_password:
     file: ./secrets/db_password.txt
@@ -275,10 +305,39 @@ services:
   db:
     secrets:
       - db_password
+```
 
+**Build-time** tokens (npm, git): use BuildKit **`RUN --mount=type=secret`** and **`docker build --secret id=...,src=...`** so credentials never land in a layer (see Dockerfile example comments above).
+
+```dockerfile
 # BAD: Hardcoded in image
 # ENV API_KEY=sk-proj-xxxxx      # NEVER DO THIS
 ```
+
+### Supply chain
+
+Scan images in CI, attest SBOM/provenance on releases, sign artifacts, and rebuild bases on a cadence. Details: [references/supply-chain.md](references/supply-chain.md).
+
+### Repository hygiene
+
+Ship **`.env.example`** (names only, dummy values) so onboarding stays explicit; **never commit `.env`**. Run **secret scanning** (e.g. **gitleaks**, **trufflehog**) in CI on commits and PRs.
+
+## Anti-patterns
+
+**Critical**
+
+- **Never bind-mount `docker.sock`** (`/var/run/docker.sock`) into application containers—it grants host-level Docker API access from inside the container.
+- **Avoid `privileged: true`** unless there is a narrow, reviewed justification; it strips most isolation guarantees.
+- **Avoid `network_mode: host`** unless you need host networking semantics and accept the loss of network namespace isolation.
+
+**Common mistakes**
+
+- Running production multi-service stacks on **`docker compose up`** without orchestration where HA, rollouts, or enforced resource limits matter.
+- Storing state only in container writable layers—use volumes for data you care about.
+- Running as root when the workload does not require it.
+- Using **`:latest`** for images you deploy or debug reproducibly.
+- One giant container running many unrelated processes—prefer one main process per container.
+- Putting raw secrets in **`docker-compose.yml`** committed to git—use CI/orchestrator injection, secret managers, or Swarm/K8s secrets—not “secrets live in plain compose/env files” as the final story for high-value credentials.
 
 ## .dockerignore
 
@@ -287,6 +346,7 @@ node_modules
 .git
 .env
 .env.*
+!.env.example
 dist
 coverage
 *.log
@@ -338,26 +398,4 @@ docker compose exec app wget -qO- http://api:3000/health
 # Inspect network
 docker network ls
 docker network inspect <project>_default
-```
-
-## Anti-Patterns
-
-```
-# BAD: Using docker compose in production without orchestration
-# Use Kubernetes, ECS, or Docker Swarm for production multi-container workloads
-
-# BAD: Storing data in containers without volumes
-# Containers are ephemeral -- all data lost on restart without volumes
-
-# BAD: Running as root
-# Always create and use a non-root user
-
-# BAD: Using :latest tag
-# Pin to specific versions for reproducible builds
-
-# BAD: One giant container with all services
-# Separate concerns: one process per container
-
-# BAD: Putting secrets in docker-compose.yml
-# Use .env files (gitignored) or Docker secrets
 ```

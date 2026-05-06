@@ -163,20 +163,29 @@ case Stringer:
 
 ---
 
-## Generality
+## Generality and Return Types
 
-If a type exists only to implement an interface with no exported methods beyond
-that interface, don't export the type—return the interface from constructors.
+**Default (same as [golang-patterns](golang-patterns.md)):** *accept interfaces,
+return concrete types.* That keeps APIs clear and refactor-friendly.
+
+**This section covers the deliberate exceptions** — when returning a **small
+interface** is idiomatic:
+
+- **Hide implementation** — the concrete type is unexported (or should not be
+  part of the public contract); the interface *is* the API.
+- **Match stdlib or ecosystem shape** — callers already think in terms of
+  `io.Reader`, `io.Writer`, `hash.Hash`, `hash.Hash32`, `cipher.Stream`, etc.
+
+Do **not** return a broad interface “for flexibility” when a concrete type (or
+a more specific documented type) would serve callers better.
 
 ### Hide Implementation, Expose Interface
 
 ```go
-// Good: Constructor returns interface type
+// Good: Constructor returns interface type — implementation is unexported
 func NewHash() hash.Hash32 {
-    return &myHash{}  // unexported type
+    return &myHash{} // unexported type; callers depend on hash.Hash32
 }
-
-// The implementation is hidden; callers only see hash.Hash32
 ```
 
 ### Real-World Example: crypto/cipher
@@ -451,13 +460,14 @@ func (b Buffer) Len() int                      { return len(b.data) }  // incons
 | Struct embedding | `type S struct { *T }` | Promotes T's methods |
 | Access embedded field | `s.T` or `s.T.Method()` | Type name is field name |
 | Interface check | `var _ I = (*T)(nil)` | Compile-time verification |
-| Generality | Return interface from constructor | Hide implementation |
+| Return types | Default: concrete; exception: small interface | See golang-patterns; hide impl / stdlib shapes |
 
 ---
 
 ## See Also
 
 - **go-style-core**: Core Go style principles and formatting
+- **golang-patterns**: Package API shape, including accept-interfaces / return-concrete defaults
 - **go-naming**: Interface naming conventions (Reader, Writer, etc.)
 - **go-error-handling**: Error interface and custom error types
 - **go-functional-options**: Using interfaces for flexible APIs

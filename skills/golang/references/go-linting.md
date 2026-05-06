@@ -47,41 +47,48 @@ See the [example .golangci.yml](https://github.com/uber-go/guide/blob/master/.go
 
 ---
 
-## Example Configuration
+## Example Configuration (golangci-lint v2)
+
+> Use **`golangci-lint migrate`** to convert legacy v1 configs (keys like
+> `linters-settings`, `linters.enable` for formatters). See the
+> [migration guide](https://golangci-lint.run/docs/product/migration-guide/).
 
 Create `.golangci.yml` in your project root:
 
 ```yaml
+version: "2"
+
 linters:
+  default: none
   enable:
     - errcheck
-    - goimports
     - revive
     - govet
     - staticcheck
+  settings:
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: error-return
+        - name: error-strings
+        - name: exported
 
-linters-settings:
-  goimports:
-    local-prefixes: github.com/your-org/your-repo
-  revive:
-    rules:
-      - name: blank-imports
-      - name: context-as-argument
-      - name: error-return
-      - name: error-strings
-      - name: exported
-
-run:
-  timeout: 5m
+formatters:
+  enable:
+    - goimports
+  settings:
+    goimports:
+      local-prefixes: github.com/your-org/your-repo
 ```
 
 ### Running
 
 ```bash
-# Install
-go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+# Install (v2 module path)
+go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 
-# Run all linters
+# Run all linters and formatters per config
 golangci-lint run
 
 # Run on specific paths
@@ -94,7 +101,7 @@ golangci-lint run ./pkg/...
 
 | Task | Command/Action |
 |------|----------------|
-| Install golangci-lint | `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest` |
+| Install golangci-lint | `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest` |
 | Run linters | `golangci-lint run` |
 | Run on path | `golangci-lint run ./pkg/...` |
 | Config file | `.golangci.yml` in project root |

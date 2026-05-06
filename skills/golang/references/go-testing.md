@@ -300,6 +300,24 @@ for _, tt := range tests {
 }
 ```
 
+### `t.Setenv` and `t.Parallel()` Do Not Mix
+
+> **Normative**: [`t.Setenv`](https://pkg.go.dev/testing#T.Setenv) mutates
+> process environment for the test. It **must not** be used in a test that runs
+> in parallel — including when **`t.Parallel()` was called on an ancestor**
+> subtest (the whole subtree runs on a parallel goroutine).
+
+If you need custom environment variables **and** `t.Parallel()`, isolate env
+setup in a **non-parallel** parent test and pass values into parallel children
+as **function arguments**, or avoid `t.Parallel()` for tests that touch env.
+
+### Race detector in CI
+
+For packages that use **goroutines, shared state, or concurrent handlers**, run
+`go test -race ./...` in CI (or on the relevant packages). It catches data races
+that unit tests alone often miss; expect higher CPU and memory use, so scope or
+shard if needed.
+
 ---
 
 ## Test Helpers

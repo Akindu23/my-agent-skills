@@ -288,14 +288,17 @@ For package-wide error conventions, document in the package comment.
 Place examples in test files (`*_test.go`):
 
 ```go
-// Good:
+// Good: Runnable example; errors go to stdout for // Output matching
 func ExampleConfig_WriteTo() {
     cfg := &Config{
         Name: "example",
     }
-    if err := cfg.WriteTo(os.Stdout); err != nil {
-        log.Exitf("Failed to write config: %s", err)
+    var buf strings.Builder
+    if err := cfg.WriteTo(&buf); err != nil {
+        fmt.Println("write error:", err)
+        return
     }
+    fmt.Print(buf.String())
     // Output:
     // {
     //   "name": "example"
@@ -303,7 +306,10 @@ func ExampleConfig_WriteTo() {
 }
 ```
 
-Examples appear in Godoc attached to the documented element.
+Examples appear in Godoc attached to the documented element. Prefer `fmt` (or
+writing to `os.Stdout`) with an `// Output:` block — do **not** call
+`log.Fatal`, `os.Exit`, or nonexistent helpers like `log.Exitf`; they make the
+example non-runnable or brittle under `go test`.
 
 ---
 

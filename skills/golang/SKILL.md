@@ -48,6 +48,8 @@ Use this as the entry point for Go work in this skill package. It routes to the 
   Reference: [go-data-structures](references/go-data-structures/go-data-structures.md)
 - `go-interfaces`: Interfaces, assertions, type switches, and embedding.  
   Reference: [go-interfaces](references/go-interfaces.md)
+- `go-generics`: Type parameters, constraints, and when to use or avoid them.  
+  Reference: [go-generics](references/go-generics.md)
 - `go-context`: `context.Context` propagation and cancellation patterns.  
   Reference: [go-context](references/go-context.md)
 
@@ -82,7 +84,7 @@ Use this as the entry point for Go work in this skill package. It routes to the 
 
 ### Performance
 
-- `go-performance`: String efficiency, conversions, and container sizing patterns.  
+- `go-performance`: Hot-path tuning, allocation hints, and profile-guided builds.  
   Reference: [go-performance](references/go-performance.md)
 
 ## Quick Task-to-Skill Mapping
@@ -90,6 +92,7 @@ Use this as the entry point for Go work in this skill package. It routes to the 
 - Concurrency bugs, worker pools, channel design -> `go-concurrency`, `go-context`, `go-error-handling`
 - API constructor with many optional fields -> `go-functional-options`, `go-naming`, `go-packages`
 - Refactor for readability and idioms -> `go-style-core`, `golang-patterns`, `go-control-flow`
+- Generic algorithms or containers -> `go-generics`, `go-interfaces`, `go-style-core`
 - Production hardening -> `go-defensive`, `go-error-handling`, `go-testing`
 - Performance tuning -> `go-performance`, `go-data-structures`, `go-concurrency`
 - Go PR review -> `go-code-review`, `go-testing`, `go-linting`, `go-documentation`

@@ -192,6 +192,29 @@ func process(s string) {
 
 ---
 
+## Profile-Guided Optimization (PGO)
+
+[PGO](https://go.dev/doc/pgo) feeds **representative CPU profiles** into the
+compiler so it can optimize hot paths (inlining, devirtualization, layout).
+
+**Build with a profile:**
+
+```bash
+go build -pgo=default.pgo ./...
+```
+
+Typical workflow: collect a CPU profile from production or load tests, copy it
+into the repo (often as `default.pgo`), and enable `-pgo` on release builds.
+
+**When it helps:** CPU-bound services with stable hot paths; less impact on
+I/O-bound or highly branchy code.
+
+**CI caveat:** profiles must reflect **real workload** — a synthetic or
+wrong-phase profile can misguide optimizations. Regenerate when behavior shifts;
+treat the profile file like release configuration, not arbitrary test output.
+
+---
+
 ## Quick Reference
 
 | Pattern | Bad | Good | Improvement |
@@ -201,6 +224,7 @@ func process(s string) {
 | Map initialization | `make(map[K]V)` | `make(map[K]V, size)` | Fewer allocs |
 | Slice initialization | `make([]T, 0)` | `make([]T, 0, cap)` | ~12x faster |
 | Small fixed-size args | `*string`, `*io.Reader` | `string`, `io.Reader` | No indirection |
+| Hot-path builds | Plain `go build` | `go build -pgo=…` | Profile-guided opts |
 
 ---
 
