@@ -12,7 +12,7 @@ paths:
 
 # PostgreSQL Patterns
 
-Quick reference for PostgreSQL best practices. For detailed guidance, use the `database-reviewer` agent.
+Quick reference for PostgreSQL best practices. For deeper org-specific database reviews, follow your team's own review workflow alongside this guide.
 
 ## When to Activate
 
@@ -144,9 +144,8 @@ SELECT pg_reload_conf();
 
 ## Related
 
-- Agent: `database-reviewer` - Full database review workflow
-- Skill: `clickhouse-io` - ClickHouse analytics patterns
-- Skill: `backend-patterns` - API and backend patterns
+- Pair with your project's documented API and service-layer conventions when reviewing end-to-end paths that span SQL and application code.
+- If you also run ClickHouse or other analytics engines, keep engine-specific guidance in separate docs you maintain for that stack.
 
 ---
 

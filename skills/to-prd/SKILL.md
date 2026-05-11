@@ -1,11 +1,13 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a PRD and publish it to the project issue tracker. Use when user wants to create a PRD from the current context.
+description: Turns the current conversation context into a PRD and publishes it to the project issue tracker. Use when the user wants a PRD from the current context.
 ---
+
+# To PRD
 
 This skill takes the current conversation context and codebase understanding and produces a PRD. Do NOT interview the user — just synthesize what you already know.
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+For publishing to the issue tracker or applying triage labels, follow `docs/agents/issue-tracker.md` when it exists, or run `/setup-matt-pocock-skills` to scaffold tracker and label docs. If the user only wants an in-chat or in-repo PRD draft without publishing, skip tracker steps and say so.
 
 ## Process
 

@@ -11,11 +11,12 @@ Explain the user-scoped code as a short, scannable post. Prefer plain-English pr
 ## Defaults
 
 - Match the user's scope exactly.
-- Use this structure: `#` title, `📋 TLDR`, then one or more `##` sections.
+- Use this structure: `#` title, `## TL;DR`, then one or more `##` sections.
 - Each `##` section covers one idea and includes at least one fenced code block.
 - Keep prose simple and snippets small.
 - Simplify code when useful, but stay faithful to behavior.
 - Do not invent intent that the code or prompt does not support.
+- When **design-taste-frontend** or **gpt-taste** is also in scope for UI or markup output, follow their stricter presentation rules (no emojis in code, markup, text content, or alt text) even though this skill otherwise allows plain headings.
 
 ## Format
 
@@ -23,19 +24,19 @@ Explain the user-scoped code as a short, scannable post. Prefer plain-English pr
 
 One plain-English line naming the topic.
 
-### `📋 TLDR`
+### `## TL;DR`
 
 Write 2-3 short sentences that give the gist to someone who did not write the code.
 
 Optional: include one small `mermaid` block only when the main story is easier to grasp as flow or handoff.
 
-After the `📋 TLDR`, add a horizontal rule: `---`.
+After the TL;DR section, add a horizontal rule: `---`.
 
 ### `##` Sections
 
 For each section:
 
-1. Write a plain-English `##` title with at least one emoji.
+1. Write a plain-English `##` title (no emoji required).
 2. Add a one- or two-sentence lead-in.
 3. Show one fenced code block.
 

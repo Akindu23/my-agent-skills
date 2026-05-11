@@ -1,6 +1,9 @@
 ---
 name: mermaid
-description: Authors text-based Mermaid diagrams for documentation and technical communication—flowcharts, sequence diagrams, class diagrams, ER diagrams, C4 and architecture diagrams, state diagrams, Gantt, Git graphs, mindmaps, timelines, ZenUML, and other supported types. Fits ADRs, RFCs, READMEs, onboarding guides, and design discussions. Triggers when the user asks to diagram, visualize, model, map out, show the flow, draw sequences or an ERD, explain architecture, document a schema, or mentions Mermaid, flowcharts, sequence diagrams, C4, ERD, or related diagram vocabulary.
+description: >-
+  Authors Mermaid diagram source for documentation and technical communication (flowcharts,
+  sequences, class/ER/C4/state diagrams, Gantt, Git graphs, mindmaps, timelines, and other supported types).
+  Use when the user wants to diagram architecture, data models, flows, or mentions Mermaid or diagram vocabulary.
 disable-model-invocation: true
 license: MIT
 ---
@@ -17,6 +20,7 @@ Produce correct, readable Mermaid source from the user’s goals. Prefer the wor
 - Documenting architecture, data models, APIs, or operational flows.
 - Explaining decisions in ADRs, RFCs, or README sections where a diagram clarifies context or options.
 - Onboarding and cross-team alignment on structure, boundaries, and responsibilities.
+- User phrasing such as diagram, visualize, model, map out, show the flow, draw sequences or an ERD, explain architecture, document a schema, ZenUML, or related diagram vocabulary.
 
 ## Workflow
 

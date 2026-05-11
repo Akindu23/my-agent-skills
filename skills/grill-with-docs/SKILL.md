@@ -1,7 +1,7 @@
 ---
 name: grill-with-docs
 description: >-
-  Grilling session that challenges a proposed plan against the existing domain model,
+  Conducts a grilling session that challenges a proposed plan against the existing domain model,
   sharpens terminology, and updates documentation (CONTEXT.md, ADRs) inline as decisions
   crystallise. Use when the user wants to stress-test a plan against the project's language
   and documented decisions.
@@ -9,7 +9,7 @@ description: >-
 
 ## What to do
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
+Conduct a relentless interview of the user about every aspect of the plan or design they are working on until you reach shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
 
 Ask the questions one at a time, waiting for feedback on each question before continuing.
 

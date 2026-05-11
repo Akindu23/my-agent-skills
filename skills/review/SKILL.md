@@ -60,7 +60,7 @@ Look for the originating spec, in this order (**explicit user choice always wins
 
 Anything in the repo that documents how code should be written. Common locations:
 
-- `CLAUDE.md`, `AGENTS.md`
+- `AGENTS.md`, `CLAUDE.md`
 - `CONTRIBUTING.md`
 - `CONTEXT.md`, `CONTEXT-MAP.md`, per-context `CONTEXT.md` files
 - `docs/adr/` (architectural decisions are standards)
