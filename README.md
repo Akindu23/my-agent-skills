@@ -14,6 +14,11 @@ Run the following command to install the skills you need either in a project-spe
 npx skills@latest add Akindu23/my-agent-skills
 ```
 
+To update any existing skills, run the following command (select if global or project-specific).
+
+```bash
+npx skills check
+```
 ---
 
 ## Recommended Cursor Plugins
