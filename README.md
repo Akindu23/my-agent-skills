@@ -1,8 +1,8 @@
 # Introduction
 
-My personal collection skills that I use which are fine-tuned for **[Cursor](https://cursor.com/docs/skills)** (Compatible with other agents too).
+My personal collection skills that I use which are fine-tuned for **[Cursor](https://cursor.com/docs/skills)** (Compatible with other agents too). I've been using these skills for a while now and they have been a great help in my workflow. 
 
-Skills are synthesized from widely used public catalogs and authors; **your copies may intentionally diverge**. Check each skill's YAML frontmatter, `LICENSE.txt`, and Supporting sources below before redistributing or publishing a fork-especially skills that bundle **non-open** license terms or extra restrictions beyond MIT/Apache-style grants.
+Due credit is given to the original authors of the skills under **References**.
 
 ---
 
