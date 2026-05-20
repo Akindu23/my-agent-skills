@@ -76,8 +76,8 @@ In **one assistant turn**, issue **two Task tool calls** in parallel (two tool i
 For **each** Task:
 
 - `subagent_type`: `generalPurpose`
-- `model`: `composer-2-fast` — default for both axes (read-only diff + standards/spec reading).
-- Use `composer-2` instead for either Task when the diff is high-stakes (security-sensitive, auth/authz, data migrations, or adversarial review depth). If the client rejects a model slug, use the closest allowed slug with the same intent (fast parallel vs deeper reasoning).
+- `model`: `composer-2.5` for both axes.
+- For high-stakes diffs (security-sensitive, auth/authz, data migrations), deepen review via **prompt** (explicit checklist, cite hunks) or **parent synthesis** — not a different Task `model` slug. If the client rejects `composer-2.5`, try `composer-2`, then omit `model`.
 
 **Standards Task prompt** — include:
 
