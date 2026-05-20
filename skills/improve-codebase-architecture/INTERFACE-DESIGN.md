@@ -18,14 +18,17 @@ Show this to the user, then immediately proceed to Step 2. The user reads and th
 
 ### 2. Spawn sub-agents
 
-Spawn 3+ sub-agents in parallel using the Agent tool. Each must produce a **radically different** interface for the deepened module.
+Spawn **3+ Tasks in parallel in one message**. Each must produce a **radically different** interface for the deepened module.
 
-Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
+- **`subagent_type: generalPurpose`** when the sub-agent may need multi-step work; use **`explore`** with **`readonly: true`** if read-only briefs suffice.
+- Set **`model: composer-2.5`** on every Task.
 
-- Agent 1: "Minimize the interface — aim for 1–3 entry points max. Maximise leverage per entry point."
-- Agent 2: "Maximise flexibility — support many use cases and extension."
-- Agent 3: "Optimise for the most common caller — make the default case trivial."
-- Agent 4 (if applicable): "Design around ports & adapters for cross-seam dependencies."
+Prompt each Task with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
+
+- Task 1: "Minimize the interface — aim for 1–3 entry points max. Maximise leverage per entry point."
+- Task 2: "Maximise flexibility — support many use cases and extension."
+- Task 3: "Optimise for the most common caller — make the default case trivial."
+- Task 4 (if applicable): "Design around ports & adapters for cross-seam dependencies."
 
 Include both [LANGUAGE.md](LANGUAGE.md) vocabulary and CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
 
