@@ -1,16 +1,27 @@
-# Cursor Task workflow (Composer 2.5)
+# Cursor Task workflow (Composer family)
 
 Use this when spawning the **Task** tool from Cursor.
 
 ## Scope
 
-- Every Task call sets **`model: composer-2.5`** (standard Composer tier; Composer pool).
+- Prefer **Composer-family** Task `model` slugs from the session enum; inherit the parent only when **no** Composer slug is listed.
 - Plugin agent markdown under `plugins/**/agents/*.md` may use `inherit`, `sonnet`, `haiku`, or `fast` for other harnesses — **do not** copy those values into Cursor Task `model`.
-- **Do not use:** `composer-2.5-fast`, `composer-2-fast`, `composer-2`, any `*-fast` slug, or `"fast"` as a Task model.
+- Docs: [Subagents](https://cursor.com/docs/subagents), [Models and pricing](https://cursor.com/docs/models-and-pricing).
 
-**Pricing note:** Composer 2.5 *fast* is a latency tier with higher per-token cost than standard — not a token-savings lever. See [Cursor models and pricing](https://cursor.com/docs/models-and-pricing.md).
+## Enum probe (required)
 
-**Fallback** if `composer-2.5` is rejected by the session schema: try `composer-2`, then omit `model` and inherit the parent (intent remains standard Composer only).
+Before fan-out, read the Task tool **`model`** parameter description or enum (or attempt a Task and read **Available models** from a rejection). **Do not** assume slugs from memory or stale skills.
+
+## Priority after probe
+
+Pick the **first** slug in the list that appears in the session enum. Set **`model: <slug>`** when a Composer slug is chosen; **omit** `model` only when **no** Composer slug appears (inherit parent).
+
+| Context | Order (first match wins) |
+|---------|--------------------------|
+| **Default** (n < 6 or unspecified) | `composer-2.5` → `composer-2.5-fast` → `composer-2` → `composer-2-fast` → inherit |
+| **Parallel** (n ≥ 6 independent Tasks in one message) | `composer-2.5-fast` → `composer-2.5` → `composer-2-fast` → `composer-2` → inherit |
+
+User-requested slugs override these tables when they appear in the enum.
 
 ## Built-in Task types
 
@@ -28,7 +39,7 @@ Use this when spawning the **Task** tool from Cursor.
 
 ## Compound Engineering (`ce-*`)
 
-Use the same **`model: composer-2.5`** for all `ce-*` Task types. Choose `subagent_type`, `readonly`, and prompt depth by role — not by model slug.
+Use the same **enum probe + priority** for all `ce-*` Task types. Choose `subagent_type`, `readonly`, and prompt depth by role — not by model slug.
 
 | Pattern | `readonly` | Notes |
 |---------|------------|--------|
@@ -44,13 +55,13 @@ Full agent list lives in the Cursor Task tool schema for your build; behavioral 
 
 | Situation | Approach |
 |-----------|----------|
-| Independent partitions (dirs, files, concerns) | Multiple Tasks in **one message**; same `model: composer-2.5`. |
-| Noisy or contradictory parallel results | **Parent synthesis** or **one** follow-up Task (`composer-2.5`) for merge/dedupe — don't re-fan-out unless partitions were wrong. |
+| Independent partitions (dirs, files, concerns) | Multiple Tasks in **one message**; same probe rules; **parallel** uses fast-first priority order. |
+| Noisy or contradictory parallel results | **Parent synthesis** or **one** follow-up Task (same probe rules) for merge/dedupe — don't re-fan-out unless partitions were wrong. |
 | Overlapping write targets | Serial Tasks or single `generalPurpose` Task. |
 
 ## Anti-patterns
 
-- Using fast slugs to "save tokens" (fast costs more per token for Composer 2.5).
-- Omitting `model` without a documented fallback path.
+- Skipping the enum probe and hard-coding slugs from stale skills.
+- Omitting `model` when a Composer slug was available in the enum.
 - Mapping plugin `haiku` / `fast` frontmatter to Task `model` in Cursor.
 - Re-running entire parallel batches because synthesis was shallow — fix synthesis first.

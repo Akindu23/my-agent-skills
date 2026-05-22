@@ -2,11 +2,12 @@
 
 Use this when launching **Task** subagents from Cursor.
 
-| Rule | Detail |
-|------|--------|
-| **Slug** | `composer-2.5` on every Task |
-| **Do not use** | `composer-2.5-fast`, `composer-2-fast`, `composer-2`, any `*-fast` slug, `"fast"` |
+1. **Probe** the Task `model` enum before fan-out.
+2. **Default:** `composer-2.5` → `composer-2.5-fast` → `composer-2` → `composer-2-fast` → inherit.
+3. **Parallel (n ≥ 6):** fast-first — `composer-2.5-fast` → `composer-2.5` → `composer-2-fast` → `composer-2` → inherit.
 
-**Rule of thumb:** Parallel fan-out of safe, independent slices → multiple Tasks in one message, each `composer-2.5`; merge in the parent (or one follow-up Task) when results need deduping or conflict resolution.
+Set `model: <slug>` when a Composer slug matches; omit only when no Composer slug is in the enum.
 
-For `subagent_type`, `readonly`, parallelism, and anti-patterns, see the **council** skill's `references/cursor-task-workflow.md` when that skill is installed.
+**Rule of thumb:** Parallel fan-out of safe, independent slices → multiple Tasks in one message with the same probe rules; merge in the parent (or one follow-up Task) when results need deduping or conflict resolution.
+
+Full workflow: [`skills/council/references/cursor-task-workflow.md`](../../council/references/cursor-task-workflow.md).

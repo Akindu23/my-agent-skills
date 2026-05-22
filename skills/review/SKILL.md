@@ -76,8 +76,8 @@ In **one assistant turn**, issue **two Task tool calls** in parallel (two tool i
 For **each** Task:
 
 - `subagent_type`: `generalPurpose`
-- `model`: `composer-2.5` for both axes.
-- For high-stakes diffs (security-sensitive, auth/authz, data migrations), deepen review via **prompt** (explicit checklist, cite hunks) or **parent synthesis** — not a different Task `model` slug. If the client rejects `composer-2.5`, try `composer-2`, then omit `model`.
+- `model`: probe Task enum → default priority (`composer-2.5` → `composer-2.5-fast` → `composer-2` → `composer-2-fast` → inherit) for both axes — see [`skills/council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md).
+- For high-stakes diffs (security-sensitive, auth/authz, data migrations), deepen review via **prompt** (explicit checklist, cite hunks) or **parent synthesis** — not a different Task `model` slug.
 
 **Standards Task prompt** — include:
 
