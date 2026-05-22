@@ -18,7 +18,8 @@ Consult these resources as needed:
 - ./references/cost-analysis.md — When to apply recursive vs. direct approaches
 - ./references/codebase-analysis.md — Full walkthrough of codebase-wide analysis
 - ./references/document-aggregation.md — Multi-document information extraction
-- ./references/task-model-summary.md — Task `model` (enum probe + Composer priority) when using **Task** subagents (canonical workflow: **council** `references/cursor-task-workflow.md`)
+- ./references/task-model-summary.md — Task `model` (enum probe + Composer priority) when using **Task** subagents
+- ./references/cursor-task-workflow.md — full Task workflow (enum probe, parallelism, anti-patterns)
 
 ## Core Principles
 
@@ -78,7 +79,7 @@ Use the **Task** tool for independent segments (read-only sweeps, parallel batch
 - Use **`readonly: true`** when the subagent must not write files; omit or set `false` when it should implement changes.
 - Prefer **depth limits** and **non-overlapping partitions** to avoid redundant sub-calls.
 - **Parallel work**: when launching multiple subagents, use **one message with several Task calls** (the usual pattern) so independent partitions run together when appropriate; then synthesize results.
-- **Task `model`**: probe enum → pick per `./references/task-model-summary.md` (canonical: **council** `references/cursor-task-workflow.md`).
+- **Task `model`**: probe enum → pick per `./references/task-model-summary.md`; full workflow in `./references/cursor-task-workflow.md`.
 
 ## Empowering Agentic Behavior
 

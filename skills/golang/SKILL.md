@@ -1,10 +1,6 @@
 ---
 name: golang
 description: Routes Go work to the right reference guides and conventions for the task. Use when working on Go architecture, implementation, refactoring, concurrency, error handling, testing, performance, or code review.
-paths:
-  - "**/*.go"
-  - "go.mod"
-  - "go.work"
 disable-model-invocation: true
 ---
 
@@ -45,7 +41,7 @@ Use this as the entry point for Go work in this skill package. It routes to the 
 - `go-control-flow`: Idiomatic `if`, `for`, `range`, and `switch` usage.  
   Reference: [go-control-flow](references/go-control-flow.md)
 - `go-data-structures`: Arrays, slices, maps, allocation, and constants.  
-  Reference: [go-data-structures](references/go-data-structures/go-data-structures.md)
+  Reference: [go-data-structures](references/go-data-structures.md)
 - `go-interfaces`: Interfaces, assertions, type switches, and embedding.  
   Reference: [go-interfaces](references/go-interfaces.md)
 - `go-generics`: Type parameters, constraints, and when to use or avoid them.  
@@ -60,16 +56,16 @@ Use this as the entry point for Go work in this skill package. It routes to the 
 - `go-functional-options`: Optional configuration via functional options.  
   Reference: [go-functional-options](references/go-functional-options.md)
 - `go-naming`: Idiomatic names for packages, types, methods, vars, and constants.  
-  Reference: [go-naming](references/go-naming/go-naming.md)
+  Reference: [go-naming](references/go-naming.md)
 
 ### Reliability and Safety
 
 - `go-error-handling`: Error creation, wrapping, propagation, and handling flow.  
-  Reference: [go-error-handling](references/go-error-handling/go-error-handling.md)
+  Reference: [go-error-handling](references/go-error-handling.md)
 - `go-defensive`: Boundary safety, copy semantics, cleanup, and robust defaults.  
-  Reference: [go-defensive](references/go-defensive/go-defensive.md)
+  Reference: [go-defensive](references/go-defensive.md)
 - `go-concurrency`: Goroutine lifecycle, channels, mutexes, and sync primitives.  
-  Reference: [go-concurrency](references/go-concurrency/go-concurrency.md)
+  Reference: [go-concurrency](references/go-concurrency.md)
 
 ### Quality and Maintainability
 

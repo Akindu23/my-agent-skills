@@ -247,7 +247,7 @@ pendingOrders := filterPending(orders)    // larger scope
 const _defaultPort = 8080
 ```
 
-**For detailed guidance**: See [VARIABLES.md](VARIABLES.md)
+**For detailed guidance**: See [VARIABLES.md](go-naming/VARIABLES.md)
 
 ---
 
@@ -271,7 +271,7 @@ package db
 func Load() error              // db.Load()
 ```
 
-**For detailed guidance**: See [REPETITION.md](REPETITION.md)
+**For detailed guidance**: See [REPETITION.md](go-naming/REPETITION.md)
 
 ---
 

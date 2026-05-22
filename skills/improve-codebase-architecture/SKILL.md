@@ -52,9 +52,9 @@ Read the project's domain glossary and any ADRs in the area you're touching firs
 
 Then walk the codebase using the **Task** tool:
 
-- **`subagent_type: explore`**, **`readonly: true`**; probe Task `model` enum and set Composer slug per [`skills/council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md).
+- **`subagent_type: explore`**, **`readonly: true`**; probe Task `model` enum and set Composer slug per [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md).
 - Launch **multiple Tasks in one message** when partitions are independent (dirs, concerns, packages).
-- Optional workflow detail: [`skills/council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md) when the council skill is installed.
+- Optional workflow detail: [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md).
 
 Don't follow rigid heuristics — explore organically and note where you experience friction:
 

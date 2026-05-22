@@ -417,7 +417,7 @@ func safelyDo(work *Work) {
 - Acceptable to panic in `init()` if a library truly cannot set itself up
 - Use recover to isolate panics in server goroutine handlers
 
-For detailed patterns including server protection and package-internal panic/recover, see [PANIC-RECOVER.md](PANIC-RECOVER.md).
+For detailed patterns including server protection and package-internal panic/recover, see [PANIC-RECOVER.md](go-defensive/PANIC-RECOVER.md).
 
 ---
 

@@ -169,7 +169,7 @@ for i := range picture {
 }
 ```
 
-For detailed slice internals, see [SLICES.md](SLICES.md).
+For detailed slice internals, see [SLICES.md](go-data-structures/SLICES.md).
 
 ### Declaring Empty Slices
 

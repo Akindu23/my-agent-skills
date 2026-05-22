@@ -235,7 +235,7 @@ static or dynamic.
 | Yes | dynamic | custom `error` type |
 
 For detailed coverage of sentinel errors, structured error types, and error
-checking patterns, see [ERROR-TYPES.md](ERROR-TYPES.md).
+checking patterns, see [ERROR-TYPES.md](go-error-handling/ERROR-TYPES.md).
 
 ---
 
@@ -255,7 +255,7 @@ and inspected:
 - If annotation adds nothing, just return `err` directly
 
 For detailed coverage of wrapping patterns, placement, adding context, and
-logging best practices, see [WRAPPING.md](WRAPPING.md).
+logging best practices, see [WRAPPING.md](go-error-handling/WRAPPING.md).
 
 ---
 
@@ -336,7 +336,7 @@ if err != nil {
 
 ### Additional Files to Refer to
 
-- [ERROR-TYPES.md](ERROR-TYPES.md) - Sentinel errors,
+- [ERROR-TYPES.md](go-error-handling/ERROR-TYPES.md) - Sentinel errors,
   structured error types, choosing error types, and checking errors
-- [WRAPPING.md](WRAPPING.md) - Error wrapping with %v vs
+- [WRAPPING.md](go-error-handling/WRAPPING.md) - Error wrapping with %v vs
   %w, placement, adding context, and logging
