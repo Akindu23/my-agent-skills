@@ -201,9 +201,3 @@ Mitigate context degradation by checking answers on smaller windows:
 2. Group by file or module.
 3. Process each group to extract context and implied priority.
 4. Synthesize into a prioritized list; verify with samples.
-
-## Credits
-
-- **Upstream skill / plugin** (MIT): [massimodeluisa/recursive-decomposition-skill](https://github.com/massimodeluisa/recursive-decomposition-skill)
-- **RLM paper** (Recursive Language Models): [arXiv:2512.24601](https://arxiv.org/abs/2512.24601) — Zhang, Kraska, Khattab (2025)
-- Migrated and adapted for Cursor (Read / Grep / Glob / Shell / **Task** terminology) from the upstream `recursive-decomposition` plugin skill; references aligned to agent-environment constraints.
