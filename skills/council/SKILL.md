@@ -17,14 +17,14 @@ If the user is in plan mode, use the information to create the plan.
 
 | Rule | Detail |
 |------|--------|
-| **Probe** | Read Task `model` enum/description before fan-out — see workflow reference |
+| **Probe** | Read Task `model` enum/description before fan-out and read the workflow reference document |
 | **Default priority** | `composer-2.5` → `composer-2.5-fast` → `composer-2` → `composer-2-fast` → inherit |
 | **Parallel (n ≥ 6)** | `composer-2.5-fast` → `composer-2.5` → `composer-2-fast` → `composer-2` → inherit |
 | **Explicit** | Pass `model: <chosen slug>` whenever a Composer slug is selected |
 
-Pick **`subagent_type`**, **`readonly`**, and prompt shape from role and risk — not from model tier. Full tables and anti-patterns: [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md).
+**`subagent_type`**, **`readonly`**, and prompt shape are driven by **role and risk**, independent of **`model`** tier. See tables and anti-patterns in [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md).
 
 ## Parallel council runs (n ≥ 6)
 
 - Fan out independent partitions in **one message** with multiple Task calls; use **fast-first** priority from the workflow reference.
-- After results return, if synthesis is noisy, contradictory, or shallow: **merge in the parent** or run **one** follow-up Task (same probe + priority rules) for dedupe and conflict resolution — do not re-run the whole fan-out unless partitions were wrong.
+- After results return, if synthesis is noisy, contradictory, or shallow: **merge in the parent** or run **one** follow-up Task (same probe + priority rules) for dedupe and conflict resolution. Do not re-run the whole fan-out unless partitions were wrong.

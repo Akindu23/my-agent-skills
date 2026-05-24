@@ -56,7 +56,7 @@ Full agent list lives in the Cursor Task tool schema for your build; behavioral 
 | Situation | Approach |
 |-----------|----------|
 | Independent partitions (dirs, files, concerns) | Multiple Tasks in **one message**; same probe rules; **parallel** uses fast-first priority order. |
-| Noisy or contradictory parallel results | **Parent synthesis** or **one** follow-up Task (same probe rules) for merge/dedupe — don't re-fan-out unless partitions were wrong. |
+| Noisy or contradictory parallel results | **Parent synthesis** or **one** follow-up Task (same probe rules) for merge/dedupe. Do not re-fan-out unless partitions were wrong. |
 | Overlapping write targets | Serial Tasks or single `generalPurpose` Task. |
 
 ## Anti-patterns
@@ -64,4 +64,4 @@ Full agent list lives in the Cursor Task tool schema for your build; behavioral 
 - Skipping the enum probe and hard-coding slugs from stale skills.
 - Omitting `model` when a Composer slug was available in the enum.
 - Mapping plugin `haiku` / `fast` frontmatter to Task `model` in Cursor.
-- Re-running entire parallel batches because synthesis was shallow — fix synthesis first.
+- Re-running entire parallel batches because synthesis was shallow.
