@@ -1,11 +1,13 @@
 ---
 name: diagnose
-description: Disciplined diagnosis loop for hard bugs and performance regressions. Reproduce → minimise → hypothesise → instrument → fix → regression-test. Use when user says "diagnose this" / "debug this", reports a bug, says something is broken/throwing/failing, or describes a performance regression.
+description: Runs a disciplined diagnosis loop for hard bugs, flaky failures, and performance regressions—reproduce, minimise, hypothesise, instrument, fix, and regression-test. Use when the user says diagnose this, debug this, debug-this, reports something broken, throwing, failing tests, unexpected behavior, or a performance regression; or invokes /diagnose.
 ---
 
 # Diagnose
 
 A discipline for hard bugs. Skip phases only when explicitly justified.
+
+**Scope:** a bug report, failing command or test, error message, performance complaint, reproduction steps, or affected scope. If no repro is provided, build an agent-runnable feedback loop first (Phase 1).
 
 When exploring the codebase, use the project's domain glossary to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
 
@@ -70,7 +72,17 @@ Confirm:
 
 Do not proceed until you reproduce the bug.
 
-## Phase 3 — Hypothesise
+## Phase 3 — Minimise
+
+Reduce inputs, state, or steps until the failing behaviour is isolated but still matches what the user reported.
+
+- Remove unrelated setup, data, and code paths while the loop still fails the same way.
+- Prefer one sharp assertion or symptom over a broad "something broke" signal.
+- Note what you stripped out so you can explain the minimal case later.
+
+Do not proceed to Phase 4 until the repro is small enough to reason about—not so stripped that you are debugging a different failure.
+
+## Phase 4 — Hypothesise
 
 Generate **3–5 ranked hypotheses** before testing any of them. Single-hypothesis generation anchors on the first plausible idea.
 
@@ -82,9 +94,9 @@ If you cannot state the prediction, the hypothesis is a vibe — discard or shar
 
 **Show the ranked list to the user before testing.** They often have domain knowledge that re-ranks instantly ("we just deployed a change to #3"), or know hypotheses they've already ruled out. Cheap checkpoint, big time saver. Don't block on it — proceed with your ranking if the user is AFK.
 
-## Phase 4 — Instrument
+## Phase 5 — Instrument
 
-Each probe must map to a specific prediction from Phase 3. **Change one variable at a time.**
+Each probe must map to a specific prediction from Phase 4. **Change one variable at a time.**
 
 Tool preference:
 
@@ -96,7 +108,7 @@ Tool preference:
 
 **Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
 
-## Phase 5 — Fix + regression test
+## Phase 6 — Fix + regression test
 
 Write the regression test **before the fix** — but only if there is a **correct seam** for it.
 
@@ -112,7 +124,7 @@ If a correct seam exists:
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
 
-## Phase 6 — Cleanup + post-mortem
+## Phase 7 — Cleanup + post-mortem
 
 Required before declaring done:
 
@@ -123,3 +135,20 @@ Required before declaring done:
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message — so the next debugger learns
 
 **Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the `/improve-codebase-architecture` skill with the specifics. Make the recommendation **after** the fix is in, not before — you have more information now than when you started.
+
+## Output
+
+Before declaring done, report:
+
+- Repro / feedback loop used
+- Root cause (which hypothesis was correct)
+- Fix applied
+- Regression coverage added, skipped, or no correct seam documented
+- Validation run (original loop and test, if any)
+
+## Guardrails
+
+- Do not patch before reproducing unless reproduction is impossible.
+- If no repro is possible, state what was tried and what artifact or access is needed.
+- Do not leave temporary debug logs, scripts, or instrumentation behind.
+- For performance issues, measure before and after.
