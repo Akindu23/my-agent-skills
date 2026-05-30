@@ -32,7 +32,7 @@ npx skills check
 
 ## List of Skills
 
-**34** skills under `skills/` folder
+**35** skills under `skills/` folder
 
 | Folder | `name` | One-line intent | Notes |
 |--------|--------|-----------------|------------------|
@@ -44,6 +44,7 @@ npx skills check
 | [`design-taste-frontend`](./skills/design-taste-frontend/) | `design-taste-frontend` | Architect premium React/Next.js UIs with metric baselines, strict RSC/Tailwind patterns, Framer Motion rules, and anti-slop guardrails. | Composite style guide skill; verify local edits against any third-party excerpts you merged in. |
 | [`diagnose`](./skills/diagnose/) | `diagnose` | Disciplined diagnosis loop: reproduce → minimise → hypothesise → instrument → fix → regression-test. | Inspired by Matt Pocock's skills - **[diagnose](https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnose)** |
 | [`docker-patterns`](./skills/docker-patterns/) | `docker-patterns` | Apply Dockerfile, Docker Compose, BuildKit, and container security patterns for local dev and hardened deployable images. | `origin: ECC` - **[ECC](https://github.com/affaan-m/everything-claude-code)**. |
+| [`document`](./skills/document/) | `document` | Create or update durable repo docs (README, API, runbooks) verified against code; prune stale docs in the touched area. | Adapted from **[hunvreus/skill-issue](https://github.com/hunvreus/skill-issue/tree/main/skills/document)** |
 | [`explain-code`](./skills/explain-code/) | `explain-code` | Explain code in a short, scannable structure (TL;DR, sections, small examples) for walkthroughs or doc-style breakdowns. | N/A |
 | [`frontend-design`](./skills/frontend-design/) | `frontend-design` | Build distinctive, production-grade frontend interfaces and polished code with strong visual intent while avoiding generic AI-default aesthetics. | [Apache License 2.0](./skills/frontend-design/LICENSE.txt); commonly distributed with Claude/Anthropic Compound-style material - respect license text in-tree. |
 | [`frontend-slides`](./skills/frontend-slides/) | `frontend-slides` | Create animation-rich HTML presentations from scratch or by converting PowerPoint files. | `origin: ECC`; inspiration credit **`@zarazhangrui`** in body. **[ECC](https://github.com/affaan-m/everything-claude-code)**. |
@@ -83,6 +84,12 @@ npx skills check
 ### Matt Pocock - “Skills for Real Engineers”
 
 **[mattpocock/skills](https://github.com/mattpocock/skills)** (“Skills for Real Engineers”, MIT - `npx skills@latest add mattpocock/skills`).
+
+### Ronan Berder - hunvreus / skill-issue (document skill)
+
+Repo documentation workflow adapted for Cursor.
+
+- Upstream **[document](https://github.com/hunvreus/skill-issue/tree/main/skills/document)** skill in **[hunvreus/skill-issue](https://github.com/hunvreus/skill-issue)** (local: [`skills/document/`](./skills/document/)).
 
 ### Vercel Labs - official packs
 
