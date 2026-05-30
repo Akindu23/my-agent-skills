@@ -1,47 +1,61 @@
 # ADR Format
 
-ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
+> Synced from `architecture-decision-records/references/ADR-POLICY.md`, `ADR-TEMPLATE.md`, and `ADR-INDEX.md`.  
+> Update by copying from canonical when ADR format changes; ICA-specific offering criteria below stay in this file.
 
-Create the `docs/adr/` directory lazily — only when the first ADR is needed.
+ADRs live in `docs/adr/` and use sequential numbering per directory: `0001-slug.md`, `0002-slug.md`, etc.
 
-## Template
+Create `docs/adr/` lazily — only when the first ADR is needed, with user consent for scaffolding.
+
+## Default template
+
+Lightweight structure is allowed; **rationale must be detailed enough** to prevent future re-litigation.
 
 ```md
-# {Short title of the decision}
+# ADR-NNNN: {Short title of the decision}
 
-{1-3 sentences: what's the context, what did we decide, and why.}
+**Date**: YYYY-MM-DD
+**Captured via**: improve-codebase-architecture
+
+## Rationale
+
+{Prose covering context, what was decided, why this option over others, and non-obvious trade-offs.}
 ```
 
-That's it. An ADR can be a single paragraph. The value is in recording *that* a decision was made and *why* — not in filling out sections.
+Optional sections — see canonical `ADR-EXPANDED-SECTIONS.md` when needed.
 
-## Optional sections
+## Index
 
-Only include these when they add genuine value. Most ADRs won't need them.
+After **explicit approval**, append a row to `docs/adr/README.md`:
 
-- **Status** frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`) — useful when decisions are revisited
-- **Considered Options** — only when the rejected alternatives are worth remembering
-- **Consequences** — only when non-obvious downstream effects need to be called out
+| ADR | Title | Status | Date | Captured via |
+|-----|-------|--------|------|--------------|
+
+Set **Captured via** to `improve-codebase-architecture` for ADRs offered from this skill.
 
 ## Numbering
 
-Scan `docs/adr/` for the highest existing number and increment by one.
+Scan `docs/adr/` for the highest existing number and increment by one (per directory when using context-scoped ADR paths).
 
-## When to offer an ADR
+## When to offer an ADR (ICA)
 
-All three of these must be true:
+Offer only when **both** are true:
 
-1. **Hard to reverse** — the cost of changing your mind later is meaningful
-2. **Surprising without context** — a future reader will look at the code and wonder "why on earth did they do it this way?"
-3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
+1. **Canonical three criteria** — hard to reverse, surprising without context, real trade-off (same as `architecture-decision-records/references/ADR-POLICY.md`)
+2. **ICA-specific gate:** the user **rejected a deepening candidate** with a **load-bearing reason** that a future architecture review would otherwise re-suggest
 
-If a decision is easy to reverse, skip it — you'll just reverse it. If it's not surprising, nobody will wonder why. If there was no real alternative, there's nothing to record beyond "we did the obvious thing."
+Frame as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_
 
-### What qualifies
+Skip ephemeral reasons ("not worth it right now") and self-evident rejections.
 
-- **Architectural shape.** "We're using a monorepo." "The write model is event-sourced, the read model is projected into Postgres."
-- **Integration patterns between contexts.** "Ordering and Billing communicate via domain events, not synchronous HTTP."
-- **Technology choices that carry lock-in.** Database, message bus, auth provider, deployment target. Not every library — just the ones that would take a quarter to swap out.
-- **Boundary and scope decisions.** "Customer data is owned by the Customer context; other contexts reference it by ID only." The explicit no-s are as valuable as the yes-s.
-- **Deliberate deviations from the obvious path.** "We're using manual SQL instead of an ORM because X." Anything where a reasonable reader would assume the opposite. These stop the next engineer from "fixing" something that was deliberate.
-- **Constraints not visible in the code.** "We can't use AWS because of compliance requirements." "Response times must be under 200ms because of the partner API contract."
-- **Rejected alternatives when the rejection is non-obvious.** If you considered GraphQL and picked REST for subtle reasons, record it — otherwise someone will suggest GraphQL again in six months.
+### What qualifies (shared)
+
+- Architectural shape, integration patterns, lock-in technology choices
+- Boundary and scope decisions
+- Deliberate deviations from the obvious path
+- Constraints not visible in the code
+- Rejected alternatives when the rejection is non-obvious
+
+## Canonical workflow
+
+On acceptance: draft → explicit approval → write `docs/adr/NNNN-slug.md` → update index. Use **`/architecture-decision-records`** for full workflow details when handing off.

@@ -48,7 +48,7 @@ This skill is _informed_ by the project's domain model. The domain language give
 Read the project's domain glossary and any ADRs in the area you're touching first.
 
 - If **`CONTEXT-MAP.md`** exists at the repo root, read it first for where domain docs and ADRs live.
-- Scan **`docs/adr/`** for decisions that apply to the area under review.
+- **ADR index-first:** open **`docs/adr/README.md`**, then read matching ADR files (and context-scoped `src/<context>/docs/adr/` when applicable).
 
 Then walk the codebase using the **Task** tool:
 
@@ -112,6 +112,6 @@ Side effects happen inline as decisions crystallize:
 
 - **Naming a deepened module after a concept not in `CONTEXT.md`?** Add the term to `CONTEXT.md` — same discipline as `/grill-with-docs` (see [references/CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md)). Create the file lazily if it doesn't exist.
 - **Sharpening a fuzzy term during the conversation?** Update `CONTEXT.md` right there.
-- **User rejects the candidate with a load-bearing reason?** Offer an ADR only when [references/ADR-FORMAT.md](references/ADR-FORMAT.md) **When to offer an ADR** criteria are met **and** a future explorer would otherwise re-suggest the same refactor. Frame as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Skip ephemeral reasons ("not worth it right now") and self-evident ones.
+- **User rejects the candidate with a load-bearing reason?** **Offer** an ADR (do not auto-write) only when [references/ADR-FORMAT.md](references/ADR-FORMAT.md) **When to offer an ADR (ICA)** criteria are met. Frame as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Skip ephemeral reasons ("not worth it right now") and self-evident ones. **On acceptance**, follow `/architecture-decision-records`: draft, explicit approval, write `docs/adr/NNNN-slug.md`, append to `README.md` with **`Captured via: improve-codebase-architecture`**.
 - **Session is mostly terminology/ADR, not structural deepening?** Optionally hand off to `/grill-with-docs`.
 - **Want to explore alternative interfaces for the deepened module?** See [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md).

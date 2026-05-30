@@ -1,190 +1,75 @@
 ---
 name: architecture-decision-records
 description: >-
-  Captures architectural decisions during implementation work as structured ADRs.
-  Detects decision moments, records context, alternatives, and rationale, and
-  maintains an ADR index. Use when recording why the codebase chose a pattern,
-  library, or trade-off, or when the user asks for an ADR.
+  Captures architectural decisions as lightweight ADRs with detailed rationale,
+  optional expanded sections, scaffolding, and index maintenance. Detects decision
+  moments, drafts for approval, writes files, and updates docs/adr/README.md.
+  Use when recording why the codebase chose a pattern, library, or trade-off;
+  when the user says ADR, record this decision, or why did we choose X.
 ---
 
 # Architecture Decision Records
 
-Capture architectural decisions as they happen during coding sessions. Instead of decisions living only in Slack threads, PR comments, or someone's memory, this skill produces structured ADR documents that live alongside the code.
+**Canonical owner** for ADR creation in a project: detect or accept invocation, draft, get approval, write the ADR, initialize scaffolding if needed, and update the index.
 
-## When to Activate
+**Default shape:** minimal structure, **rich rationale** — title plus prose that covers context, decision, why, and trade-offs. Optional expanded sections when the decision needs more room.
 
-- User explicitly says "let's record this decision" or "ADR this"
-- User chooses between significant alternatives (framework, library, pattern, database, API design)
-- User says "we decided to..." or "the reason we're doing X instead of Y is..."
-- User asks "why did we choose X?" (read existing ADRs)
-- During planning phases when architectural trade-offs are discussed
+## When to activate
+
+- User says **"ADR this"**, **"record this decision"**, or invokes `/architecture-decision-records`
+- User chooses between significant alternatives (framework, datastore, API shape, auth)
+- User says **"we decided to…"** or **"the reason we're doing X instead of Y is…"**
+- User asks **"why did we choose X?"** (read existing ADRs)
+- Architectural trade-offs during planning (offer only — see below)
 
 ## User clarifications (Cursor)
 
-When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+For **discrete decisions** (about 2–6 options), prefer **`AskQuestion`**, one decision at a time. If unavailable, ask the same options in chat. Use plain chat for free-form rationale.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+## Offer vs write
 
-Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+| Mode | Behavior |
+|------|----------|
+| **Implicit** (you detect a decision moment) | **Offer** to record — only if [ADR-POLICY.md](references/ADR-POLICY.md) criteria are met. Do not auto-write. |
+| **Manual** (user asks to ADR) | If the decision seems too small, **challenge once**; on confirm, run the workflow below. |
 
-## ADR Format
+## Workflow (canonical)
 
-Use the lightweight ADR format proposed by Michael Nygard, adapted for AI-assisted development:
+1. **Pick target directory** — `docs/adr/` for system-wide; `src/<context>/docs/adr/` when `CONTEXT-MAP.md` scopes the decision. See [ADR-POLICY.md](references/ADR-POLICY.md).
+2. **Initialize (first time only)** — if the directory is missing, ask consent; then create `README.md` with the index header per [ADR-INDEX.md](references/ADR-INDEX.md) and optional `template.md` from [ADR-TEMPLATE.md](references/ADR-TEMPLATE.md).
+3. **Draft** — use the default template in [ADR-TEMPLATE.md](references/ADR-TEMPLATE.md). Add sections from [ADR-EXPANDED-SECTIONS.md](references/ADR-EXPANDED-SECTIONS.md) only when needed.
+4. **Number** — next `NNNN` in that directory ([ADR-POLICY.md](references/ADR-POLICY.md)).
+5. **Set `Captured via`** — `architecture-decision-records` unless a satellite skill initiated the offer (use that skill's slug).
+6. **Approve** — show the draft; **only write after explicit approval**.
+7. **Write** — `docs/adr/NNNN-slug.md` (or context path).
+8. **Index** — append a row to that directory's `README.md` per [ADR-INDEX.md](references/ADR-INDEX.md).
 
-```markdown
-# ADR-NNNN: [Decision Title]
+If the user declines, discard the draft without writing files.
 
-**Date**: YYYY-MM-DD
-**Status**: proposed | accepted | deprecated | superseded by ADR-NNNN
-**Deciders**: [who was involved]
+## Reading existing ADRs
 
-## Context
+1. If no `docs/adr/`, say no ADRs found and offer to start.
+2. Read **`docs/adr/README.md`** first (index-first).
+3. Open matching ADR files; summarize rationale (context, decision, why).
+4. If no match, say so and offer to record one.
 
-What is the issue that we're seeing that is motivating this decision or change?
+## References
 
-[2-5 sentences describing the situation, constraints, and forces at play]
+| File | When to load |
+|------|----------------|
+| [references/ADR-POLICY.md](references/ADR-POLICY.md) | When to record, manual vs offer, paths, numbering, lifecycle, `Captured via` |
+| [references/ADR-TEMPLATE.md](references/ADR-TEMPLATE.md) | Drafting the default ADR |
+| [references/ADR-EXPANDED-SECTIONS.md](references/ADR-EXPANDED-SECTIONS.md) | Status, Deciders, Considered Options, Consequences, Risks, Supersedes |
+| [references/ADR-INDEX.md](references/ADR-INDEX.md) | `README.md` table format and append rules |
 
-## Decision
+## Decision detection (implicit offer)
 
-What is the change that we're proposing and/or doing?
+**Explicit:** "Let's go with X", "Record this as an ADR", "We should use X instead of Y"
 
-[1-3 sentences stating the decision clearly]
+**Implicit (suggest only):** framework/library conclusion with stated rationale; datastore or auth strategy choice; pattern choice (monolith vs services, REST vs GraphQL) after real comparison
 
-## Alternatives Considered
+Apply the three criteria in [ADR-POLICY.md](references/ADR-POLICY.md) before offering.
 
-### Alternative 1: [Name]
-- **Pros**: [benefits]
-- **Cons**: [drawbacks]
-- **Why not**: [specific reason this was rejected]
+## Satellite skills
 
-### Alternative 2: [Name]
-- **Pros**: [benefits]
-- **Cons**: [drawbacks]
-- **Why not**: [specific reason this was rejected]
-
-## Consequences
-
-What becomes easier or more difficult to do because of this change?
-
-### Positive
-- [benefit 1]
-- [benefit 2]
-
-### Negative
-- [trade-off 1]
-- [trade-off 2]
-
-### Risks
-- [risk and mitigation]
-```
-
-## Workflow
-
-### Capturing a New ADR
-
-When a decision moment is detected:
-
-1. **Initialize (first time only)** — if `docs/adr/` does not exist, ask the user for confirmation before creating the directory, a `README.md` seeded with the index table header (see ADR Index Format below), and a blank `template.md` for manual use. Do not create files without explicit consent.
-2. **Identify the decision** — extract the core architectural choice being made
-3. **Gather context** — what problem prompted this? What constraints exist?
-4. **Document alternatives** — what other options were considered? Why were they rejected?
-5. **State consequences** — what are the trade-offs? What becomes easier/harder?
-6. **Assign a number** — scan existing ADRs in `docs/adr/` and increment
-7. **Confirm and write** — present the draft ADR to the user for review. Only write to `docs/adr/NNNN-decision-title.md` after explicit approval. If the user declines, discard the draft without writing any files.
-8. **Update the index** — append to `docs/adr/README.md`
-
-### Reading Existing ADRs
-
-When a user asks "why did we choose X?":
-
-1. Check if `docs/adr/` exists — if not, respond: "No ADRs found in this project. Would you like to start recording architectural decisions?"
-2. If it exists, scan `docs/adr/README.md` index for relevant entries
-3. Read matching ADR files and present the Context and Decision sections
-4. If no match is found, respond: "No ADR found for that decision. Would you like to record one now?"
-
-### ADR Directory Structure
-
-```
-docs/
-└── adr/
-    ├── README.md              ← index of all ADRs
-    ├── 0001-use-nextjs.md
-    ├── 0002-postgres-over-mongo.md
-    ├── 0003-rest-over-graphql.md
-    └── template.md            ← blank template for manual use
-```
-
-### ADR Index Format
-
-```markdown
-# Architecture Decision Records
-
-| ADR | Title | Status | Date |
-|-----|-------|--------|------|
-| [0001](0001-use-nextjs.md) | Use Next.js as frontend framework | accepted | 2026-01-15 |
-| [0002](0002-postgres-over-mongo.md) | PostgreSQL over MongoDB for primary datastore | accepted | 2026-01-20 |
-| [0003](0003-rest-over-graphql.md) | REST API over GraphQL | accepted | 2026-02-01 |
-```
-
-## Decision Detection Signals
-
-Watch for these patterns in conversation that indicate an architectural decision:
-
-**Explicit signals**
-- "Let's go with X"
-- "We should use X instead of Y"
-- "The trade-off is worth it because..."
-- "Record this as an ADR"
-
-**Implicit signals** (suggest recording an ADR — do not auto-create without user confirmation)
-- Comparing two frameworks or libraries and reaching a conclusion
-- Making a database schema design choice with stated rationale
-- Choosing between architectural patterns (monolith vs microservices, REST vs GraphQL)
-- Deciding on authentication/authorization strategy
-- Selecting deployment infrastructure after evaluating alternatives
-
-## What Makes a Good ADR
-
-### Do
-- **Be specific** — "Use Prisma ORM" not "use an ORM"
-- **Record the why** — the rationale matters more than the what
-- **Include rejected alternatives** — future developers need to know what was considered
-- **State consequences honestly** — every decision has trade-offs
-- **Keep it short** — an ADR should be readable in 2 minutes
-- **Use present tense** — "We use X" not "We will use X"
-
-### Don't
-- Record trivial decisions — variable naming or formatting choices don't need ADRs
-- Write essays — if the context section exceeds 10 lines, it's too long
-- Omit alternatives — "we just picked it" is not a valid rationale
-- Backfill without marking it — if recording a past decision, note the original date
-- Let ADRs go stale — superseded decisions should reference their replacement
-
-## ADR Lifecycle
-
-```
-proposed → accepted → [deprecated | superseded by ADR-NNNN]
-```
-
-- **proposed**: decision is under discussion, not yet committed
-- **accepted**: decision is in effect and being followed
-- **deprecated**: decision is no longer relevant (e.g., feature removed)
-- **superseded**: a newer ADR replaces this one (always link the replacement)
-
-## Categories of Decisions Worth Recording
-
-| Category | Examples |
-|----------|---------|
-| **Technology choices** | Framework, language, database, cloud provider |
-| **Architecture patterns** | Monolith vs microservices, event-driven, CQRS |
-| **API design** | REST vs GraphQL, versioning strategy, auth mechanism |
-| **Data modeling** | Schema design, normalization decisions, caching strategy |
-| **Infrastructure** | Deployment model, CI/CD pipeline, monitoring stack |
-| **Security** | Auth strategy, encryption approach, secret management |
-| **Testing** | Test framework, coverage targets, E2E vs integration balance |
-| **Process** | Branching strategy, review process, release cadence |
-
-## Integration with Other Skills
-
-- **Planner agent**: when the planner proposes architecture changes, suggest creating an ADR
-- **Code reviewer agent**: flag PRs that introduce architectural changes without a corresponding ADR
+`grill-with-docs` and `improve-codebase-architecture` may **offer** ADRs under stricter or session-specific rules. When the user accepts, they hand off to **this workflow** (draft → approval → write → index) and set `Captured via` to their skill slug.

@@ -87,10 +87,12 @@ When a term is resolved, update `CONTEXT.md` right there. Capture as it happens 
 
 #### Offer ADRs sparingly
 
-Only offer to create an ADR when all three are true:
+Only **offer to record** an ADR (do not auto-write) when all three are true — see [ADR-FORMAT.md](./ADR-FORMAT.md):
 
 1. **Hard to reverse** — the cost of changing course later is meaningful
 2. **Surprising without context** — a future reader will wonder why it was done this way
 3. **The result of a real trade-off** — there were genuine alternatives and one was chosen for specific reasons
 
-If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
+If any of the three is missing, skip the ADR.
+
+**When the user accepts**, follow the canonical ADR workflow in `/architecture-decision-records`: draft using the local format reference, get explicit approval, write `docs/adr/NNNN-slug.md` (or `src/<context>/docs/adr/` when the decision is context-scoped), and append to that directory's `README.md` with **`Captured via: grill-with-docs`**. Initialize `docs/adr/` lazily with user consent if needed.
