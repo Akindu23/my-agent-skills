@@ -1,6 +1,7 @@
 ---
 name: handoff
-description: Writes a compact handoff to docs/handoffs/CURRENT.md from the current Agent chat so a new session or another agent can continue without re-deriving context. Use when the user asks for a handoff, session summary, continuation doc, context for the next chat, or ending work with follow-on tasks. Triggers: "handoff", "hand off", "summary for next session", "new agent", "pick up later", "/handoff".
+description: >-
+  Writes a compact handoff to docs/handoffs/CURRENT.md from the current Agent chat so a new session or another agent can continue without re-deriving context. Use when the user asks for a handoff, session summary, continuation doc, context for the next chat, or ending work with follow-on tasks. Triggers: "handoff", "hand off", "summary for next session", "new agent", "pick up later", "/handoff".
 ---
 
 # Handoff
