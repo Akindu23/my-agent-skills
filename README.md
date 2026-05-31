@@ -14,19 +14,30 @@ Run the following command to install the skills you need either in a project-spe
 npx skills@latest add Akindu23/my-agent-skills
 ```
 
+## Updating Skills
+
 To update any existing skills, run the following command (select if global or project-specific).
+
+```bash
+npx skills update
+```
+
+or 
 
 ```bash
 npx skills check
 ```
 ---
 
-## Recommended Cursor Plugins
+## Recommended Cursor Plugins to Install
 
 - **Context7** - https://cursor.com/marketplace/upstash
 - **Compound Engineering** - https://cursor.com/marketplace/every/compound-engineering
-- **Superpowers** - https://cursor.com/marketplace/superpowers
 - **Exa** - https://cursor.com/marketplace/exa
+- **Thermos** - https://cursor.com/marketplace/cursor/thermos
+- **Docs Canvas** - https://cursor.com/marketplace/cursor/docs-canvas
+- **Cursor Team Kit** - https://cursor.com/marketplace/cursor/cursor-team-kit
+- **Continual Learning** - https://cursor.com/marketplace/cursor/continual-learning
 
 ---
 
