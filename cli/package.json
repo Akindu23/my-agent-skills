@@ -1,0 +1,39 @@
+{
+  "name": "cursor-agent-skills",
+  "version": "0.1.0",
+  "description": "Install and sync Cursor agent skills from the my-agent-skills bundled pack",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "cursor-agent-skills": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "skills.json",
+    "README.md"
+  ],
+  "scripts": {
+    "sync-skills": "node scripts/sync-skills-from-root.mjs",
+    "manifest": "node scripts/generate-skills-manifest.mjs",
+    "build": "npm run sync-skills && tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run sync-skills && npm run manifest && tsdown && vitest run && npm pack --dry-run"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.10.0",
+    "ansis": "^4.3.0",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "execa": "^9.5.2",
+    "tsdown": "^0.11.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  }
+}

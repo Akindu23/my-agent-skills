@@ -1,1 +1,6 @@
 .cursor/
+.agents/skills/
+cli/node_modules/
+cli/dist/
+cli/skills/
+docs/
