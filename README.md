@@ -32,7 +32,7 @@ npx skills check
 
 ## List of Skills
 
-**35** skills under `skills/` folder
+**36** skills under `skills/` folder
 
 | Folder | `name` | One-line intent | Notes |
 |--------|--------|-----------------|------------------|
@@ -65,6 +65,7 @@ npx skills check
 | [`setup-matt-pocock-skills`](./skills/setup-matt-pocock-skills/) | `setup-matt-pocock-skills` | Add an `## Agent skills` block in `AGENTS.md`/`CLAUDE.md` and `docs/agents/` so tracker, triage labels, and domain docs are discoverable. | Inspired by Matt Pocock's skills - **[setup-matt-pocock-skills](https://github.com/mattpocock/skills/tree/main/skills/engineering/setup-matt-pocock-skills)**. Run before **`/review`**, **`/to-issues`**, **`/to-prd`**, **`/triage`**, **`/diagnose`**, **`/tdd`**, etc. |
 | [`supabase-postgres-best-practices`](./skills/supabase-postgres-best-practices/) | `supabase-postgres-best-practices` | Postgres performance and schema guidance from Supabase: queries, indexes, connection pooling, RLS, and monitoring. | Upstream **[supabase/agent-skills](https://github.com/supabase/agent-skills)** (MIT pack version noted in SKILL). |
 | [`tdd`](./skills/tdd/) | `tdd` | Test-driven development with the red–green–refactor loop and disciplined tests. | Inspired by Matt Pocock's skills - **[tdd](https://github.com/mattpocock/skills/tree/main/skills/engineering/tdd)** |
+| [`teach`](./skills/teach/) | `teach` | Teach a topic over multiple sessions with `docs/learning/<topic-slug>/` artifacts, Exa-verified resources, learning records, exercises, and HTML explainers. | Inspired by Matt Pocock's skills - **[teach](https://github.com/mattpocock/skills/tree/main/skills/in-progress/teach)**. Use **`/teach`**. |
 | [`to-issues`](./skills/to-issues/) | `to-issues` | Break a plan, spec, or PRD into tracer-bullet vertical slices as issues on the project tracker. | Inspired by Matt Pocock's skills - **[to-issues](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-issues)**. Run **`/setup-matt-pocock-skills`** first. |
 | [`to-prd`](./skills/to-prd/) | `to-prd` | Turn the current conversation context into a PRD and publish it to the project issue tracker. | Inspired by Matt Pocock's skills - **[to-prd](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-prd)**. Run **`/setup-matt-pocock-skills`** first. |
 | [`triage`](./skills/triage/) | `triage` | Triage issues through a state machine driven by triage roles (create, AFK handoff, workflow). | Inspired by Matt Pocock's skills - **[triage](https://github.com/mattpocock/skills/tree/main/skills/engineering/triage)** |
