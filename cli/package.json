@@ -1,7 +1,13 @@
 {
   "name": "cursor-agent-skills",
-  "version": "0.1.0",
-  "description": "Install and sync Cursor agent skills from the my-agent-skills bundled pack",
+  "version": "0.1.1",
+  "description": "Install and sync Cursor agent skills from my personal skills collection",
+  "author": "Akindu Karunaratne",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Akindu23/my-agent-skills"
+  },
   "type": "module",
   "engines": {
     "node": ">=20"

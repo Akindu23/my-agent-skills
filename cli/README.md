@@ -227,6 +227,8 @@ Install skills into the chosen scope.
 
 **Flow:** `createInstallPlan` → optional summary + `confirmInstallPlan` → `applyInstallPlan`.
 
+**Interactive skill picker:** multiselect over the bundled manifest; **space** toggles the highlighted skill, **`a`** toggles all skills, **Enter** confirms.
+
 **Install actions** (`install-policy.ts`):
 
 | Action | When |

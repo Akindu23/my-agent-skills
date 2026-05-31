@@ -20,7 +20,11 @@ export interface BundleContext {
 }
 
 export function packageRoot(): string {
-  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+  const dir = path.dirname(fileURLToPath(import.meta.url));
+  // Built bundle lives in dist/; source (vitest) lives in src/lib/
+  return path.basename(dir) === 'dist'
+    ? path.resolve(dir, '..')
+    : path.resolve(dir, '../..');
 }
 
 /**

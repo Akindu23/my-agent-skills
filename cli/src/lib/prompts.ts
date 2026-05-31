@@ -22,7 +22,7 @@ export async function promptSkillSelection(
 
   const names = skillNamesFromManifest(bundle.manifest);
   const selected = await multiselect({
-    message: 'Select skill(s) to install (space to select, enter to confirm)',
+    message: 'Select skill(s) to install (space to select, a to toggle all, enter to confirm)',
     options: names.map((name) => ({ value: name, label: name })),
     required: true,
   });

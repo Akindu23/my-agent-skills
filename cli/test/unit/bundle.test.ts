@@ -52,7 +52,7 @@ describe('resolveBundle', () => {
 });
 
 describe('packageRoot', () => {
-  it('points at the cli package directory', () => {
+  it('points at the cli package directory from source layout', () => {
     expect(packageRoot()).toBe(cliRoot);
   });
 });
