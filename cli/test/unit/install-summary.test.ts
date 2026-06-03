@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderInstallSummary } from '../../src/lib/install-summary.js';
 import type { InstallPlan } from '../../src/lib/install-plan.js';
+import { stripAnsi } from '../../src/lib/theme.js';
 
 function minimalPlan(
   entries: InstallPlan['entries'],
@@ -43,17 +44,19 @@ function minimalPlan(
 
 describe('renderInstallSummary', () => {
   it('labels confirm actions as reinstall', () => {
-    const summary = renderInstallSummary(
-      minimalPlan([
-        {
-          name: 'alpha',
-          sourceDir: '/src/alpha',
-          destDir: '/dest/alpha',
-          computedHash: 'hash',
-          action: 'confirm',
-          linkType: 'symlink',
-        },
-      ]),
+    const summary = stripAnsi(
+      renderInstallSummary(
+        minimalPlan([
+          {
+            name: 'alpha',
+            sourceDir: '/src/alpha',
+            destDir: '/dest/alpha',
+            computedHash: 'hash',
+            action: 'confirm',
+            linkType: 'symlink',
+          },
+        ]),
+      ),
     );
 
     expect(summary).toContain('reinstall alpha');
@@ -69,8 +72,10 @@ describe('renderInstallSummary', () => {
       action: 'new' as const,
       linkType: 'symlink' as const,
     }));
-    const summary = renderInstallSummary(
-      minimalPlan(entries, { selected: ['a', 'b'], ordered: ['a', 'b'] }),
+    const summary = stripAnsi(
+      renderInstallSummary(
+        minimalPlan(entries, { selected: ['a', 'b'], ordered: ['a', 'b'] }),
+      ),
     );
 
     expect(summary).toContain('new      a');
@@ -87,8 +92,10 @@ describe('renderInstallSummary', () => {
       action: 'new' as const,
       linkType: 'symlink' as const,
     }));
-    const summary = renderInstallSummary(
-      minimalPlan(entries, { selected: names, ordered: names }),
+    const summary = stripAnsi(
+      renderInstallSummary(
+        minimalPlan(entries, { selected: names, ordered: names }),
+      ),
     );
 
     expect(summary).toContain('Selected (6):');

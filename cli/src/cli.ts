@@ -1,5 +1,10 @@
 #!/usr/bin/env node
+import { createRequire } from 'node:module';
 import { Command } from 'commander';
+
+const { version: cliVersion } = createRequire(import.meta.url)('../package.json') as {
+  version: string;
+};
 import { CliCancel, CliError } from './lib/errors.js';
 import { failBareNoSubcommand } from './lib/output.js';
 import { resolveUiMode } from './lib/ui-mode.js';
@@ -16,7 +21,7 @@ const program = new Command();
 program
   .name('cursor-agent-skills')
   .description('Install and sync Cursor agent skills from the remote my-agent-skills GitHub pack')
-  .version('0.1.0')
+  .version(cliVersion)
   .addHelpText('after', `
 
 Examples:

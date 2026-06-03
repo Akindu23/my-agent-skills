@@ -1,6 +1,6 @@
 {
   "name": "cursor-agent-skills",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Install and sync Cursor agent skills from the remote my-agent-skills GitHub pack",
   "author": "Akindu Karunaratne",
   "license": "MIT",
