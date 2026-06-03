@@ -52,9 +52,9 @@ Read the project's domain glossary and any ADRs in the area you're touching firs
 
 Then walk the codebase using the **Task** tool:
 
-- **`subagent_type: explore`**, **`readonly: true`**; probe Task `model` enum and set Composer slug per [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md).
+- **`subagent_type: explore`**, **`readonly: true`**; probe Task `model` enum and set Composer slug per [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md).
 - Launch **multiple Tasks in one message** when partitions are independent (dirs, concerns, packages).
-- Optional workflow detail: [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md).
+- Optional workflow detail: [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md).
 
 Don't follow rigid heuristics — explore organically and note where you experience friction:
 
@@ -110,7 +110,7 @@ Use **plain chat** when the answer is inherently free-form.
 
 Side effects happen inline as decisions crystallize:
 
-- **Naming a deepened module after a concept not in `CONTEXT.md`?** Add the term to `CONTEXT.md` — same discipline as `/grill-with-docs` (see [references/CONTEXT-FORMAT.md](references/CONTEXT-FORMAT.md)). Create the file lazily if it doesn't exist.
+- **Naming a deepened module after a concept not in `CONTEXT.md`?** Add the term to `CONTEXT.md` — same discipline as `/grill-with-docs` (see [../grill-with-docs/CONTEXT-FORMAT.md](../grill-with-docs/CONTEXT-FORMAT.md)). Create the file lazily if it doesn't exist.
 - **Sharpening a fuzzy term during the conversation?** Update `CONTEXT.md` right there.
 - **User rejects the candidate with a load-bearing reason?** **Offer** an ADR (do not auto-write) only when [references/ADR-FORMAT.md](references/ADR-FORMAT.md) **When to offer an ADR (ICA)** criteria are met. Frame as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Skip ephemeral reasons ("not worth it right now") and self-evident ones. **On acceptance**, follow `/architecture-decision-records`: draft, explicit approval, write `docs/adr/NNNN-slug.md`, append to `README.md` with **`Captured via: improve-codebase-architecture`**.
 - **Session is mostly terminology/ADR, not structural deepening?** Optionally hand off to `/grill-with-docs`.

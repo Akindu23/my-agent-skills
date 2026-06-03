@@ -10,4 +10,4 @@ Set `model: <slug>` when a Composer slug matches; omit only when no Composer slu
 
 **Rule of thumb:** Parallel fan-out of safe, independent slices → multiple Tasks in one message with the same probe rules; merge in the parent (or one follow-up Task) when results need deduping or conflict resolution.
 
-Full workflow: [`cursor-task-workflow.md`](./cursor-task-workflow.md).
+Full workflow: [`../../council/references/cursor-task-workflow.md`](../../council/references/cursor-task-workflow.md).

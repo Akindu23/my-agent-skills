@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "name": "my-agent-skills",
+  "version": "0.1.0",
+  "skills": [
+    "skills/architecture-decision-records",
+    "skills/caveman",
+    "skills/code-simplifier",
+    "skills/codebase-onboarding",
+    "skills/council",
+    "skills/design-taste-frontend",
+    "skills/diagnose",
+    "skills/docker-patterns",
+    "skills/document",
+    "skills/explain-code",
+    "skills/frontend-design",
+    "skills/frontend-slides",
+    "skills/golang",
+    "skills/gpt-taste",
+    "skills/grill-me",
+    "skills/grill-with-docs",
+    "skills/handoff",
+    "skills/improve-codebase-architecture",
+    "skills/karpathy-guidelines",
+    "skills/mermaid",
+    "skills/postgres-patterns",
+    "skills/prompt-optimizer",
+    "skills/prototype",
+    "skills/python-patterns",
+    "skills/recursive-decomposition",
+    "skills/review",
+    "skills/setup-matt-pocock-skills",
+    "skills/supabase-postgres-best-practices",
+    "skills/tdd",
+    "skills/teach",
+    "skills/to-issues",
+    "skills/to-prd",
+    "skills/triage",
+    "skills/vercel-react-best-practices",
+    "skills/web-design-guidelines",
+    "skills/zoom-out"
+  ],
+  "dependsOn": {
+    "diagnose": [
+      "improve-codebase-architecture"
+    ],
+    "grill-with-docs": [
+      "architecture-decision-records"
+    ],
+    "improve-codebase-architecture": [
+      "architecture-decision-records",
+      "council",
+      "grill-with-docs"
+    ],
+    "recursive-decomposition": [
+      "council"
+    ],
+    "review": [
+      "council",
+      "setup-matt-pocock-skills"
+    ],
+    "tdd": [
+      "setup-matt-pocock-skills"
+    ],
+    "to-issues": [
+      "setup-matt-pocock-skills"
+    ],
+    "to-prd": [
+      "setup-matt-pocock-skills"
+    ],
+    "triage": [
+      "grill-with-docs",
+      "setup-matt-pocock-skills"
+    ],
+    "zoom-out": [
+      "setup-matt-pocock-skills"
+    ]
+  }
+}

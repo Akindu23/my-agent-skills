@@ -21,7 +21,7 @@ Show this to the user, then immediately proceed to Step 2. The user reads and th
 Spawn **3+ Tasks in parallel in one message**. Each must produce a **radically different** interface for the deepened module.
 
 - **`subagent_type: generalPurpose`** when the sub-agent may need multi-step work; use **`explore`** with **`readonly: true`** if read-only briefs suffice.
-- Probe Task `model` enum and set Composer slug per [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md).
+- Probe Task `model` enum and set Composer slug per [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md).
 
 Prompt each Task with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
 

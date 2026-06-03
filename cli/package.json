@@ -1,0 +1,44 @@
+{
+  "name": "cursor-agent-skills",
+  "version": "0.1.1",
+  "description": "Install and sync Cursor agent skills from the remote my-agent-skills GitHub pack",
+  "author": "Akindu Karunaratne",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Akindu23/my-agent-skills"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "cursor-agent-skills": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "manifest": "node scripts/generate-skills-manifest.mjs",
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run manifest && tsdown && vitest run && npm pack --dry-run"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.10.0",
+    "ansis": "^4.3.0",
+    "commander": "^13.1.0",
+    "tar": "^7.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/tar": "^6.1.13",
+    "execa": "^9.5.2",
+    "tsdown": "^0.11.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  }
+}
