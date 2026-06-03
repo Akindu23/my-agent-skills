@@ -4,10 +4,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const cliRoot = path.resolve(__dirname, '..');
-const skillsDir = path.join(cliRoot, 'skills');
-const manifestPath = path.join(cliRoot, 'skills.json');
-const rootManifestPath = path.resolve(cliRoot, '..', 'skills.json');
+const repoRoot = path.resolve(__dirname, '..', '..');
+const skillsDir = path.join(repoRoot, 'skills');
+const rootManifestPath = path.join(repoRoot, 'skills.json');
 
 function parseNameFromSkillMd(content) {
   const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
@@ -55,12 +54,8 @@ for (const folder of folders) {
 }
 
 const known = new Set(folderToName.values());
-const existingCli = await loadExisting(manifestPath);
 const existingRoot = await loadExisting(rootManifestPath);
-const dependsOn =
-  Object.keys(existingCli.dependsOn ?? {}).length > 0
-    ? existingCli.dependsOn
-    : (existingRoot.dependsOn ?? {});
+const dependsOn = existingRoot.dependsOn ?? {};
 
 for (const [skill, deps] of Object.entries(dependsOn)) {
   if (!known.has(skill)) {
@@ -75,16 +70,14 @@ for (const [skill, deps] of Object.entries(dependsOn)) {
   }
 }
 
-const meta = { ...existingRoot, ...existingCli };
 const manifest = {
-  schema_version: meta.schema_version ?? 1,
-  name: meta.name ?? 'my-agent-skills',
-  version: meta.version ?? '0.1.0',
+  schema_version: existingRoot.schema_version ?? 1,
+  name: existingRoot.name ?? 'my-agent-skills',
+  version: existingRoot.version ?? '0.1.0',
   skills: skillPaths,
   dependsOn,
 };
 
 const json = `${JSON.stringify(manifest, null, 2)}\n`;
-await writeFile(manifestPath, json);
 await writeFile(rootManifestPath, json);
-console.log(`Wrote ${manifestPath} and ${rootManifestPath} (${skillPaths.length} skills)`);
+console.log(`Wrote ${rootManifestPath} (${skillPaths.length} skills)`);

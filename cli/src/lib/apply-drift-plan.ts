@@ -1,9 +1,20 @@
 import { rm } from 'node:fs/promises';
 import { confirm, isCancel } from '@clack/prompts';
+import {
+  resolveBundle,
+  skillSourcePath,
+  type BundleContext,
+} from './bundle.js';
 import type { DriftPlan } from './drift-plan.js';
 import { CliCancel } from './errors.js';
+import { computeSkillFolderHash } from './hash.js';
 import { materializeFromLockEntry } from './install.js';
-import { removeSkill, upsertSkill, writeLockfile } from './lockfile.js';
+import {
+  removeSkill,
+  syncLockRootFromBundle,
+  upsertSkill,
+  writeLockfile,
+} from './lockfile.js';
 import { ensureAgentsDir } from './scope.js';
 
 export type OrphanPolicy = 'prompt' | 'skip' | 'remove-all';
@@ -15,10 +26,13 @@ export interface ApplyDriftResult {
 }
 
 export function planHasWork(plan: DriftPlan, result: ApplyDriftResult): boolean {
-  const drifted = plan.entries.filter((e) => e.status === 'hashDrift');
+  const refreshable = plan.entries.filter((e) => e.status !== 'orphan');
+  const needsRefresh =
+    plan.commitDrift ||
+    refreshable.some((e) => e.status === 'hashDrift');
   return (
-    drifted.length > 0 ||
-    plan.packageDrift ||
+    needsRefresh ||
+    plan.manifestDrift ||
     result.orphansRemoved.length > 0
   );
 }
@@ -32,7 +46,6 @@ export async function applyDriftPlan(
   },
 ): Promise<ApplyDriftResult> {
   const orphans = plan.entries.filter((e) => e.status === 'orphan');
-  const drifted = plan.entries.filter((e) => e.status === 'hashDrift');
   const orphansRemoved: string[] = [];
   const orphansSkipped: string[] = [];
 
@@ -54,7 +67,7 @@ export async function applyDriftPlan(
       }
       remove = ok === true;
     } else {
-      console.warn(`Skipping orphan skill "${orphan.name}" (not in bundle).`);
+      console.warn(`Skipping orphan skill "${orphan.name}" (not in remote pack).`);
       orphansSkipped.push(orphan.name);
       continue;
     }
@@ -68,40 +81,55 @@ export async function applyDriftPlan(
     }
   }
 
+  let bundle: BundleContext = plan.bundle;
+  if (plan.commitDrift && plan.remoteCommit) {
+    bundle = await resolveBundle({
+      githubSource: plan.lock.source,
+      commit: plan.remoteCommit,
+    });
+  }
+
+  const toRefresh = plan.commitDrift
+    ? plan.entries.filter((e) => e.status !== 'orphan')
+    : plan.entries.filter((e) => e.status === 'hashDrift');
+
   const updated: string[] = [];
 
-  if (drifted.length > 0 || orphansRemoved.length > 0) {
+  if (toRefresh.length > 0 || orphansRemoved.length > 0) {
     await ensureAgentsDir(plan.scope);
   }
 
-  for (const entry of drifted) {
+  for (const entry of toRefresh) {
     const lockEntry = plan.lock.skills[entry.name]!;
+    const sourceDir = skillSourcePath(bundle, entry.name);
+    const bundleHash = await computeSkillFolderHash(sourceDir);
+
     const linkType = await materializeFromLockEntry({
-      sourceDir: entry.sourceDir!,
+      sourceDir,
       destDir: entry.destDir!,
       linkType: lockEntry.linkType,
     });
 
     upsertSkill(plan.lock, entry.name, {
-      source: lockEntry.source,
-      sourceType: 'bundled',
-      computedHash: entry.bundleHash!,
+      source: plan.lock.source,
+      sourceType: 'github',
+      computedHash: bundleHash,
       linkType,
     });
     updated.push(entry.name);
   }
 
-  const shouldSyncPackage =
-    plan.packageDrift || updated.length > 0 || orphansRemoved.length > 0;
+  const shouldSyncLockRoot =
+    plan.commitDrift ||
+    plan.manifestDrift ||
+    updated.length > 0 ||
+    orphansRemoved.length > 0;
 
-  if (shouldSyncPackage) {
-    plan.lock.package = {
-      name: plan.bundle.packageName,
-      version: plan.bundle.packageVersion,
-    };
+  if (shouldSyncLockRoot) {
+    syncLockRootFromBundle(plan.lock, bundle);
   }
 
-  if (updated.length > 0 || orphansRemoved.length > 0 || shouldSyncPackage) {
+  if (updated.length > 0 || orphansRemoved.length > 0 || shouldSyncLockRoot) {
     await writeLockfile(plan.scope.lockPath, plan.lock);
   }
 

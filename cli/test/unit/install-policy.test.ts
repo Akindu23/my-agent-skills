@@ -18,8 +18,8 @@ afterEach(async () => {
 });
 
 const entry = (hash: string): LockSkillEntry => ({
-  source: 'test',
-  sourceType: 'bundled',
+  source: 'Akindu23/my-agent-skills',
+  sourceType: 'github',
   computedHash: hash,
   linkType: 'symlink',
   installedAt: '2026-01-01T00:00:00.000Z',

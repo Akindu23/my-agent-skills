@@ -15,7 +15,7 @@ const program = new Command();
 
 program
   .name('cursor-agent-skills')
-  .description('Install and sync Cursor agent skills from the bundled my-agent-skills pack')
+  .description('Install and sync Cursor agent skills from the remote my-agent-skills GitHub pack')
   .version('0.1.0')
   .addHelpText('after', `
 

@@ -8,6 +8,7 @@ import { computeSkillFolderHash } from '../lib/hash.js';
 import { materializeSkill, pathExists, isBrokenLink } from '../lib/install.js';
 import {
   readLockfile,
+  syncLockRootFromBundle,
   upsertSkill,
   writeLockfile,
 } from '../lib/lockfile.js';
@@ -38,7 +39,11 @@ export async function runSync(opts: SyncOptions): Promise<void> {
     throw new CliError(`No lockfile or empty skills at ${scope.lockPath}. Run add first.`);
   }
 
-  const bundle = await resolveBundle({ source: opts.source });
+  const bundle = await resolveBundle({
+    source: opts.source,
+    githubSource: lock.source,
+    commit: lock.commit || undefined,
+  });
   await ensureAgentsDir(scope);
 
   const synced: string[] = [];
@@ -59,7 +64,7 @@ export async function runSync(opts: SyncOptions): Promise<void> {
     try {
       await readSkillFrontmatterName(sourceDir);
     } catch {
-      throw new CliError(`Skill "${name}" is in lockfile but missing from bundle.`);
+      throw new CliError(`Skill "${name}" is in lockfile but missing from remote pack at ${lock.commit}.`);
     }
 
     const linkType = await materializeSkill({
@@ -72,7 +77,7 @@ export async function runSync(opts: SyncOptions): Promise<void> {
 
     upsertSkill(lock, name, {
       source: entry.source,
-      sourceType: 'bundled',
+      sourceType: 'github',
       computedHash,
       linkType,
       installedAt: entry.installedAt,
@@ -80,7 +85,7 @@ export async function runSync(opts: SyncOptions): Promise<void> {
     synced.push(name);
   }
 
-  lock.package = { name: bundle.packageName, version: bundle.packageVersion };
+  syncLockRootFromBundle(lock, bundle);
   await writeLockfile(scope.lockPath, lock);
 
   const allNames = Object.keys(lock.skills);

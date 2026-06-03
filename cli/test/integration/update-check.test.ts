@@ -68,8 +68,8 @@ describe('update and check integration', () => {
 
     const lock = JSON.parse(await readFile(lockPath, 'utf8'));
     lock.skills.ghost = {
-      source: 'bundle-mini',
-      sourceType: 'bundled',
+      source: 'Akindu23/my-agent-skills',
+      sourceType: 'github',
       computedHash: 'deadbeef',
       linkType: 'symlink',
       installedAt: '2026-01-01T00:00:00.000Z',

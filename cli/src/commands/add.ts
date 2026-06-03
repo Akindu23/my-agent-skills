@@ -32,7 +32,7 @@ export async function runAdd(opts: AddOptions): Promise<void> {
     afterIntro: async (ctx) => {
       const bundle = await resolveBundle({ source: opts.source });
       if (ctx.isInteractive) {
-        note(`Found ${bundle.manifest.skills.length} skills`, 'Bundled pack');
+        note(`Found ${bundle.manifest.skills.length} skills`, 'Remote pack');
       }
       selected = await promptSkillSelection(bundle, ctx.isInteractive, {
         skills: opts.skill,

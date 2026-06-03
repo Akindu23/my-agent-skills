@@ -2,6 +2,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { DEFAULT_GITHUB_SOURCE } from '../../src/lib/constants.js';
 import { CliError } from '../../src/lib/errors.js';
 import {
   emptyLockfile,
@@ -20,21 +21,25 @@ afterEach(async () => {
 });
 
 describe('lockfile', () => {
-  it('round-trips with sorted skill keys', async () => {
+  it('round-trips v2 with sorted skill keys', async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), 'lock-'));
     dirs.push(dir);
     const lockPath = path.join(dir, 'cursor-skills.lock');
 
-    let lock = emptyLockfile({ name: 'cursor-agent-skills', version: '0.1.0' });
+    let lock = emptyLockfile({
+      source: DEFAULT_GITHUB_SOURCE,
+      commit: 'a'.repeat(40),
+      package: { name: 'my-agent-skills', version: '0.1.0' },
+    });
     upsertSkill(lock, 'zebra', {
-      source: 'my-agent-skills',
-      sourceType: 'bundled',
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
       computedHash: 'a'.repeat(64),
       linkType: 'symlink',
     });
     upsertSkill(lock, 'alpha', {
-      source: 'my-agent-skills',
-      sourceType: 'bundled',
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
       computedHash: 'b'.repeat(64),
       linkType: 'symlink',
     });
@@ -46,6 +51,37 @@ describe('lockfile', () => {
 
     const loaded = await readLockfile(lockPath);
     expect(loaded?.skills.alpha?.computedHash).toBe('b'.repeat(64));
+    expect(loaded?.commit).toBe('a'.repeat(40));
+  });
+
+  it('auto-migrates v1 lock to v2 on read', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'lock-v1-'));
+    dirs.push(dir);
+    const lockPath = path.join(dir, 'cursor-skills.lock');
+    await writeFile(
+      lockPath,
+      JSON.stringify({
+        version: 1,
+        package: { name: 'bundle-mini', version: '0.1.0' },
+        skills: {
+          alpha: {
+            source: 'bundle-mini',
+            sourceType: 'bundled',
+            computedHash: 'c'.repeat(64),
+            linkType: 'symlink',
+            installedAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          },
+        },
+      }),
+    );
+
+    const loaded = await readLockfile(lockPath);
+    expect(loaded?.version).toBe(LOCK_VERSION);
+    expect(loaded?.source).toBe(DEFAULT_GITHUB_SOURCE);
+    expect(loaded?.sourceType).toBe('github');
+    expect(loaded?.commit).toBe('');
+    expect(loaded?.skills.alpha?.sourceType).toBe('github');
   });
 
   it('rejects invalid lock version on read', async () => {
@@ -56,6 +92,9 @@ describe('lockfile', () => {
       lockPath,
       JSON.stringify({
         version: 99,
+        source: DEFAULT_GITHUB_SOURCE,
+        sourceType: 'github',
+        commit: 'a'.repeat(40),
         package: { name: 'x', version: '0.1.0' },
         skills: {},
       }),
@@ -72,11 +111,14 @@ describe('lockfile', () => {
       lockPath,
       JSON.stringify({
         version: LOCK_VERSION,
+        source: DEFAULT_GITHUB_SOURCE,
+        sourceType: 'github',
+        commit: 'a'.repeat(40),
         package: { name: 'x', version: '0.1.0' },
         skills: {
           '../evil': {
-            source: 'x',
-            sourceType: 'bundled',
+            source: DEFAULT_GITHUB_SOURCE,
+            sourceType: 'github',
             computedHash: 'a'.repeat(64),
             linkType: 'symlink',
             installedAt: '2026-01-01T00:00:00.000Z',

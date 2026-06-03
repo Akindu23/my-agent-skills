@@ -28,6 +28,9 @@ function minimalPlan(scopeDir: string): InstallPlan {
       },
       packageName: 'test',
       packageVersion: '1.0.0',
+      githubSource: 'Akindu23/my-agent-skills',
+      commit: 'local',
+      cacheRoot: '/cache',
     },
     scope: {
       scope: 'project',
@@ -40,7 +43,11 @@ function minimalPlan(scopeDir: string): InstallPlan {
     ordered: ['alpha', 'beta'],
     dependencyCount: 0,
     linkType: 'copy',
-    lock: emptyLockfile({ name: 'test', version: '1.0.0' }),
+    lock: emptyLockfile({
+      source: 'Akindu23/my-agent-skills',
+      commit: 'local',
+      package: { name: 'test', version: '1.0.0' },
+    }),
     entries: [
       {
         name: 'alpha',

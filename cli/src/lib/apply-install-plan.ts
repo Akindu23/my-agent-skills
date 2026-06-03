@@ -1,7 +1,11 @@
 import { rm } from 'node:fs/promises';
 import { materializeSkill } from './install.js';
 import type { InstallPlan, InstallPlanEntry } from './install-plan.js';
-import { upsertSkill, writeLockfile } from './lockfile.js';
+import {
+  syncLockRootFromBundle,
+  upsertSkill,
+  writeLockfile,
+} from './lockfile.js';
 import { ensureAgentsDir } from './scope.js';
 
 export interface ApplyInstallPlanResult {
@@ -27,6 +31,8 @@ export async function applyInstallPlan(
   const lockBefore = structuredClone(plan.lock);
 
   try {
+    syncLockRootFromBundle(plan.lock, plan.bundle);
+
     for (const entry of plan.entries) {
       if (entry.action === 'skip') {
         skipped.push(entry.name);
@@ -42,8 +48,8 @@ export async function applyInstallPlan(
       materializedThisRun.push(entry.name);
 
       upsertSkill(plan.lock, entry.name, {
-        source: plan.bundle.manifest.name,
-        sourceType: 'bundled',
+        source: plan.bundle.githubSource,
+        sourceType: 'github',
         computedHash: entry.computedHash,
         linkType,
       });

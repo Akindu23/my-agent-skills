@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { DEFAULT_GITHUB_SOURCE } from '../../src/lib/constants.js';
 import { renderDriftSummary } from '../../src/lib/drift-summary.js';
 import type { DriftPlan } from '../../src/lib/drift-plan.js';
 import { stripAnsi } from '../../src/lib/theme.js';
@@ -13,8 +14,11 @@ const basePlan: DriftPlan = {
       skills: ['skills/alpha'],
       dependsOn: {},
     },
-    packageName: 'cursor-agent-skills',
+    packageName: 'bundle-mini',
     packageVersion: '0.1.0',
+    githubSource: DEFAULT_GITHUB_SOURCE,
+    commit: 'abc1234',
+    cacheRoot: '/cache',
   },
   scope: {
     scope: 'project',
@@ -24,20 +28,24 @@ const basePlan: DriftPlan = {
     cwd: '/proj',
   },
   lock: {
-    version: 1,
+    version: 2,
+    source: DEFAULT_GITHUB_SOURCE,
+    sourceType: 'github',
+    commit: 'abc1234',
     skills: {
       alpha: {
-        source: 'skills/alpha',
-        sourceType: 'bundled',
+        source: DEFAULT_GITHUB_SOURCE,
+        sourceType: 'github',
         computedHash: 'abc',
         linkType: 'symlink',
         installedAt: '2020-01-01T00:00:00.000Z',
         updatedAt: '2020-01-01T00:00:00.000Z',
       },
     },
-    package: { name: 'cursor-agent-skills', version: '0.1.0' },
+    package: { name: 'bundle-mini', version: '0.1.0' },
   },
-  packageDrift: false,
+  commitDrift: false,
+  manifestDrift: false,
   entries: [{ name: 'alpha', status: 'ok' }],
 };
 
@@ -48,7 +56,8 @@ describe('renderDriftSummary', () => {
     expect(body).toContain('Pack: bundle-mini v0.1.0');
     expect(body).toContain('Scope: project');
     expect(body).toContain('Lockfile: /proj/.agents/cursor-skills.lock');
-    expect(body).toContain('Package: in sync');
+    expect(body).toContain('Manifest: in sync');
+    expect(body).toContain('Remote: pinned at abc1234');
     expect(body).toContain('In sync: 1  Drift: 0  Orphans: 0');
     expect(body).toContain('ok       alpha');
   });
@@ -58,7 +67,7 @@ describe('renderDriftSummary', () => {
       renderDriftSummary(
         {
           ...basePlan,
-          packageDrift: true,
+          manifestDrift: true,
           entries: [
             { name: 'alpha', status: 'hashDrift' },
             { name: 'ghost', status: 'orphan' },
@@ -68,7 +77,7 @@ describe('renderDriftSummary', () => {
       ),
     );
 
-    expect(body).toContain('Package: version drift');
+    expect(body).toContain('Manifest: version drift');
     expect(body).toContain('In sync: 0  Drift: 1  Orphans: 1');
     expect(body).toContain('drift    alpha');
     expect(body).toContain('orphan   ghost');

@@ -23,7 +23,10 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
   const drifted = plan.entries.filter((e) => e.status === 'hashDrift');
   const orphans = plan.entries.filter((e) => e.status === 'orphan');
   const emptyPlan =
-    drifted.length === 0 && !plan.packageDrift && orphans.length === 0;
+    drifted.length === 0 &&
+    !plan.commitDrift &&
+    !plan.manifestDrift &&
+    orphans.length === 0;
 
   if (emptyPlan) {
     if (opts.json) {
@@ -95,14 +98,14 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     if (result.orphansRemoved.length > 0) {
       parts.push(`removed ${result.orphansRemoved.length} orphan(s)`);
     }
-    outro(parts.length > 0 ? parts.join(', ') : 'Lock package version synced.');
+    outro(parts.length > 0 ? parts.join(', ') : 'Lock synced with remote pack.');
     return;
   }
 
   if (result.updated.length > 0) {
     console.log(`Updated ${result.updated.length} skill(s) in ${scope.skillsDir} (${scope.scope})`);
-  } else if (plan.packageDrift) {
-    console.log(`Synced package version in lock (${scope.scope})`);
+  } else if (plan.commitDrift || plan.manifestDrift) {
+    console.log(`Synced lock with remote pack (${scope.scope})`);
   }
   console.log(`Lockfile: ${scope.lockPath}`);
 }

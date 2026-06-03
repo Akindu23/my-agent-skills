@@ -1,7 +1,9 @@
 import { intro } from '@clack/prompts';
 import { brand, muted } from './theme.js';
 
-const REPO = 'https://github.com/Akindu23/my-agent-skills';
+import { DEFAULT_GITHUB_SOURCE } from './constants.js';
+
+const REPO = `https://github.com/${DEFAULT_GITHUB_SOURCE}`;
 
 /** ANSI Shadow (same font as SKILLS) — generated via figlet; prior glyphs lacked kerning and read as CUREOR. */
 const CURSOR_LINES = [

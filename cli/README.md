@@ -1,6 +1,6 @@
 # cursor-agent-skills
 
-Node CLI (npm package **`cursor-agent-skills`**) that installs and maintains the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) bundled skill pack under Cursor’s **`.agents/skills/`** layout, with a per-scope **`cursor-skills.lock`** for reproducibility and drift detection.
+Node CLI (npm package **`cursor-agent-skills`**) that installs and maintains the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) **remote skill pack** under Cursor’s **`.agents/skills/`** layout, with a per-scope **`cursor-skills.lock`** for reproducibility and drift detection. The npm package ships the **CLI only**; skill content is fetched from GitHub at a pinned commit.
 
 **Audience:** contributors working in `cli/`, operators scripting installs in CI, and agents automating skill lifecycle commands.
 
@@ -31,9 +31,9 @@ Published binary name: **`cursor-agent-skills`** (`package.json` → `bin`).
 | Concern | Behavior |
 |--------|----------|
 | **Install** | Materialize selected skills as **symlinks** (default) or **copies** into `.agents/skills/<name>/` |
-| **Lock** | Record installed skills, content hashes, link type, and bundle package version in `cursor-skills.lock` |
+| **Lock** | Record installed skills, content hashes, link type, GitHub source, and pinned commit in `cursor-skills.lock` |
 | **Dependencies** | Auto-install `dependsOn` skills from `skills.json` when a dependent is selected |
-| **Drift** | Compare lock hashes to the current bundle; `check` / `update` refresh or report |
+| **Drift** | Compare lock to the remote pack at the pinned commit; detect commit drift vs default branch |
 | **Repair** | `sync` re-creates missing or broken links without changing the skill set |
 | **Safety** | Kebab-case skill names only; paths confined under scope dirs; atomic lock writes |
 
@@ -90,25 +90,37 @@ Two scopes; pass **exactly one** of `-p` / `--project` or `-g` / `--global` in s
 ### Recommended team workflow
 
 - Commit **`.agents/cursor-skills.lock`** to git.
-- Gitignore **`.agents/skills/`** (materialized trees).
+- Gitignore **`.agents/skills/`** (materialized trees) and the **pack fetch cache** (see below).
 - After clone: `cursor-agent-skills sync -p -y`.
 
 ---
 
-## Skills bundle resolution
+## Skills source resolution
 
-The **bundle** is the directory containing skill folders plus a sibling **`skills.json`** manifest (`src/lib/bundle.ts`).
+Production installs fetch the public GitHub pack at a **pinned commit** into a persistent cache, then materialize symlinks from `.agents/skills/<name>` into that cache (`src/lib/bundle.ts`, `src/lib/remote-pack.ts`).
 
-Resolution order for bundle **root** (`skills/` tree):
+Resolution order for **skills source root** (`skills/` tree):
 
 1. **`--source <path>`** (CLI flag)
 2. **`CURSOR_AGENT_SKILLS_ROOT`** (env)
 3. **Monorepo dev layout:** if the CLI package lives in `cli/` inside a clone, use repo-root **`skills/`** when `../skills.json` validates
-4. **Publish layout:** `cli/skills/` next to the installed package
+4. **Remote pack:** fetch tarball from `Akindu23/my-agent-skills` at lock commit (or default branch on first install)
 
-`skills.json` must sit in the **parent** of the bundle root (repo root in dev, `cli/` when published). The CLI reads **`package.json`** beside that manifest for lock `package.name` / `package.version`.
+`skills.json` must sit in the **parent** of the skills root. Pack identity (`name`, `version`) comes from that manifest, not the npm CLI version.
 
-Override example:
+### Pack fetch cache
+
+Extracted packs are stored under:
+
+| Platform | Default cache base |
+|----------|-------------------|
+| Linux | `$XDG_CACHE_HOME/cursor-agent-skills` or `~/.cache/cursor-agent-skills` |
+| macOS | `~/Library/Caches/cursor-agent-skills` (or `$XDG_CACHE_HOME/...` if set) |
+| Windows | `%LOCALAPPDATA%/cursor-agent-skills/Cache` |
+
+Override with **`CURSOR_AGENT_SKILLS_CACHE`**. Layout: `<cache>/<owner>/<repo>/<full-sha>/skills.json` + `skills/`.
+
+Override example (local dev):
 
 ```bash
 CURSOR_AGENT_SKILLS_ROOT=/path/to/my-agent-skills/skills \
@@ -132,13 +144,18 @@ Validation: every listed skill must have `SKILL.md` under the repo root path imp
 
 Written by `src/lib/lockfile.ts`.
 
-- **`version`:** lock schema (`LOCK_VERSION = 1`)
-- **`package`:** `{ name, version }` of the CLI / bundle package at install time
+- **`version`:** lock schema (`LOCK_VERSION = 2`)
+- **`source`:** GitHub pack id (`Akindu23/my-agent-skills`)
+- **`sourceType`:** `github`
+- **`commit`:** full 40-char SHA of the pinned pack
+- **`package`:** `{ name, version }` from remote `skills.json` at the pin
 - **`skills`:** map of skill name → entry:
-  - `source`, `sourceType` (`bundled`)
+  - `source`, `sourceType` (`github`)
   - `computedHash` (SHA-256 over skill folder files; see Hashing)
   - `linkType`: `symlink` | `copy`
   - `installedAt`, `updatedAt` (ISO timestamps)
+
+v1 locks (`sourceType: bundled`) are **auto-migrated** to v2 on read.
 
 **Read safety:** every key in `skills` is validated as **kebab-case** (`assertValidSkillName`); paths like `../evil` are rejected before disk ops.
 
@@ -158,13 +175,15 @@ One CLI writer per scope is assumed (no file locking).
 
 | Status | Meaning |
 |--------|---------|
-| `ok` | Lock `computedHash` matches current bundle folder hash |
-| `hashDrift` | Bundle content changed since lock was written |
-| `orphan` | Skill in lock but not in current bundle manifest |
+| `ok` | Lock `computedHash` matches pack folder hash at pinned commit |
+| `hashDrift` | Pack content at pin differs from lock hash |
+| `orphan` | Skill in lock but not in manifest at pin |
 
-**Package drift:** `lock.package.version !== bundle.packageVersion` (e.g. after CLI/npm upgrade).
+**Commit drift:** default branch HEAD on GitHub ≠ lock `commit`. **`update`** fetches the new SHA and re-materializes all locked skills.
 
-**Note:** `check` compares **bundle** hashes, not live edits inside a **copy** install. Editing files under a copied skill without changing the bundle does not surface as drift.
+**Manifest drift:** `lock.package.version` ≠ `skills.json` version at pin.
+
+**Note:** `check` compares **pack cache** hashes, not live edits inside a **copy** install.
 
 ---
 
@@ -353,11 +372,8 @@ Syncs lock `package.version` when package drift or skill updates occur.
 ```
 cli/
 ├── package.json          # npm package cursor-agent-skills
-├── skills.json           # publish-time manifest (generated)
-├── skills/               # publish mirror of repo skills/ (sync-skills)
 ├── scripts/
-│   ├── sync-skills-from-root.mjs   # cp ../skills → cli/skills
-│   └── generate-skills-manifest.mjs  # regenerate skills[] from SKILL.md names
+│   └── generate-skills-manifest.mjs  # regenerate repo-root skills.json skills[]
 ├── src/
 │   ├── cli.ts            # Commander program, hub vs add default routing
 │   ├── commands/         # One module per subcommand (+ hub)
@@ -411,9 +427,8 @@ cli/
 cd cli
 npm install
 
-npm run sync-skills    # copy ../skills → cli/skills (publish mirror)
-npm run manifest       # regenerate skills.json skills[] from SKILL.md
-npm run build          # sync-skills + tsdown → dist/
+npm run manifest       # regenerate repo-root skills.json skills[] from SKILL.md
+npm run build          # tsdown → dist/
 npm test               # vitest unit + integration
 npm run test:watch
 ```
@@ -425,7 +440,7 @@ When developing **inside the git clone**, `add` / `sync` / `list` / `remove` / `
 - **Unit:** lockfile, hash, deps, install/drift plans, summaries, scope, bundle detection.
 - **Integration:** full CLI subprocess flows (`test/helpers/run-cli.ts`, `test/fixtures/bundle-mini/`).
 
-Run before publishing: `prepublishOnly` = sync + manifest + build + tests + `npm pack --dry-run`.
+Run before publishing: `prepublishOnly` = manifest + build + tests + `npm pack --dry-run`.
 
 ---
 
@@ -435,7 +450,7 @@ Run before publishing: `prepublishOnly` = sync + manifest + build + tests + `npm
 # Install skills from lock after checkout
 cursor-agent-skills sync -p -y
 
-# Fail pipeline when bundle advanced but lock not updated
+# Fail pipeline when remote pack advanced but lock not updated
 cursor-agent-skills check -p --json
 
 # Non-interactive add
@@ -448,8 +463,8 @@ Always pass **`-p` or `-g`** in CI. Use **`-y`** when the command would otherwis
 
 ## Publish
 
-npm package **`cursor-agent-skills`** ships `dist/`, `skills/`, `skills.json`, and this README (`package.json` `files`).
+npm package **`cursor-agent-skills`** ships **`dist/`** and this README only (`package.json` `files`). Skill content is fetched from GitHub at install time.
 
-`prepare` runs `build` on install. Consumers get the bundled mirror under `cli/skills/`; monorepo detection does not apply unless they set `CURSOR_AGENT_SKILLS_ROOT`.
+`prepare` runs `build` on install. Production installs use the remote pack fetch cache unless `CURSOR_AGENT_SKILLS_ROOT` or `--source` is set.
 
 ---

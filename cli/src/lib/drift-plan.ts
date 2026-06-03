@@ -1,4 +1,5 @@
 import {
+  isLocalOverride,
   resolveBundle,
   skillNamesFromManifest,
   skillSourcePath,
@@ -6,6 +7,7 @@ import {
 } from './bundle.js';
 import { computeSkillFolderHash } from './hash.js';
 import { readLockfile, type Lockfile } from './lockfile.js';
+import { resolveDefaultBranchHead } from './remote-pack.js';
 import { resolveSkillDestDir } from './skill-paths.js';
 import type { ScopePaths } from './scope.js';
 
@@ -25,7 +27,9 @@ export interface DriftPlan {
   bundle: BundleContext;
   scope: ScopePaths;
   lock: Lockfile;
-  packageDrift: boolean;
+  commitDrift: boolean;
+  remoteCommit?: string;
+  manifestDrift: boolean;
   entries: DriftSkillEntry[];
 }
 
@@ -34,7 +38,6 @@ export async function createDriftPlan(opts: {
   source?: string;
   bundle?: BundleContext;
 }): Promise<DriftPlan> {
-  const bundle = opts.bundle ?? (await resolveBundle({ source: opts.source }));
   const lock = await readLockfile(opts.scope.lockPath);
   if (!lock || Object.keys(lock.skills).length === 0) {
     const { CliError } = await import('./errors.js');
@@ -43,10 +46,27 @@ export async function createDriftPlan(opts: {
     );
   }
 
-  const bundleNames = new Set(skillNamesFromManifest(bundle.manifest));
-  const packageDrift =
-    lock.package?.version !== bundle.packageVersion;
+  const bundle =
+    opts.bundle ??
+    (await resolveBundle({
+      source: opts.source,
+      githubSource: lock.source,
+      commit: lock.commit || undefined,
+    }));
 
+  const usingLocal = isLocalOverride({ source: opts.source }) || bundle.commit === 'local';
+
+  let commitDrift = false;
+  let remoteCommit: string | undefined;
+
+  if (!usingLocal) {
+    const head = await resolveDefaultBranchHead(lock.source);
+    remoteCommit = head.commit;
+    commitDrift = !lock.commit || lock.commit !== head.commit;
+  }
+
+  const manifestDrift = lock.package?.version !== bundle.packageVersion;
+  const bundleNames = new Set(skillNamesFromManifest(bundle.manifest));
   const entries: DriftSkillEntry[] = [];
 
   for (const name of Object.keys(lock.skills).sort()) {
@@ -78,7 +98,9 @@ export async function createDriftPlan(opts: {
     bundle,
     scope: opts.scope,
     lock,
-    packageDrift,
+    commitDrift,
+    remoteCommit,
+    manifestDrift,
     entries,
   };
 }
@@ -88,11 +110,17 @@ export interface DriftReport {
     inSync: boolean;
     scope: string;
     lockPath: string;
+    remote: {
+      source: string;
+      lockCommit: string;
+      remoteCommit: string | null;
+      commitDrift: boolean;
+    };
     package: {
       name: string;
       lockVersion: string | null;
       bundleVersion: string;
-      drift: boolean;
+      manifestDrift: boolean;
     };
     skills: Array<{
       name: string;
@@ -107,18 +135,24 @@ export function buildDriftReport(plan: DriftPlan): DriftReport {
   const hasSkillDrift = plan.entries.some(
     (e) => e.status === 'hashDrift' || e.status === 'orphan',
   );
-  const hasDrift = hasSkillDrift || plan.packageDrift;
+  const hasDrift = hasSkillDrift || plan.commitDrift || plan.manifestDrift;
 
   return {
     jsonPayload: {
       inSync: !hasDrift,
       scope: plan.scope.scope,
       lockPath: plan.scope.lockPath,
+      remote: {
+        source: plan.lock.source,
+        lockCommit: plan.lock.commit,
+        remoteCommit: plan.remoteCommit ?? null,
+        commitDrift: plan.commitDrift,
+      },
       package: {
         name: plan.bundle.packageName,
         lockVersion: plan.lock.package?.version ?? null,
         bundleVersion: plan.bundle.packageVersion,
-        drift: plan.packageDrift,
+        manifestDrift: plan.manifestDrift,
       },
       skills: plan.entries.map((e) => ({
         name: e.name,

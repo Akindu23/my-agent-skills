@@ -1,11 +1,13 @@
-import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import { DEFAULT_GITHUB_SOURCE } from '../../src/lib/constants.js';
 import { resolveBundle } from '../../src/lib/bundle.js';
 import { buildDriftReport, createDriftPlan } from '../../src/lib/drift-plan.js';
 import { computeSkillFolderHash } from '../../src/lib/hash.js';
+import { LOCK_VERSION } from '../../src/lib/lockfile.js';
 import type { ScopePaths } from '../../src/lib/scope.js';
 
 const cliRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -28,18 +30,22 @@ async function tempScope(): Promise<ScopePaths> {
 async function writeLock(
   scope: ScopePaths,
   skills: Record<string, { computedHash: string; linkType?: 'symlink' | 'copy' }>,
-  pkgVersion = '0.1.0',
+  pkgVersion = '0.0.0',
+  commit = 'local-dev-pin',
 ): Promise<void> {
   await mkdir(path.dirname(scope.lockPath), { recursive: true });
   const body: Record<string, unknown> = {
-    version: 1,
+    version: LOCK_VERSION,
+    source: DEFAULT_GITHUB_SOURCE,
+    sourceType: 'github',
+    commit,
     package: { name: 'bundle-mini', version: pkgVersion },
     skills: {},
   };
   for (const [name, meta] of Object.entries(skills)) {
     (body.skills as Record<string, unknown>)[name] = {
-      source: 'bundle-mini',
-      sourceType: 'bundled',
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
       computedHash: meta.computedHash,
       linkType: meta.linkType ?? 'symlink',
       installedAt: '2026-01-01T00:00:00.000Z',
@@ -63,7 +69,8 @@ describe('createDriftPlan', () => {
     const bundle = await resolveBundle({ source: bundleMini });
     const plan = await createDriftPlan({ scope, bundle });
 
-    expect(plan.packageDrift).toBe(false);
+    expect(plan.commitDrift).toBe(false);
+    expect(plan.manifestDrift).toBe(false);
     expect(plan.entries).toEqual([
       expect.objectContaining({ name: 'alpha', status: 'ok' }),
     ]);
@@ -81,7 +88,7 @@ describe('createDriftPlan', () => {
     ]);
   });
 
-  it('reports packageDrift when only lock package version differs', async () => {
+  it('reports manifestDrift when only lock package version differs', async () => {
     const scope = await tempScope();
     const alphaSource = path.join(bundleMini, 'alpha');
     const hash = await computeSkillFolderHash(alphaSource);
@@ -90,7 +97,7 @@ describe('createDriftPlan', () => {
     const bundle = await resolveBundle({ source: bundleMini });
     const plan = await createDriftPlan({ scope, bundle });
 
-    expect(plan.packageDrift).toBe(true);
+    expect(plan.manifestDrift).toBe(true);
     expect(plan.entries.every((e) => e.status === 'ok')).toBe(true);
   });
 
@@ -120,7 +127,7 @@ describe('buildDriftReport', () => {
     expect(report.jsonPayload.inSync).toBe(true);
   });
 
-  it('sets hasDrift true on hash drift, orphan, or package drift', async () => {
+  it('sets hasDrift true on hash drift, orphan, or manifest drift', async () => {
     const scope = await tempScope();
     await writeLock(scope, { alpha: { computedHash: 'stale' } });
 
