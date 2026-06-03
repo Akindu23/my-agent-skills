@@ -2,6 +2,7 @@
   "schema_version": 1,
   "name": "my-agent-skills",
   "version": "1.0.0",
+  "packCommit": "3a062f483522ba56cdedfdb460a2df88404c8dda",
   "skills": [
     "skills/architecture-decision-records",
     "skills/caveman",

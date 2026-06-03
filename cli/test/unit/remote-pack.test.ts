@@ -1,14 +1,20 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { EventEmitter } from 'node:events';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { Readable } from 'node:stream';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import * as tar from 'tar';
 import { DEFAULT_GITHUB_SOURCE } from '../../src/lib/constants.js';
 import { CliError } from '../../src/lib/errors.js';
 import {
+  branchTarballUrl,
   cacheDirFor,
   ensurePackAtCommit,
   parseGitHubSource,
-  resolveDefaultBranchHead,
+  readPackCommit,
+  resolveHeadViaLsRemote,
+  resolveLatestPackCommit,
   resolvePackCacheBase,
   tarballUrl,
 } from '../../src/lib/remote-pack.js';
@@ -24,6 +30,39 @@ afterEach(async () => {
   delete process.env.XDG_CACHE_HOME;
   delete process.env.LOCALAPPDATA;
 });
+
+async function buildBranchTarball(manifest: Record<string, unknown>): Promise<Buffer> {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'cas-tar-build-'));
+  tmpDirs.push(root);
+  const prefix = 'pack-main';
+  const base = path.join(root, prefix);
+  await mkdir(path.join(base, 'skills', 'foo'), { recursive: true });
+  await writeFile(path.join(base, 'skills.json'), JSON.stringify(manifest));
+  await writeFile(path.join(base, 'skills', 'foo', 'SKILL.md'), '# fixture\n');
+  const tarPath = path.join(root, 'out.tar.gz');
+  await tar.c({ gzip: true, file: tarPath, cwd: root }, [prefix]);
+  return readFile(tarPath);
+}
+
+function mockSpawn(stdout: string, options?: { error?: NodeJS.ErrnoException; exitCode?: number }) {
+  return vi.fn(() => {
+    const child = new EventEmitter() as EventEmitter & {
+      stdout: Readable;
+      stderr: Readable;
+    };
+    child.stdout = new Readable({ read() {} });
+    child.stderr = new Readable({ read() {} });
+    queueMicrotask(() => {
+      if (options?.error) {
+        child.emit('error', options.error);
+        return;
+      }
+      child.stdout.emit('data', Buffer.from(stdout));
+      child.emit('close', options?.exitCode ?? 0);
+    });
+    return child;
+  });
+}
 
 describe('parseGitHubSource', () => {
   it('parses owner/repo', () => {
@@ -81,27 +120,89 @@ describe('tarballUrl', () => {
   });
 });
 
-describe('resolveDefaultBranchHead', () => {
-  it('resolves default branch HEAD via GitHub API', async () => {
-    const sha = 'd'.repeat(40);
-    const fetchFn = vi.fn(async (url: string) => {
-      if (url.endsWith('/repos/o/r')) {
-        return new Response(JSON.stringify({ default_branch: 'main' }), { status: 200 });
-      }
-      if (url.includes('/commits/main')) {
-        return new Response(sha, { status: 200 });
-      }
-      throw new Error(`unexpected url ${url}`);
-    });
+describe('branchTarballUrl', () => {
+  it('defaults to main branch tarball', () => {
+    expect(branchTarballUrl('owner', 'repo')).toBe(
+      'https://codeload.github.com/owner/repo/tar.gz/main',
+    );
+  });
+});
 
-    const result = await resolveDefaultBranchHead('o/r', fetchFn);
-    expect(result).toEqual({ commit: sha, defaultBranch: 'main' });
-    expect(fetchFn).toHaveBeenCalledTimes(2);
+describe('readPackCommit', () => {
+  it('returns normalized lowercase SHA', () => {
+    const sha = 'A'.repeat(40);
+    expect(readPackCommit({ packCommit: sha })).toBe(sha.toLowerCase());
   });
 
-  it('throws CliError on rate limit', async () => {
+  it('throws on invalid packCommit', () => {
+    expect(() => readPackCommit({ packCommit: 'short' })).toThrow(CliError);
+  });
+});
+
+describe('resolveHeadViaLsRemote', () => {
+  it('parses HEAD from git ls-remote stdout', async () => {
+    const sha = 'b'.repeat(40);
+    const spawnFn = mockSpawn(`${sha}\tHEAD\n`);
+    await expect(resolveHeadViaLsRemote('o/r', spawnFn)).resolves.toBe(sha);
+    expect(spawnFn).toHaveBeenCalledWith(
+      'git',
+      ['ls-remote', 'https://github.com/o/r.git', 'HEAD'],
+      expect.objectContaining({ stdio: ['ignore', 'pipe', 'pipe'] }),
+    );
+  });
+
+  it('throws when git is missing', async () => {
+    const spawnFn = mockSpawn('', { error: Object.assign(new Error('spawn git ENOENT'), { code: 'ENOENT' }) });
+    await expect(resolveHeadViaLsRemote('o/r', spawnFn)).rejects.toThrow(/git is not installed/i);
+  });
+});
+
+describe('resolveLatestPackCommit', () => {
+  it('reads packCommit from branch tarball without api.github.com', async () => {
+    const sha = 'c'.repeat(40);
+    const tarball = await buildBranchTarball({
+      schema_version: 1,
+      name: 'test',
+      version: '0.0.0',
+      packCommit: sha,
+      skills: ['skills/foo'],
+      dependsOn: {},
+    });
+    const fetchFn = vi.fn(async (url: string) => {
+      expect(url).toBe('https://codeload.github.com/o/r/tar.gz/main');
+      expect(url).not.toContain('api.github.com');
+      return new Response(tarball, { status: 200 });
+    });
+    const spawnFn = mockSpawn('should-not-run');
+
+    const commit = await resolveLatestPackCommit('o/r', fetchFn, spawnFn);
+    expect(commit).toBe(sha);
+    expect(spawnFn).not.toHaveBeenCalled();
+    for (const call of fetchFn.mock.calls) {
+      expect(String(call[0])).not.toContain('api.github.com');
+    }
+  });
+
+  it('falls back to git ls-remote when packCommit is missing', async () => {
+    const lsSha = 'd'.repeat(40);
+    const tarball = await buildBranchTarball({
+      schema_version: 1,
+      name: 'test',
+      version: '0.0.0',
+      skills: ['skills/foo'],
+      dependsOn: {},
+    });
+    const fetchFn = vi.fn(async () => new Response(tarball, { status: 200 }));
+    const spawnFn = mockSpawn(`${lsSha}\tHEAD\n`);
+
+    const commit = await resolveLatestPackCommit('o/r', fetchFn, spawnFn);
+    expect(commit).toBe(lsSha);
+    expect(spawnFn).toHaveBeenCalled();
+  });
+
+  it('throws CliError on branch tarball rate limit', async () => {
     const fetchFn = vi.fn(async () => new Response('', { status: 403 }));
-    await expect(resolveDefaultBranchHead('o/r', fetchFn)).rejects.toThrow(CliError);
+    await expect(resolveLatestPackCommit('o/r', fetchFn)).rejects.toThrow(CliError);
   });
 });
 

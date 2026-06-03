@@ -5,7 +5,7 @@ import { DEFAULT_GITHUB_SOURCE } from './constants.js';
 import { CliError } from './errors.js';
 import {
   ensurePackAtCommit,
-  resolveDefaultBranchHead,
+  resolveLatestPackCommit,
   type PackCacheResult,
 } from './remote-pack.js';
 import { resolveSkillSourceDir } from './skill-paths.js';
@@ -16,6 +16,7 @@ export interface SkillsManifest {
   version: string;
   skills: string[];
   dependsOn: Record<string, string[]>;
+  packCommit?: string;
 }
 
 export interface BundleContext {
@@ -104,8 +105,7 @@ async function resolveRemotePack(
 ): Promise<{ root: string; pack: PackCacheResult; commit: string }> {
   let resolvedCommit = commit;
   if (!resolvedCommit) {
-    const head = await resolveDefaultBranchHead(githubSource);
-    resolvedCommit = head.commit;
+    resolvedCommit = await resolveLatestPackCommit(githubSource);
   }
 
   const pack = await ensurePackAtCommit(githubSource, resolvedCommit);

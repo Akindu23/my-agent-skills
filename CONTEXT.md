@@ -62,8 +62,20 @@ The canonical remote identity of the pack (e.g. `Akindu23/my-agent-skills`), use
 _Avoid_: raw GitHub URL in user docs (prefer owner/repo shorthand), skills.sh (upstream CDN; not required for this installer).
 
 **Unauthenticated GitHub fetch**:
-v2 remote pack downloads use **no** `GITHUB_TOKEN`, `gh auth token`, or other credentials. Public-repo tarball/archive URLs only; optional authenticated fetch is deferred.
-_Avoid_: requiring `gh` on PATH, prompting users to log in for normal installs on a public pack.
+Default public-pack installs use **no** `GITHUB_TOKEN`, `gh auth token`, or REST API calls on the happy path. The CLI fetches a **branch tarball** from codeload and reads **pack commit** from root `skills.json`; optional token-backed REST or `git ls-remote` is a fallback only.
+_Avoid_: requiring `gh` on PATH or a PAT for first `add` on the canonical public pack; baking the pin SHA into the npm CLI (couples skill releases to CLI releases).
+
+**Pack commit**:
+Full 40-character Git commit SHA of the skill pack at `skills.json` publish time, stored in the manifest (e.g. `packCommit`) and maintained by CI on each push to the default branch. First `add` pins **cursor-skills-lock.json** from this field after a tarball fetch — repo is source of truth, npm package stays stable.
+_Avoid_: resolving HEAD via unauthenticated REST API on every first install; using npm package version as the only pin.
+
+**Tarball-first pack resolve**:
+When no lock commit exists, download `codeload.github.com/<owner>/<repo>/tar.gz/main` (not `api.github.com`), extract, read `skills.json` (including **pack commit**), then cache and materialize at that SHA. If **pack commit** is absent, fall back to **`git ls-remote`** for `HEAD`, then fetch the tarball at that SHA.
+_Avoid_: two-step REST “repo + commits” lookup before any archive download (hits 60 req/hr unauthenticated limits); discovering default branch via API on the happy path.
+
+**Pack commit fallback**:
+When `packCommit` is missing from `skills.json`, resolve `HEAD` with **`git ls-remote`** (one Git HTTPS call), not the REST API. Further fallbacks (token-backed REST) are optional and must not be required for the public canonical pack.
+_Avoid_: silent installs with a floating branch pin and no full SHA in the lock.
 
 **CLI package directory**:
 The Node/TypeScript implementation lives in repo-root **`cli/`** (`package.json`, `src/`), publishing as npm package **`cursor-agent-skills`**; skill content remains in repo-root **`skills/`**.

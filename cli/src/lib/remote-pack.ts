@@ -1,5 +1,6 @@
-import { access, mkdir, readdir, rename, rm, writeFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { access, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { homedir, tmpdir } from 'node:os';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import path from 'node:path';
@@ -19,14 +20,9 @@ export interface PackCacheResult {
 }
 
 export type FetchFn = typeof fetch;
+export type SpawnFn = typeof spawn;
 
-function githubApiHeaders(): Record<string, string> {
-  return {
-    'User-Agent': GITHUB_USER_AGENT,
-    Accept: 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28',
-  };
-}
+const PACK_COMMIT_SHA_RE = /^[0-9a-f]{40}$/i;
 
 export function parseGitHubSource(source: string): GitHubSource {
   const parts = source.trim().split('/');
@@ -61,6 +57,20 @@ export function tarballUrl(owner: string, repo: string, commit: string): string 
   return `https://codeload.github.com/${owner}/${repo}/tar.gz/${commit}`;
 }
 
+export function branchTarballUrl(owner: string, repo: string, branch = 'main'): string {
+  return tarballUrl(owner, repo, branch);
+}
+
+export function readPackCommit(manifest: { packCommit?: unknown }): string {
+  const raw = manifest.packCommit;
+  if (typeof raw !== 'string' || !PACK_COMMIT_SHA_RE.test(raw)) {
+    throw new CliError(
+      `Invalid packCommit in skills.json: expected a 40-character hex SHA, got ${JSON.stringify(raw)}.`,
+    );
+  }
+  return raw.toLowerCase();
+}
+
 function tarballFilter(_entryPath: string, entry: tar.ReadEntry): boolean {
   if (entry.type === 'SymbolicLink' || entry.type === 'Link') return false;
   if (entry.type === 'File' && entry.size > 50 * 1024 * 1024) return false;
@@ -82,35 +92,47 @@ export async function normalizeExtractedRoot(cacheEntry: string): Promise<void> 
   await validateExtracted(cacheEntry);
 }
 
+async function extractTarballBodyToDir(
+  body: ReadableStream<Uint8Array>,
+  targetDir: string,
+): Promise<void> {
+  await rm(targetDir, { recursive: true, force: true });
+  await mkdir(targetDir, { recursive: true });
+
+  try {
+    await pipeline(
+      Readable.fromWeb(body),
+      tar.x({
+        cwd: targetDir,
+        strip: 1,
+        filter: tarballFilter,
+        maxDepth: 20,
+      }),
+    );
+    await validateExtracted(targetDir);
+  } catch (err) {
+    await rm(targetDir, { recursive: true, force: true }).catch(() => {});
+    if (err instanceof CliError) throw err;
+    throw new CliError(
+      `Failed to extract pack tarball: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+}
+
 export async function extractTarballToCache(
   body: ReadableStream<Uint8Array>,
   cacheEntry: string,
   tmpSuffix: string,
 ): Promise<void> {
   const tmpDir = `${cacheEntry}.tmp-${tmpSuffix}`;
-  await rm(tmpDir, { recursive: true, force: true });
-  await mkdir(tmpDir, { recursive: true });
-
+  await extractTarballBodyToDir(body, tmpDir);
   try {
-    await pipeline(
-      Readable.fromWeb(body),
-      tar.x({
-        cwd: tmpDir,
-        strip: 1,
-        filter: tarballFilter,
-        maxDepth: 20,
-      }),
-    );
-    await validateExtracted(tmpDir);
     await rm(cacheEntry, { recursive: true, force: true });
     await rename(tmpDir, cacheEntry);
     await writeFile(path.join(cacheEntry, '.extract-complete'), 'ok');
   } catch (err) {
     await rm(tmpDir, { recursive: true, force: true }).catch(() => {});
-    if (err instanceof CliError) throw err;
-    throw new CliError(
-      `Failed to extract pack tarball: ${err instanceof Error ? err.message : String(err)}`,
-    );
+    throw err;
   }
 }
 
@@ -126,29 +148,116 @@ function githubFetchError(status: number, context: string): CliError {
   return new CliError(`${context}: HTTP ${status}`);
 }
 
-export async function resolveDefaultBranchHead(
+function parseLsRemoteHead(stdout: string): string {
+  const line = stdout
+    .split('\n')
+    .map((l) => l.trim())
+    .find((l) => l.length > 0);
+  if (!line) {
+    throw new CliError('git ls-remote returned no HEAD ref.');
+  }
+  const sha = line.split(/\s+/)[0];
+  if (!sha || !PACK_COMMIT_SHA_RE.test(sha)) {
+    throw new CliError(`git ls-remote returned unexpected HEAD: ${line}`);
+  }
+  return sha.toLowerCase();
+}
+
+export function resolveHeadViaLsRemote(
+  source: string,
+  spawnFn: SpawnFn = spawn,
+): Promise<string> {
+  const { owner, repo } = parseGitHubSource(source);
+  const repoUrl = `https://github.com/${owner}/${repo}.git`;
+
+  return new Promise((resolve, reject) => {
+    let child: ChildProcessWithoutNullStreams;
+    try {
+      child = spawnFn('git', ['ls-remote', repoUrl, 'HEAD'], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }) as ChildProcessWithoutNullStreams;
+    } catch (err) {
+      const code = (err as NodeJS.ErrnoException).code;
+      if (code === 'ENOENT') {
+        reject(
+          new CliError(
+            'git is not installed or not on PATH. Install Git, or wait for CI to stamp packCommit in skills.json.',
+          ),
+        );
+        return;
+      }
+      reject(err);
+      return;
+    }
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk: Buffer) => {
+      stdout += chunk.toString();
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+    child.on('error', (err) => {
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+        reject(
+          new CliError(
+            'git is not installed or not on PATH. Install Git, or wait for CI to stamp packCommit in skills.json.',
+          ),
+        );
+        return;
+      }
+      reject(err);
+    });
+    child.on('close', (code) => {
+      if (code !== 0) {
+        reject(
+          new CliError(
+            `git ls-remote failed for ${source} (exit ${code ?? 'unknown'}): ${stderr.trim() || 'no stderr'}`,
+          ),
+        );
+        return;
+      }
+      try {
+        resolve(parseLsRemoteHead(stdout));
+      } catch (err) {
+        reject(err);
+      }
+    });
+  });
+}
+
+export async function resolveLatestPackCommit(
   source: string,
   fetchFn: FetchFn = fetch,
-): Promise<{ commit: string; defaultBranch: string }> {
+  spawnFn: SpawnFn = spawn,
+): Promise<string> {
   const { owner, repo } = parseGitHubSource(source);
-  const repoRes = await fetchFn(`https://api.github.com/repos/${owner}/${repo}`, {
-    headers: githubApiHeaders(),
+  const url = branchTarballUrl(owner, repo);
+  const res = await fetchFn(url, {
+    headers: { 'User-Agent': GITHUB_USER_AGENT, Accept: '*/*' },
   });
-  if (!repoRes.ok) {
-    throw githubFetchError(repoRes.status, `GitHub repo lookup for ${source}`);
+  if (!res.ok) {
+    throw githubFetchError(res.status, `GitHub branch tarball fetch for ${source}`);
   }
-  const repoData = (await repoRes.json()) as { default_branch: string };
-  const branch = repoData.default_branch;
+  if (!res.body) {
+    throw new CliError(`GitHub branch tarball fetch for ${source}: empty response body`);
+  }
 
-  const headRes = await fetchFn(
-    `https://api.github.com/repos/${owner}/${repo}/commits/${branch}`,
-    { headers: { ...githubApiHeaders(), Accept: 'application/vnd.github.sha' } },
-  );
-  if (!headRes.ok) {
-    throw githubFetchError(headRes.status, `GitHub commit lookup for ${source}@${branch}`);
+  const bootstrapDir = await mkdtemp(path.join(tmpdir(), 'cursor-agent-skills-bootstrap-'));
+  try {
+    await extractTarballBodyToDir(res.body, bootstrapDir);
+    const manifestPath = path.join(bootstrapDir, 'skills.json');
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as {
+      packCommit?: unknown;
+    };
+    if (manifest.packCommit !== undefined && manifest.packCommit !== null) {
+      return readPackCommit(manifest);
+    }
+    return resolveHeadViaLsRemote(source, spawnFn);
+  } finally {
+    await rm(bootstrapDir, { recursive: true, force: true }).catch(() => {});
   }
-  const commit = (await headRes.text()).trim();
-  return { commit, defaultBranch: branch };
 }
 
 /** Remove older SHA extract dirs for owner/repo; keep only keepCommit (best-effort). */

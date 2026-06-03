@@ -33,7 +33,7 @@ Published binary name: **`cursor-agent-skills`** (`package.json` → `bin`).
 | **Install** | Materialize selected skills as **symlinks** (default) or **copies** into `.agents/skills/<name>/` |
 | **Lock** | Record installed skills, content hashes, link type, GitHub source, and pinned commit in `cursor-skills-lock.json` |
 | **Dependencies** | Auto-install `dependsOn` skills from `skills.json` when a dependent is selected |
-| **Drift** | Compare lock to the remote pack at the pinned commit; detect commit drift vs default branch |
+| **Drift** | Compare lock to the remote pack at the pinned commit; detect commit drift vs latest pack pin |
 | **Repair** | `sync` re-creates missing or broken links without changing the skill set |
 | **Safety** | Kebab-case skill names only; paths confined under scope dirs; atomic lock writes |
 
@@ -104,7 +104,7 @@ Resolution order for **skills source root** (`skills/` tree):
 1. **`--source <path>`** (CLI flag)
 2. **`CURSOR_AGENT_SKILLS_ROOT`** (env)
 3. **Monorepo dev layout:** if the CLI package lives in `cli/` inside a clone, use repo-root **`skills/`** when `../skills.json` validates
-4. **Remote pack:** fetch tarball from `Akindu23/my-agent-skills` at lock commit (or default branch on first install)
+4. **Remote pack:** tarball-first resolve — `codeload.github.com/.../tar.gz/main` → read `packCommit` from `skills.json` → cache at that SHA (or `git ls-remote` when `packCommit` is missing); `sync` with an existing lock uses the pinned commit only (no HEAD lookup)
 
 `skills.json` must sit in the **parent** of the skills root. Pack identity (`name`, `version`) comes from that manifest, not the npm CLI version.
 
@@ -133,6 +133,7 @@ CURSOR_AGENT_SKILLS_ROOT=/path/to/my-agent-skills/skills \
 |-------|------|
 | `schema_version` | Manifest format version |
 | `name`, `version` | Skill pack identity (stored in lock `package`) |
+| `packCommit` | Full 40-char SHA of the pack tree; CI-stamped on `main`; used on first install when no lock |
 | `skills` | Paths like `skills/<folder>`; folder name must match `SKILL.md` `name:` |
 | `dependsOn` | Map of skill → required skill names (hand-edited; generator preserves it) |
 

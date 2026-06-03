@@ -70,12 +70,14 @@ for (const [skill, deps] of Object.entries(dependsOn)) {
   }
 }
 
+// CI stamps packCommit on main; this script does not set it.
 const manifest = {
   schema_version: existingRoot.schema_version ?? 1,
   name: existingRoot.name ?? 'my-agent-skills',
   version: existingRoot.version ?? '0.1.0',
   skills: skillPaths,
   dependsOn,
+  ...(existingRoot.packCommit ? { packCommit: existingRoot.packCommit } : {}),
 };
 
 const json = `${JSON.stringify(manifest, null, 2)}\n`;

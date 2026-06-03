@@ -1,0 +1,55 @@
+# Stamps skills.json packCommit to the push commit SHA on main.
+# Consumers pin tar.gz/{packCommit}; a follow-up bot commit may leave main HEAD
+# one commit ahead of packCommit until the next stamp — skill content matches packCommit.
+name: Stamp pack commit
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stamp-pack-commit
+  cancel-in-progress: false
+
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Regenerate skills list when skills tree changed
+        working-directory: cli
+        run: |
+          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -q '^skills/'; then
+            npm ci
+            npm run manifest
+          fi
+
+      - name: Set packCommit to push SHA
+        run: |
+          node -e "
+          const fs = require('fs');
+          const p = 'skills.json';
+          const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+          j.packCommit = process.env.GITHUB_SHA;
+          fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n');
+          "
+
+      - name: Commit and push if skills.json changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          if git diff --quiet skills.json; then
+            echo 'skills.json unchanged; skipping push'
+            exit 0
+          fi
+          git add skills.json
+          git commit -m "chore: stamp packCommit to ${GITHUB_SHA}"
+          git push

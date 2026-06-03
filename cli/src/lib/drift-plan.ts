@@ -7,7 +7,7 @@ import {
 } from './bundle.js';
 import { computeSkillFolderHash } from './hash.js';
 import { readLockfile, type Lockfile } from './lockfile.js';
-import { resolveDefaultBranchHead } from './remote-pack.js';
+import { resolveLatestPackCommit } from './remote-pack.js';
 import { resolveSkillDestDir } from './skill-paths.js';
 import type { ScopePaths } from './scope.js';
 
@@ -182,9 +182,8 @@ export async function createDriftPlan(opts: {
   let remoteBundle: BundleContext | undefined;
 
   if (!usingLocal) {
-    const head = await resolveDefaultBranchHead(lock.source);
-    remoteCommit = head.commit;
-    commitDrift = !lock.commit || lock.commit !== head.commit;
+    remoteCommit = await resolveLatestPackCommit(lock.source);
+    commitDrift = !lock.commit || lock.commit !== remoteCommit;
     if (commitDrift && remoteCommit) {
       remoteBundle = await resolveBundle({
         source: opts.source,
