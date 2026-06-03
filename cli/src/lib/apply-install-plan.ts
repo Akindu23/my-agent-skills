@@ -43,7 +43,7 @@ export async function applyInstallPlan(
       const linkType = await materializeSkill({
         sourceDir: entry.sourceDir,
         destDir: entry.destDir,
-        copy: opts.copy ?? false,
+        copy: opts.copy ?? entry.linkType === 'copy',
       });
       materializedThisRun.push(entry.name);
 

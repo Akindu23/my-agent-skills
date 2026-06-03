@@ -4,7 +4,11 @@ import { createInstallPlan } from '../lib/install-plan.js';
 import { renderInstallCompletion } from '../lib/install-outro.js';
 import { renderInstallSummary } from '../lib/install-summary.js';
 import { printJson } from '../lib/output.js';
-import { confirmInstallPlan, promptSkillSelection } from '../lib/prompts.js';
+import {
+  confirmInstallPlan,
+  promptLinkType,
+  promptSkillSelection,
+} from '../lib/prompts.js';
 import { resolveBundle } from '../lib/bundle.js';
 import { runScopedCommand } from '../lib/run-scoped-command.js';
 
@@ -15,6 +19,7 @@ export interface AddOptions {
   all?: boolean;
   yes?: boolean;
   copy?: boolean;
+  symlink?: boolean;
   source?: string;
   json?: boolean;
   skipIntro?: boolean;
@@ -22,6 +27,7 @@ export interface AddOptions {
 
 export async function runAdd(opts: AddOptions): Promise<void> {
   let selected: string[] = [];
+  let linkType: 'symlink' | 'copy' | undefined;
 
   const { isInteractive, scope } = await runScopedCommand({
     global: opts.global,
@@ -38,8 +44,19 @@ export async function runAdd(opts: AddOptions): Promise<void> {
         skills: opts.skill,
         all: opts.all,
       });
+      linkType = await promptLinkType(ctx.isInteractive, {
+        copy: opts.copy,
+        symlink: opts.symlink,
+      });
     },
   });
+
+  if (linkType === undefined) {
+    linkType = await promptLinkType(isInteractive, {
+      copy: opts.copy,
+      symlink: opts.symlink,
+    });
+  }
 
   const bundle = await resolveBundle({ source: opts.source });
   const plan = await createInstallPlan({
@@ -48,6 +65,7 @@ export async function runAdd(opts: AddOptions): Promise<void> {
     selected,
     scope,
     copy: opts.copy,
+    linkType,
   });
 
   if (isInteractive) {
@@ -61,7 +79,7 @@ export async function runAdd(opts: AddOptions): Promise<void> {
   }
 
   const { installed, reinstalled, skipped, installedEntries, skippedEntries } =
-    await applyInstallPlan(plan, { copy: opts.copy });
+    await applyInstallPlan(plan, { copy: linkType === 'copy' });
 
   for (const entry of plan.entries) {
     if (

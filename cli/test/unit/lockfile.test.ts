@@ -82,6 +82,7 @@ describe('lockfile', () => {
     expect(loaded?.sourceType).toBe('github');
     expect(loaded?.commit).toBe('');
     expect(loaded?.skills.alpha?.sourceType).toBe('github');
+    expect(loaded?.defaultLinkType).toBe('symlink');
   });
 
   it('rejects invalid lock version on read', async () => {

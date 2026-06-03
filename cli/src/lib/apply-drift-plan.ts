@@ -1,11 +1,11 @@
 import { rm } from 'node:fs/promises';
 import { confirm, isCancel } from '@clack/prompts';
+import { skillSourcePath } from './bundle.js';
 import {
-  resolveBundle,
-  skillSourcePath,
-  type BundleContext,
-} from './bundle.js';
-import type { DriftPlan } from './drift-plan.js';
+  classifyDriftSummary,
+  contentChangedSkillNames,
+  type DriftPlan,
+} from './drift-plan.js';
 import { CliCancel } from './errors.js';
 import { computeSkillFolderHash } from './hash.js';
 import { materializeFromLockEntry } from './install.js';
@@ -15,12 +15,14 @@ import {
   upsertSkill,
   writeLockfile,
 } from './lockfile.js';
+import { pruneRepoCache } from './remote-pack.js';
 import { ensureAgentsDir } from './scope.js';
 
 export type OrphanPolicy = 'prompt' | 'skip' | 'remove-all';
 
 export interface ApplyDriftResult {
   updated: string[];
+  contentChanged: string[];
   orphansRemoved: string[];
   orphansSkipped: string[];
 }
@@ -81,13 +83,7 @@ export async function applyDriftPlan(
     }
   }
 
-  let bundle: BundleContext = plan.bundle;
-  if (plan.commitDrift && plan.remoteCommit) {
-    bundle = await resolveBundle({
-      githubSource: plan.lock.source,
-      commit: plan.remoteCommit,
-    });
-  }
+  const bundle = plan.remoteBundle ?? plan.bundle;
 
   const toRefresh = plan.commitDrift
     ? plan.entries.filter((e) => e.status !== 'orphan')
@@ -131,7 +127,21 @@ export async function applyDriftPlan(
 
   if (updated.length > 0 || orphansRemoved.length > 0 || shouldSyncLockRoot) {
     await writeLockfile(plan.scope.lockPath, plan.lock);
+    if (plan.commitDrift && plan.remoteCommit) {
+      await pruneRepoCache(plan.lock.source, plan.remoteCommit);
+    }
   }
 
-  return { updated, orphansRemoved, orphansSkipped };
+  const contentChanged = contentChangedSkillNames(plan);
+
+  return { updated, contentChanged, orphansRemoved, orphansSkipped };
+}
+
+export function formatUpdateConfirmMessage(plan: DriftPlan): string {
+  const counts = classifyDriftSummary(plan);
+  if (plan.commitDrift && plan.remoteCommit) {
+    const short = (sha: string) => (sha.length > 7 ? sha.slice(0, 7) : sha);
+    return `Update to commit ${short(plan.remoteCommit)} (${counts.changedOnRemote} skill(s) changed, ${counts.willRelink} will be relinked)?`;
+  }
+  return 'Proceed with update?';
 }

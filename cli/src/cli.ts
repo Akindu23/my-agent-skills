@@ -42,6 +42,7 @@ program
   .option('--all', 'Install all skills from the bundle')
   .option('-y, --yes', 'Non-interactive; skip confirmation prompts')
   .option('--copy', 'Copy skill folders instead of symlinks')
+  .option('--symlink', 'Symlink skill folders (default; overrides interactive picker)')
   .option('--source <path>', 'Override skills bundle directory')
   .option('--json', 'Machine-readable output')
   .action(async (opts) => {
@@ -52,6 +53,7 @@ program
       all: opts.all,
       yes: opts.yes,
       copy: opts.copy,
+      symlink: opts.symlink,
       source: opts.source,
       json: opts.json,
     });

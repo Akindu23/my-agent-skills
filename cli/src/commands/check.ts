@@ -1,5 +1,5 @@
 import { confirm, isCancel, note, outro, cancel } from '@clack/prompts';
-import { applyDriftPlan } from '../lib/apply-drift-plan.js';
+import { applyDriftPlan, formatUpdateConfirmMessage } from '../lib/apply-drift-plan.js';
 import { createDriftPlan, buildDriftReport } from '../lib/drift-plan.js';
 import { renderDriftSummary } from '../lib/drift-summary.js';
 import { CliCancel } from '../lib/errors.js';
@@ -18,7 +18,7 @@ export interface CheckOptions {
 }
 
 const DRIFT_HINT =
-  'Drift detected. Run update to refresh, or remove orphans interactively.';
+  'Pack or skill drift detected. Run update to advance the pin and refresh skills.';
 
 export async function runCheck(opts: CheckOptions): Promise<void> {
   const { isInteractive, scope } = await runScopedCommand(opts);
@@ -33,7 +33,7 @@ export async function runCheck(opts: CheckOptions): Promise<void> {
 
     if (report.hasDrift && opts.offerUpdateOnDrift) {
       const runUpdateNow = await confirm({
-        message: 'Update drifted skills now?',
+        message: formatUpdateConfirmMessage(plan),
         initialValue: true,
       });
       if (isCancel(runUpdateNow)) {

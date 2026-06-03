@@ -5,13 +5,18 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { DEFAULT_GITHUB_SOURCE } from '../../src/lib/constants.js';
 import { resolveBundle } from '../../src/lib/bundle.js';
-import { buildDriftReport, createDriftPlan } from '../../src/lib/drift-plan.js';
+import {
+  buildDriftReport,
+  createDriftPlan,
+  planDriftFromBundles,
+} from '../../src/lib/drift-plan.js';
 import { computeSkillFolderHash } from '../../src/lib/hash.js';
-import { LOCK_VERSION } from '../../src/lib/lockfile.js';
+import { LOCK_VERSION, readLockfile } from '../../src/lib/lockfile.js';
 import type { ScopePaths } from '../../src/lib/scope.js';
 
 const cliRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const bundleMini = path.join(cliRoot, 'test/fixtures/bundle-mini/skills');
+const bundleMiniV2 = path.join(cliRoot, 'test/fixtures/bundle-mini-v2/skills');
 const tmpDirs: string[] = [];
 
 async function tempScope(): Promise<ScopePaths> {
@@ -111,6 +116,38 @@ describe('createDriftPlan', () => {
     expect(plan.entries).toEqual([
       expect.objectContaining({ name: 'ghost', status: 'orphan' }),
     ]);
+  });
+});
+
+describe('planDriftFromBundles commit drift', () => {
+  it('marks remoteChanged only for skills whose content differs at new pin', async () => {
+    const scope = await tempScope();
+    const pinBundle = await resolveBundle({ source: bundleMini });
+    const remoteBundle = await resolveBundle({ source: bundleMiniV2 });
+    const alphaHash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
+    const betaHash = await computeSkillFolderHash(path.join(bundleMini, 'beta'));
+
+    await writeLock(scope, {
+      alpha: { computedHash: alphaHash },
+      beta: { computedHash: betaHash },
+    });
+
+    const loaded = await readLockfile(scope.lockPath);
+    const plan = await planDriftFromBundles({
+      scope,
+      lock: loaded!,
+      bundle: pinBundle,
+      remoteBundle,
+      commitDrift: true,
+      remoteCommit: 'remote-sha',
+    });
+
+    const alpha = plan.entries.find((e) => e.name === 'alpha')!;
+    const beta = plan.entries.find((e) => e.name === 'beta')!;
+    expect(alpha.status).toBe('ok');
+    expect(alpha.remoteChanged).toBe(true);
+    expect(beta.status).toBe('ok');
+    expect(beta.remoteChanged).toBe(false);
   });
 });
 

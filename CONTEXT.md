@@ -105,20 +105,24 @@ _Avoid_: prompting on every repeat `add` when nothing changed (noisy); silently 
 The `dependsOn` object in root `skills.json` keyed by skill name, whose values are arrays of sibling skill names to auto-install into the same scope when the key skill is selected.
 _Avoid_: dependencies block (reserved for future external git packs per Agent Skills RFC), requires in SKILL.md (agent-facing hints only, not install truth).
 
-**Source hash drift**:
-A skill folder’s content at the **pinned commit** no longer matches what the lockfile recorded: recomputed hash from **skills source root** ≠ `computedHash` on that lock entry. Usually means the lock’s commit is stale relative to a refreshed cache or a partial failed fetch—not that the user edited files under `.agents/skills/` directly.
-_Avoid_: bundle hash drift (v1 term), “skills changed” without naming source vs install tree.
+**Lock–source hash mismatch** (pin drift):
+`computedHash` on a lock entry ≠ hash of that skill folder at the **pinned commit** in cache. The install tree may still be healthy; the lock record is wrong relative to the pin.
+_Avoid_: calling this “remote changed” when only the pin tree disagrees with the lock.
 
-**Remote commit drift**:
-The default branch on **GitHub pack source** points to a commit newer than the lock’s **pinned commit**. **`check`** reports this; **`update`** fetches the tarball at the new SHA, refreshes the **pack fetch cache**, re-materializes, and rewrites the lock.
+**Upstream skill change**:
+At the **remote default-branch commit**, a locked skill’s folder hash ≠ `computedHash`. **`check`** shows **changed** vs **unchanged** per skill when the pack pin is behind; **`update`** refreshes content for changed skills and recomputes hashes for all.
+_Avoid_: equating “one skill changed on GitHub” with “one symlink updated” — pin advance **relinks all** non-orphan skills.
+
+**Upstream commit advancement** (pack / commit drift):
+GitHub default-branch HEAD ≠ `commit` in the lock. **`update`** fetches the new SHA, **prunes older cache dirs** for that repo (keeps the new pin), **relinks every** non-orphan locked skill using each entry’s **linkType**, then advances `commit` and manifest version in the lock.
 _Avoid_: expecting **`sync`** alone to pull new upstream skills (sync only repairs broken/missing links for the current pin).
 
 **Update command**:
-Fetches the remote pack at the latest default-branch commit (or reapplies the current pin when only **source hash drift** exists), then refreshes skills already listed in **cursor-skills-lock.json** for a scope. Does not install new skills that were never in the lock—use **add** for that. Interactive TTY: installation summary + **Proceed?**; non-TTY: refresh when scope flags are set. Re-materializes using each lock entry’s existing **linkType** (symlink or copy).
+Fetches the remote pack at the latest default-branch commit (or reapplies the current pin when only **lock–source hash mismatch** exists), then refreshes skills already listed in **cursor-skills-lock.json** for a scope. Does not install new skills that were never in the lock—use **add** for that. Summary separates **content changed** from **will relink N skills** on pin advance. Re-materializes using each lock entry’s **linkType** (symlink or copy); lock root **`defaultLinkType`** applies to new **`add`** installs.
 _Avoid_: `sync` as a substitute for upstream refresh, `npx skills update` (upstream Vercel CLI).
 
 **Check command**:
-Read-only drift report for a scope: lists **remote commit drift**, per-skill **source hash drift**, and broken install paths. Exits non-zero if anything is out of date; no lock or install writes.
+Read-only drift report for a scope: **pack commit drift**, per-skill **changed / unchanged / pin drift / orphan**, and manifest version drift. Exits non-zero when anything is out of date; no lock or install writes.
 _Avoid_: `update --dry-run` as the only surface (**`check`** remains the dedicated read-only command).
 
 **Orphan lock entry**:

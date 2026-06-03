@@ -12,7 +12,9 @@ import { resolveSkillDestDir } from './skill-paths.js';
 import {
   emptyLockfile,
   readLockfile,
+  resolveDefaultLinkType,
   syncLockRootFromBundle,
+  type DefaultLinkType,
   type Lockfile,
 } from './lockfile.js';
 import type { ScopePaths } from './scope.js';
@@ -47,20 +49,30 @@ export async function createInstallPlan(opts: {
   selected: string[];
   scope: ScopePaths;
   copy?: boolean;
+  linkType?: DefaultLinkType;
 }): Promise<InstallPlan> {
   const existingLock = await readLockfile(opts.scope.lockPath);
   const bundle = opts.bundle ?? (await resolveBundle({ source: opts.source }));
+  const resolvedLinkType: PlannedLinkType =
+    opts.linkType ?? (opts.copy ? 'copy' : existingLock ? resolveDefaultLinkType(existingLock) : 'symlink');
+
   const lock =
     existingLock ??
     emptyLockfile({
       source: bundle.githubSource,
       commit: bundle.commit,
       package: { name: bundle.packageName, version: bundle.packageVersion },
+      defaultLinkType: resolvedLinkType,
     });
+  if (!existingLock) {
+    lock.defaultLinkType = resolvedLinkType;
+  } else if (opts.linkType) {
+    lock.defaultLinkType = opts.linkType;
+  }
   syncLockRootFromBundle(lock, bundle);
 
   const { ordered, addedBy } = expandDependencies(bundle.manifest, opts.selected);
-  const linkType: PlannedLinkType = opts.copy ? 'copy' : 'symlink';
+  const linkType: PlannedLinkType = resolvedLinkType;
   const entries: InstallPlanEntry[] = [];
 
   for (const name of ordered) {

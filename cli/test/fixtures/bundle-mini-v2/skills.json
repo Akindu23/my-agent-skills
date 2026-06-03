@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "name": "bundle-mini",
+  "version": "0.1.0",
+  "skills": ["skills/alpha", "skills/beta"],
+  "dependsOn": {
+    "beta": ["alpha"]
+  }
+}

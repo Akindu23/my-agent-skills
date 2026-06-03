@@ -1,8 +1,35 @@
-import { confirm, multiselect, isCancel, cancel } from '@clack/prompts';
+import { confirm, multiselect, select, isCancel, cancel } from '@clack/prompts';
 import { skillNamesFromManifest, type BundleContext } from './bundle.js';
 import { CliCancel, CliError } from './errors.js';
 import type { InstallPlan } from './install-plan.js';
 import { failNonInteractive } from './output.js';
+
+export async function promptLinkType(
+  isTty: boolean,
+  flags: { copy?: boolean; symlink?: boolean },
+): Promise<'symlink' | 'copy'> {
+  if (flags.copy) return 'copy';
+  if (flags.symlink) return 'symlink';
+  if (!isTty) {
+    return 'symlink';
+  }
+
+  const choice = await select({
+    message: 'Materialize as',
+    options: [
+      { value: 'symlink', label: 'Symlink (recommended)' },
+      { value: 'copy', label: 'Copy' },
+    ],
+    initialValue: 'symlink',
+  });
+
+  if (isCancel(choice)) {
+    cancel('Cancelled.');
+    throw new CliCancel();
+  }
+
+  return choice as 'symlink' | 'copy';
+}
 
 export async function promptSkillSelection(
   bundle: BundleContext,
@@ -99,13 +126,14 @@ export async function confirmInstallPlan(
 export async function confirmProceed(opts: {
   action: ConfirmAction;
   autoYes: boolean;
+  message?: string;
 }): Promise<boolean> {
   if (opts.autoYes) {
     return true;
   }
 
   const ok = await confirm({
-    message: CONFIRM_MESSAGES[opts.action],
+    message: opts.message ?? CONFIRM_MESSAGES[opts.action],
     initialValue: true,
   });
 

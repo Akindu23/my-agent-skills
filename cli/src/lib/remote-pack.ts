@@ -1,4 +1,4 @@
-import { access, mkdir, rename, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -149,6 +149,30 @@ export async function resolveDefaultBranchHead(
   }
   const commit = (await headRes.text()).trim();
   return { commit, defaultBranch: branch };
+}
+
+/** Remove older SHA extract dirs for owner/repo; keep only keepCommit (best-effort). */
+export async function pruneRepoCache(source: string, keepCommit: string): Promise<void> {
+  const { owner, repo } = parseGitHubSource(source);
+  const repoDir = path.join(resolvePackCacheBase(), owner, repo);
+  let entries: string[];
+  try {
+    entries = await readdir(repoDir);
+  } catch {
+    return;
+  }
+
+  for (const entry of entries) {
+    if (entry === keepCommit) continue;
+    const target = path.join(repoDir, entry);
+    try {
+      await rm(target, { recursive: true, force: true });
+    } catch (err) {
+      console.warn(
+        `Could not prune cache entry ${target}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
 }
 
 export async function ensurePackAtCommit(

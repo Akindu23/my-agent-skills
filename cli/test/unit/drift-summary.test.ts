@@ -59,7 +59,7 @@ describe('renderDriftSummary', () => {
     expect(body).toContain('Manifest: in sync');
     expect(body).toContain('Remote: pinned at abc1234');
     expect(body).toContain('In sync: 1  Drift: 0  Orphans: 0');
-    expect(body).toContain('ok       alpha');
+    expect(body).toContain('ok         alpha');
   });
 
   it('shows drift and orphan counts in check mode', () => {
@@ -79,8 +79,30 @@ describe('renderDriftSummary', () => {
 
     expect(body).toContain('Manifest: version drift');
     expect(body).toContain('In sync: 0  Drift: 1  Orphans: 1');
-    expect(body).toContain('drift    alpha');
-    expect(body).toContain('orphan   ghost');
+    expect(body).toContain('drift      alpha');
+    expect(body).toContain('orphan     ghost');
+  });
+
+  it('shows changed/unchanged and will relink on commit drift', () => {
+    const body = stripAnsi(
+      renderDriftSummary(
+        {
+          ...basePlan,
+          commitDrift: true,
+          remoteCommit: 'def5678',
+          entries: [
+            { name: 'alpha', status: 'ok', remoteChanged: true },
+            { name: 'beta', status: 'ok', remoteChanged: false },
+          ],
+        },
+        { mode: 'check' },
+      ),
+    );
+
+    expect(body).toContain('Pack: commit drift');
+    expect(body).toContain('changed 1  unchanged 1');
+    expect(body).toContain('changed    alpha');
+    expect(body).toContain('unchanged  beta');
   });
 
   it('uses update labels in update mode', () => {
@@ -95,6 +117,26 @@ describe('renderDriftSummary', () => {
     );
 
     expect(body).toContain('To refresh: 1');
-    expect(body).toContain('update   alpha');
+    expect(body).toContain('update     alpha');
+  });
+
+  it('shows will relink line in update mode on commit drift', () => {
+    const body = stripAnsi(
+      renderDriftSummary(
+        {
+          ...basePlan,
+          commitDrift: true,
+          remoteCommit: 'def5678',
+          entries: [
+            { name: 'alpha', status: 'ok', remoteChanged: true },
+            { name: 'beta', status: 'ok', remoteChanged: false },
+          ],
+        },
+        { mode: 'update' },
+      ),
+    );
+
+    expect(body).toContain('Changed on remote: 1');
+    expect(body).toContain('Will relink: 2 skills');
   });
 });

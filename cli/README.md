@@ -149,6 +149,7 @@ Written by `src/lib/lockfile.ts`.
 - **`sourceType`:** `github`
 - **`commit`:** full 40-char SHA of the pinned pack
 - **`package`:** `{ name, version }` from remote `skills.json` at the pin
+- **`defaultLinkType`:** optional `symlink` | `copy` (defaults to `symlink` when missing; set on first **`add`** in interactive mode or via `--copy` / `--symlink`)
 - **`skills`:** map of skill name → entry:
   - `source`, `sourceType` (`github`)
   - `computedHash` (SHA-256 over skill folder files; see Hashing)
@@ -175,13 +176,15 @@ One CLI writer per scope is assumed (no file locking).
 
 | Status | Meaning |
 |--------|---------|
-| `ok` | Lock `computedHash` matches pack folder hash at pinned commit |
-| `hashDrift` | Pack content at pin differs from lock hash |
-| `orphan` | Skill in lock but not in manifest at pin |
+| `ok` | Lock `computedHash` matches pack folder hash at **pinned** commit |
+| `hashDrift` | Lock hash ≠ pack at pin (**pin drift**) |
+| `orphan` | Skill in lock but not in manifest at the **remote** commit when pack pin is behind |
 
-**Commit drift:** default branch HEAD on GitHub ≠ lock `commit`. **`update`** fetches the new SHA and re-materializes all locked skills.
+When **commit drift** (lock pin behind GitHub HEAD), **`check`** also labels each skill **changed** vs **unchanged** by comparing the lock hash to content at the **remote** commit. **`update`** on pin advance **relinks all** non-orphan skills (even unchanged content) so install paths target the new cache SHA; the summary shows **content changed** separately from **will relink N skills**.
 
-**Manifest drift:** `lock.package.version` ≠ `skills.json` version at pin.
+**Cache:** after a successful pin advance, **`pruneRepoCache`** removes older SHA directories under `<cache>/<owner>/<repo>/` (keeps the new pin only).
+
+**Manifest drift:** `lock.package.version` ≠ `skills.json` at the relevant commit (remote when commit drift).
 
 **Note:** `check` compares **pack cache** hashes, not live edits inside a **copy** install.
 
@@ -201,12 +204,13 @@ One CLI writer per scope is assumed (no file locking).
 
 Default: **directory symlink** to the bundle source (`junction` on Windows).
 
-- **`add --copy`** / **`sync --copy`:** recursive copy instead of symlink.
+- **`add --copy`** / **`add --symlink`** / **`sync --copy`:** override interactive **Materialize as** picker.
+- Interactive **`add`:** after scope, choose **Symlink (recommended)** or **Copy**; sets `defaultLinkType` and per-skill `linkType` for that run.
 - Symlink failure (`EPERM` / `EACCES`): error suggests `--copy` or Windows Developer Mode.
 
 **`sync`:** for each lock entry, if destination is missing or a **broken symlink**, re-materialize from bundle and refresh hash in lock.
 
-**`update`:** re-materializes **hashDrift** skills using the **existing** `linkType` from the lock (`materializeFromLockEntry`).
+**`update`:** on pin advance, re-materializes **all** non-orphan skills; otherwise only **hashDrift**. Always uses each lock entry’s **`linkType`** (`materializeFromLockEntry`).
 
 ---
 
@@ -328,25 +332,43 @@ Report lock vs bundle drift. Does **not** mutate disk except in the hub shortcut
   "inSync": false,
   "scope": "project",
   "lockPath": "...",
+  "summary": {
+    "changedOnRemote": 1,
+    "unchangedOnRemote": 7,
+    "pinDrift": 0,
+    "orphans": 0,
+    "willRelink": 8
+  },
+  "remote": {
+    "source": "Akindu23/my-agent-skills",
+    "lockCommit": "abc…",
+    "remoteCommit": "def…",
+    "commitDrift": true
+  },
   "package": {
     "name": "cursor-agent-skills",
     "lockVersion": "0.1.0",
     "bundleVersion": "0.1.0",
-    "drift": true
+    "manifestDrift": false
   },
   "skills": [
-    { "name": "caveman", "status": "ok", "linkType": "symlink" }
+    {
+      "name": "caveman",
+      "status": "ok",
+      "linkType": "symlink",
+      "remote": { "changed": true }
+    }
   ]
 }
 ```
 
 ### `update`
 
-Apply drift fixes: refresh **hashDrift** skills from bundle; handle **orphans** per policy.
+Apply drift fixes: on **commit drift**, fetch remote SHA, prune old cache dirs, **relink all** non-orphan skills, and advance the lock pin; otherwise refresh **hashDrift** skills only. Handles **orphans** per policy. TTY confirm text includes changed vs relink counts.
 
 | Flag | Description |
 |------|-------------|
-| `-y` | Skip **Proceed with update?** in TTY |
+| `-y` | Skip update confirm in TTY |
 | `--source` | Bundle override |
 
 **Orphans:** interactive **per-skill** confirm; non-interactive **skips** with a warning (does not remove). Hub **check** shortcut uses `orphanPolicy: 'skip'`.
@@ -358,12 +380,15 @@ Syncs lock `package.version` when package drift or skill updates occur.
 ```json
 {
   "scope": "project",
-  "updated": ["caveman"],
+  "updated": ["alpha", "beta"],
+  "contentChanged": ["alpha"],
   "orphansRemoved": [],
   "orphansSkipped": [],
   "lockPath": "..."
 }
 ```
+
+`updated` = all re-materialized skills; `contentChanged` = skills whose remote content differed from the lock hash.
 
 ---
 

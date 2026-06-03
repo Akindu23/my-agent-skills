@@ -87,6 +87,7 @@ describe('runAdd interactive flow', () => {
       'select',
       'note',
       'multiselect',
+      'select',
       'note',
       'confirm',
       'note',

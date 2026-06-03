@@ -16,13 +16,21 @@ export interface LockSkillEntry {
   updatedAt: string;
 }
 
+export type DefaultLinkType = 'symlink' | 'copy';
+
 export interface Lockfile {
   version: number;
   source: string;
   sourceType: 'github';
   commit: string;
+  /** Default materialization for new skills; per-skill linkType overrides. */
+  defaultLinkType?: DefaultLinkType;
   package: { name: string; version: string };
   skills: Record<string, LockSkillEntry>;
+}
+
+export function resolveDefaultLinkType(lock: Lockfile): DefaultLinkType {
+  return lock.defaultLinkType ?? 'symlink';
 }
 
 interface LockfileV1 {
@@ -59,6 +67,7 @@ function migrateV1ToV2(data: LockfileV1): Lockfile {
     source: DEFAULT_GITHUB_SOURCE,
     sourceType: 'github',
     commit: '',
+    defaultLinkType: 'symlink',
     package: data.package,
     skills,
   };
@@ -137,12 +146,14 @@ export function emptyLockfile(opts: {
   source: string;
   commit: string;
   package: { name: string; version: string };
+  defaultLinkType?: DefaultLinkType;
 }): Lockfile {
   return {
     version: LOCK_VERSION,
     source: opts.source,
     sourceType: 'github',
     commit: opts.commit,
+    defaultLinkType: opts.defaultLinkType ?? 'symlink',
     package: opts.package,
     skills: {},
   };

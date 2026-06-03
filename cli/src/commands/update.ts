@@ -1,5 +1,9 @@
 import { note, outro } from '@clack/prompts';
-import { applyDriftPlan, planHasWork } from '../lib/apply-drift-plan.js';
+import {
+  applyDriftPlan,
+  formatUpdateConfirmMessage,
+  planHasWork,
+} from '../lib/apply-drift-plan.js';
 import { createDriftPlan } from '../lib/drift-plan.js';
 import { renderDriftSummary } from '../lib/drift-summary.js';
 import { printJson } from '../lib/output.js';
@@ -33,6 +37,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
       printJson({
         scope: scope.scope,
         updated: [],
+        contentChanged: [],
         orphansRemoved: [],
         orphansSkipped: [],
         lockPath: scope.lockPath,
@@ -49,7 +54,11 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
 
   if (isInteractive) {
     note(renderDriftSummary(plan, { mode: 'update' }), 'Update summary');
-    const proceed = await confirmProceed({ action: 'update', autoYes: opts.yes ?? false });
+    const proceed = await confirmProceed({
+      action: 'update',
+      autoYes: opts.yes ?? false,
+      message: formatUpdateConfirmMessage(plan),
+    });
     if (!proceed) {
       outro('Cancelled. No changes made.');
       return;
@@ -67,6 +76,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
       printJson({
         scope: scope.scope,
         updated: [],
+        contentChanged: [],
         orphansRemoved: result.orphansRemoved,
         orphansSkipped: result.orphansSkipped,
         lockPath: scope.lockPath,
@@ -83,6 +93,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     printJson({
       scope: scope.scope,
       updated: result.updated,
+      contentChanged: result.contentChanged,
       orphansRemoved: result.orphansRemoved,
       orphansSkipped: result.orphansSkipped,
       lockPath: scope.lockPath,
@@ -91,19 +102,30 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
   }
 
   if (isInteractive) {
-    const parts: string[] = [];
     if (result.updated.length > 0) {
-      parts.push(`updated ${result.updated.length} skill(s)`);
+      const changed = result.contentChanged.length;
+      if (plan.commitDrift && changed > 0) {
+        outro(`Relinked ${result.updated.length} skill(s); ${changed} changed on remote.`);
+      } else if (result.updated.length > 0) {
+        outro(`Updated ${result.updated.length} skill(s).`);
+      }
+    } else if (result.orphansRemoved.length > 0) {
+      outro(`Removed ${result.orphansRemoved.length} orphan(s).`);
+    } else {
+      outro('Lock synced with remote pack.');
     }
-    if (result.orphansRemoved.length > 0) {
-      parts.push(`removed ${result.orphansRemoved.length} orphan(s)`);
-    }
-    outro(parts.length > 0 ? parts.join(', ') : 'Lock synced with remote pack.');
     return;
   }
 
   if (result.updated.length > 0) {
-    console.log(`Updated ${result.updated.length} skill(s) in ${scope.skillsDir} (${scope.scope})`);
+    const changed = result.contentChanged.length;
+    if (plan.commitDrift && changed > 0) {
+      console.log(
+        `Relinked ${result.updated.length} skill(s); ${changed} changed on remote (${scope.scope})`,
+      );
+    } else {
+      console.log(`Updated ${result.updated.length} skill(s) in ${scope.skillsDir} (${scope.scope})`);
+    }
   } else if (plan.commitDrift || plan.manifestDrift) {
     console.log(`Synced lock with remote pack (${scope.scope})`);
   }

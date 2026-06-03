@@ -1,0 +1,105 @@
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { applyDriftPlan } from '../../src/lib/apply-drift-plan.js';
+import { resolveBundle } from '../../src/lib/bundle.js';
+import { planDriftFromBundles } from '../../src/lib/drift-plan.js';
+import { computeSkillFolderHash } from '../../src/lib/hash.js';
+import { readLockfile, LOCK_VERSION } from '../../src/lib/lockfile.js';
+import * as remotePack from '../../src/lib/remote-pack.js';
+import type { ScopePaths } from '../../src/lib/scope.js';
+import { DEFAULT_GITHUB_SOURCE } from '../../src/lib/constants.js';
+
+const cliRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const bundleMini = path.join(cliRoot, 'test/fixtures/bundle-mini/skills');
+const bundleMiniV2 = path.join(cliRoot, 'test/fixtures/bundle-mini-v2/skills');
+const tmpDirs: string[] = [];
+
+async function tempScope(): Promise<ScopePaths> {
+  const cwd = await mkdtemp(path.join(os.tmpdir(), 'cas-apply-drift-'));
+  tmpDirs.push(cwd);
+  const agentsDir = path.join(cwd, '.agents');
+  const skillsDir = path.join(agentsDir, 'skills');
+  await mkdir(skillsDir, { recursive: true });
+  return {
+    scope: 'project',
+    cwd,
+    agentsDir,
+    skillsDir,
+    lockPath: path.join(agentsDir, 'cursor-skills-lock.json'),
+  };
+}
+
+afterEach(async () => {
+  vi.restoreAllMocks();
+  await Promise.all(tmpDirs.splice(0).map((d) => rm(d, { recursive: true, force: true })));
+});
+
+describe('applyDriftPlan commit advance', () => {
+  it('relinks all skills, advances lock commit, and prunes cache', async () => {
+    const scope = await tempScope();
+    const pinBundle = await resolveBundle({ source: bundleMini });
+    const remoteBundle = await resolveBundle({ source: bundleMiniV2 });
+    const alphaPinHash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
+    const betaHash = await computeSkillFolderHash(path.join(bundleMini, 'beta'));
+
+    await symlink(path.join(bundleMini, 'alpha'), path.join(scope.skillsDir, 'alpha'), 'dir');
+    await symlink(path.join(bundleMini, 'beta'), path.join(scope.skillsDir, 'beta'), 'dir');
+
+    const lockBody = {
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: 'pin-old-sha',
+      defaultLinkType: 'symlink',
+      package: { name: 'bundle-mini', version: '0.0.0' },
+      skills: {
+        alpha: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: alphaPinHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+        beta: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: betaHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    };
+    await writeFile(scope.lockPath, JSON.stringify(lockBody));
+
+    const lock = (await readLockfile(scope.lockPath))!;
+    const plan = await planDriftFromBundles({
+      scope,
+      lock,
+      bundle: pinBundle,
+      remoteBundle,
+      commitDrift: true,
+      remoteCommit: remoteBundle.commit,
+    });
+
+    const pruneSpy = vi.spyOn(remotePack, 'pruneRepoCache').mockResolvedValue(undefined);
+
+    const result = await applyDriftPlan(plan, {
+      orphanPolicy: 'skip',
+      isInteractive: false,
+    });
+
+    expect(result.updated).toEqual(['alpha', 'beta']);
+    expect(result.contentChanged).toEqual(['alpha']);
+
+    const after = await readLockfile(scope.lockPath);
+    expect(after?.commit).toBe(remoteBundle.commit);
+    const alphaRemoteHash = await computeSkillFolderHash(path.join(bundleMiniV2, 'alpha'));
+    expect(after?.skills.alpha?.computedHash).toBe(alphaRemoteHash);
+    expect(pruneSpy).toHaveBeenCalledWith(DEFAULT_GITHUB_SOURCE, remoteBundle.commit);
+  });
+});
