@@ -47,7 +47,7 @@ describe('list-summary', () => {
           scope: 'project',
           agentsDir: '/proj/.agents',
           skillsDir: '/proj/.agents/skills',
-          lockPath: '/proj/.agents/cursor-skills.lock',
+          lockPath: '/proj/.agents/cursor-skills-lock.json',
           cwd: '/proj',
         },
         bundle: miniBundle,
@@ -55,7 +55,7 @@ describe('list-summary', () => {
       }),
     );
 
-    expect(body).toContain('Lockfile: /proj/.agents/cursor-skills.lock');
+    expect(body).toContain('Lockfile: /proj/.agents/cursor-skills-lock.json');
     expect(body).toContain('STATUS   NAME');
     expect(body).toContain('ok       alpha');
     expect(body).toMatch(/beta\s+symlink\s+efgh5678\s+alpha/);

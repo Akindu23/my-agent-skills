@@ -23,7 +23,7 @@ async function tempScope(): Promise<ScopePaths> {
     cwd,
     agentsDir,
     skillsDir: path.join(agentsDir, 'skills'),
-    lockPath: path.join(agentsDir, 'cursor-skills.lock'),
+    lockPath: path.join(agentsDir, 'cursor-skills-lock.json'),
   };
 }
 

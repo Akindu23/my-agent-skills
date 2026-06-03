@@ -37,7 +37,7 @@ function minimalPlan(scopeDir: string): InstallPlan {
       cwd: scopeDir,
       agentsDir,
       skillsDir,
-      lockPath: path.join(agentsDir, 'cursor-skills.lock'),
+      lockPath: path.join(agentsDir, 'cursor-skills-lock.json'),
     },
     selected: ['alpha', 'beta'],
     ordered: ['alpha', 'beta'],

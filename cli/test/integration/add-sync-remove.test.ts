@@ -45,7 +45,7 @@ describe('integration', () => {
     const st = await lstat(dest);
     expect(st.isSymbolicLink()).toBe(true);
 
-    const lockRaw = await readFile(path.join(project, '.agents/cursor-skills.lock'), 'utf8');
+    const lockRaw = await readFile(path.join(project, '.agents/cursor-skills-lock.json'), 'utf8');
     const lock = JSON.parse(lockRaw);
     expect(lock.skills.beta.linkType).toBe('symlink');
 

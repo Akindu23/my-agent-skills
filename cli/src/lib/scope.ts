@@ -38,7 +38,7 @@ export function resolveScope(
     scope,
     agentsDir,
     skillsDir: path.join(agentsDir, 'skills'),
-    lockPath: path.join(agentsDir, 'cursor-skills.lock'),
+    lockPath: path.join(agentsDir, 'cursor-skills-lock.json'),
     cwd,
   };
 }

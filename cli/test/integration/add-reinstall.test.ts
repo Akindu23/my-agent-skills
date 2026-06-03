@@ -35,7 +35,7 @@ async function projectWithDriftedAlpha(): Promise<string> {
   const alphaSource = path.join(bundleMini, 'alpha');
   const alphaDest = path.join(project, '.agents/skills/alpha');
   const hash = await computeSkillFolderHash(alphaSource);
-  const lockPath = path.join(project, '.agents/cursor-skills.lock');
+  const lockPath = path.join(project, '.agents/cursor-skills-lock.json');
   const lock = JSON.parse(await readFile(lockPath, 'utf8'));
   lock.skills.alpha.computedHash = 'stale-hash';
   await rm(lockPath);
@@ -65,7 +65,7 @@ describe('add reinstall (hash drift)', () => {
     expect(payload.installed).toEqual([]);
 
     const lock = JSON.parse(
-      await readFile(path.join(project, '.agents/cursor-skills.lock'), 'utf8'),
+      await readFile(path.join(project, '.agents/cursor-skills-lock.json'), 'utf8'),
     );
     const bundleHash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
     expect(lock.skills.alpha.computedHash).toBe(bundleHash);

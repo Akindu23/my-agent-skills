@@ -24,7 +24,7 @@ describe('lockfile', () => {
   it('round-trips v2 with sorted skill keys', async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), 'lock-'));
     dirs.push(dir);
-    const lockPath = path.join(dir, 'cursor-skills.lock');
+    const lockPath = path.join(dir, 'cursor-skills-lock.json');
 
     let lock = emptyLockfile({
       source: DEFAULT_GITHUB_SOURCE,
@@ -57,7 +57,7 @@ describe('lockfile', () => {
   it('auto-migrates v1 lock to v2 on read', async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), 'lock-v1-'));
     dirs.push(dir);
-    const lockPath = path.join(dir, 'cursor-skills.lock');
+    const lockPath = path.join(dir, 'cursor-skills-lock.json');
     await writeFile(
       lockPath,
       JSON.stringify({
@@ -87,7 +87,7 @@ describe('lockfile', () => {
   it('rejects invalid lock version on read', async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), 'lock-bad-ver-'));
     dirs.push(dir);
-    const lockPath = path.join(dir, 'cursor-skills.lock');
+    const lockPath = path.join(dir, 'cursor-skills-lock.json');
     await writeFile(
       lockPath,
       JSON.stringify({
@@ -106,7 +106,7 @@ describe('lockfile', () => {
   it('rejects malicious skill keys on read', async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), 'lock-bad-key-'));
     dirs.push(dir);
-    const lockPath = path.join(dir, 'cursor-skills.lock');
+    const lockPath = path.join(dir, 'cursor-skills-lock.json');
     await writeFile(
       lockPath,
       JSON.stringify({

@@ -113,7 +113,7 @@ export async function writeLockfile(lockPath: string, lock: Lockfile): Promise<v
   const dir = path.dirname(lockPath);
   const tmp = path.join(
     dir,
-    `.cursor-skills.lock.${process.pid}.${randomBytes(4).toString('hex')}.tmp`,
+    `.cursor-skills-lock.json.${process.pid}.${randomBytes(4).toString('hex')}.tmp`,
   );
 
   try {

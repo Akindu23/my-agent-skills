@@ -26,7 +26,7 @@ function minimalPlan(
       cwd: '/tmp',
       agentsDir: '/tmp/.agents',
       skillsDir: '/tmp/.agents/skills',
-      lockPath: '/tmp/.agents/cursor-skills.lock',
+      lockPath: '/tmp/.agents/cursor-skills-lock.json',
     },
     selected,
     ordered,

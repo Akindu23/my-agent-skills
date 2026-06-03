@@ -29,7 +29,7 @@ describe('sync-summary', () => {
           scope: 'project',
           agentsDir: '/proj/.agents',
           skillsDir: '/proj/.agents/skills',
-          lockPath: '/proj/.agents/cursor-skills.lock',
+          lockPath: '/proj/.agents/cursor-skills-lock.json',
           cwd: '/proj',
         },
         bundle: miniBundle,

@@ -1,6 +1,6 @@
 # cursor-agent-skills
 
-Node CLI (npm package **`cursor-agent-skills`**) that installs and maintains the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) **remote skill pack** under Cursor’s **`.agents/skills/`** layout, with a per-scope **`cursor-skills.lock`** for reproducibility and drift detection. The npm package ships the **CLI only**; skill content is fetched from GitHub at a pinned commit.
+Node CLI (npm package **`cursor-agent-skills`**) that installs and maintains the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) **remote skill pack** under Cursor’s **`.agents/skills/`** layout, with a per-scope **`cursor-skills-lock.json`** for reproducibility and drift detection. The npm package ships the **CLI only**; skill content is fetched from GitHub at a pinned commit.
 
 **Audience:** contributors working in `cli/`, operators scripting installs in CI, and agents automating skill lifecycle commands.
 
@@ -31,7 +31,7 @@ Published binary name: **`cursor-agent-skills`** (`package.json` → `bin`).
 | Concern | Behavior |
 |--------|----------|
 | **Install** | Materialize selected skills as **symlinks** (default) or **copies** into `.agents/skills/<name>/` |
-| **Lock** | Record installed skills, content hashes, link type, GitHub source, and pinned commit in `cursor-skills.lock` |
+| **Lock** | Record installed skills, content hashes, link type, GitHub source, and pinned commit in `cursor-skills-lock.json` |
 | **Dependencies** | Auto-install `dependsOn` skills from `skills.json` when a dependent is selected |
 | **Drift** | Compare lock to the remote pack at the pinned commit; detect commit drift vs default branch |
 | **Repair** | `sync` re-creates missing or broken links without changing the skill set |
@@ -78,8 +78,8 @@ Two scopes; pass **exactly one** of `-p` / `--project` or `-g` / `--global` in s
 
 | Scope | Skills directory | Lockfile |
 |-------|------------------|----------|
-| **Project** (`-p`) | `<cwd>/.agents/skills/` | `<cwd>/.agents/cursor-skills.lock` |
-| **Global** (`-g`) | `~/.agents/skills/` | `~/.agents/cursor-skills.lock` |
+| **Project** (`-p`) | `<cwd>/.agents/skills/` | `<cwd>/.agents/cursor-skills-lock.json` |
+| **Global** (`-g`) | `~/.agents/skills/` | `~/.agents/cursor-skills-lock.json` |
 
 **Interactive:** if neither flag is set, a **Select scope** prompt runs (`resolveScopeInteractive` in `src/lib/scope.ts`).
 
@@ -89,7 +89,7 @@ Two scopes; pass **exactly one** of `-p` / `--project` or `-g` / `--global` in s
 
 ### Recommended team workflow
 
-- Commit **`.agents/cursor-skills.lock`** to git.
+- Commit **`.agents/cursor-skills-lock.json`** to git.
 - Gitignore **`.agents/skills/`** (materialized trees) and the **pack fetch cache** (see below).
 - After clone: `cursor-agent-skills sync -p -y`.
 
@@ -140,7 +140,7 @@ Validation: every listed skill must have `SKILL.md` under the repo root path imp
 
 ---
 
-## Lockfile (`cursor-skills.lock`)
+## Lockfile (`cursor-skills-lock.json`)
 
 Written by `src/lib/lockfile.ts`.
 
@@ -265,7 +265,7 @@ Install skills into the chosen scope.
   "installed": ["caveman"],
   "reinstalled": [],
   "skipped": [],
-  "lockPath": "/path/to/.agents/cursor-skills.lock"
+  "lockPath": "/path/to/.agents/cursor-skills-lock.json"
 }
 ```
 

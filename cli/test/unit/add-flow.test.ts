@@ -117,7 +117,7 @@ describe('runAdd interactive flow', () => {
     const agentsSkills = path.join(project, '.agents/skills');
     await mkdir(agentsSkills, { recursive: true });
     await symlink(alphaSource, path.join(agentsSkills, 'alpha'), 'dir');
-    await writeFile(path.join(project, '.agents/cursor-skills.lock'), JSON.stringify({
+    await writeFile(path.join(project, '.agents/cursor-skills-lock.json'), JSON.stringify({
       version: 1,
       package: { name: 'bundle-mini', version: '0.0.0' },
       skills: {
@@ -143,7 +143,7 @@ describe('runAdd interactive flow', () => {
 
     expect(confirmMessages[0]).toContain('Overwrite 1 skill(s) with bundle content?');
     const lock = JSON.parse(
-      await readFile(path.join(project, '.agents/cursor-skills.lock'), 'utf8'),
+      await readFile(path.join(project, '.agents/cursor-skills-lock.json'), 'utf8'),
     );
     const hash = await computeSkillFolderHash(alphaSource);
     expect(lock.skills.alpha.computedHash).toBe(hash);
@@ -156,7 +156,7 @@ describe('runAdd interactive flow', () => {
     const agentsSkills = path.join(project, '.agents/skills');
     await mkdir(agentsSkills, { recursive: true });
     await symlink(alphaSource, path.join(agentsSkills, 'alpha'), 'dir');
-    const lockPath = path.join(project, '.agents/cursor-skills.lock');
+    const lockPath = path.join(project, '.agents/cursor-skills-lock.json');
     const lockBefore = {
       version: 1,
       package: { name: 'bundle-mini', version: '0.0.0' },

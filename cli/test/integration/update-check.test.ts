@@ -30,7 +30,7 @@ describe('update and check integration', () => {
   it('check exits 1 on drift; update refreshes; check exits 0', async () => {
     const project = await emptyProject();
     const env = { CURSOR_AGENT_SKILLS_ROOT: bundleMini };
-    const lockPath = path.join(project, '.agents/cursor-skills.lock');
+    const lockPath = path.join(project, '.agents/cursor-skills-lock.json');
 
     let result = await runCli(
       ['add', '--skill', 'alpha', '-p', '-y', '--json'],
@@ -62,7 +62,7 @@ describe('update and check integration', () => {
   it('reports orphan on check; update -y warns without removing', async () => {
     const project = await emptyProject();
     const env = { CURSOR_AGENT_SKILLS_ROOT: bundleMini };
-    const lockPath = path.join(project, '.agents/cursor-skills.lock');
+    const lockPath = path.join(project, '.agents/cursor-skills-lock.json');
 
     await runCli(['add', '--skill', 'alpha', '-p', '-y'], { cwd: project, env });
 

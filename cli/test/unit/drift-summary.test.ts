@@ -24,7 +24,7 @@ const basePlan: DriftPlan = {
     scope: 'project',
     agentsDir: '/proj/.agents',
     skillsDir: '/proj/.agents/skills',
-    lockPath: '/proj/.agents/cursor-skills.lock',
+    lockPath: '/proj/.agents/cursor-skills-lock.json',
     cwd: '/proj',
   },
   lock: {
@@ -55,7 +55,7 @@ describe('renderDriftSummary', () => {
 
     expect(body).toContain('Pack: bundle-mini v0.1.0');
     expect(body).toContain('Scope: project');
-    expect(body).toContain('Lockfile: /proj/.agents/cursor-skills.lock');
+    expect(body).toContain('Lockfile: /proj/.agents/cursor-skills-lock.json');
     expect(body).toContain('Manifest: in sync');
     expect(body).toContain('Remote: pinned at abc1234');
     expect(body).toContain('In sync: 1  Drift: 0  Orphans: 0');

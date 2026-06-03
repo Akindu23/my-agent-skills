@@ -6,7 +6,7 @@ const resolveScopeInteractiveMock = vi.fn(async () => ({
   cwd: '/proj',
   agentsDir: '/proj/.agents',
   skillsDir: '/proj/.agents/skills',
-  lockPath: '/proj/.agents/cursor-skills.lock',
+  lockPath: '/proj/.agents/cursor-skills-lock.json',
 }));
 
 vi.mock('../../src/lib/banner.js', () => ({
