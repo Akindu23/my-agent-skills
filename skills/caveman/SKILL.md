@@ -24,12 +24,12 @@ Pattern: `[thing] [action] [reason]. [next step].`
 Not: "Sure! I'd be happy to help you with that. The issue you're experiencing is likely caused by..."
 Yes: "Bug in auth middleware. Token expiry check use `<` not `<=`. Fix:"
 
-### Examples
-
+### Example 1: 
 **"Why React component re-render?"**
 
 > Inline obj prop -> new ref -> re-render. `useMemo`.
 
+### Example 2: 
 **"Explain database connection pooling."**
 
 > Pool = reuse DB conn. Skip handshake -> fast under load.
