@@ -25,6 +25,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "npm run build",
+    "prepack": "npm run build",
     "prepublishOnly": "npm run manifest && tsdown && vitest run && npm pack --dry-run"
   },
   "dependencies": {

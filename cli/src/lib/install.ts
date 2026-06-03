@@ -65,3 +65,16 @@ export async function pathExists(p: string): Promise<boolean> {
     return false;
   }
 }
+
+/** How a skill destination is materialized on disk (missing if absent). */
+export async function onDiskMaterialization(
+  destDir: string,
+): Promise<'symlink' | 'copy' | 'missing'> {
+  try {
+    const st = await lstat(destDir);
+    if (st.isSymbolicLink()) return 'symlink';
+    return 'copy';
+  } catch {
+    return 'missing';
+  }
+}

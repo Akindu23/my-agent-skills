@@ -44,6 +44,12 @@ export async function runAdd(opts: AddOptions): Promise<void> {
         skills: opts.skill,
         all: opts.all,
       });
+      if (ctx.isInteractive && !opts.copy && !opts.symlink) {
+        note(
+          'Symlinks point at the pack cache (recommended). Copies are standalone folders under .agents/skills.',
+          'Install mode',
+        );
+      }
       linkType = await promptLinkType(ctx.isInteractive, {
         copy: opts.copy,
         symlink: opts.symlink,

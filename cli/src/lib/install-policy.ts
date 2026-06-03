@@ -1,15 +1,16 @@
-import { isBrokenLink, pathExists } from './install.js';
+import { isBrokenLink, onDiskMaterialization, pathExists } from './install.js';
 import type { LockSkillEntry } from './lockfile.js';
-import type { PlannedInstallAction } from './install-plan.js';
+import type { PlannedInstallAction, PlannedLinkType } from './install-plan.js';
 
 export async function resolvePlannedInstallAction(opts: {
   destDir: string;
   bundleHash: string;
   lockEntry?: LockSkillEntry;
+  plannedLinkType: PlannedLinkType;
 }): Promise<PlannedInstallAction> {
-  const { destDir, bundleHash, lockEntry } = opts;
-  const onDisk = await pathExists(destDir);
-  const healthy = onDisk && !(await isBrokenLink(destDir));
+  const { destDir, bundleHash, lockEntry, plannedLinkType } = opts;
+  const onDisk = await onDiskMaterialization(destDir);
+  const healthy = onDisk !== 'missing' && !(await isBrokenLink(destDir));
 
   if (!healthy) {
     return lockEntry ? 'update' : 'new';
@@ -19,8 +20,12 @@ export async function resolvePlannedInstallAction(opts: {
     return 'new';
   }
 
+  const linkTypeMismatch =
+    onDisk !== plannedLinkType ||
+    lockEntry.linkType !== plannedLinkType;
+
   if (lockEntry.computedHash === bundleHash) {
-    return 'skip';
+    return linkTypeMismatch ? 'confirm' : 'skip';
   }
 
   return 'confirm';

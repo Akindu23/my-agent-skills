@@ -90,6 +90,7 @@ export async function createInstallPlan(opts: {
       destDir,
       bundleHash: computedHash,
       lockEntry: lock.skills[name],
+      plannedLinkType: linkType,
     });
 
     entries.push({

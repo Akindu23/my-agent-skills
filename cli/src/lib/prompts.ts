@@ -15,7 +15,7 @@ export async function promptLinkType(
   }
 
   const choice = await select({
-    message: 'Materialize as',
+    message: 'Materialize skills as (↑↓ to move, enter to select)',
     options: [
       { value: 'symlink', label: 'Symlink (recommended)' },
       { value: 'copy', label: 'Copy' },

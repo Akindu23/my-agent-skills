@@ -5,7 +5,12 @@ import {
   readSkillFrontmatterName,
 } from '../lib/bundle.js';
 import { computeSkillFolderHash } from '../lib/hash.js';
-import { materializeSkill, pathExists, isBrokenLink } from '../lib/install.js';
+import {
+  materializeSkill,
+  pathExists,
+  isBrokenLink,
+  onDiskMaterialization,
+} from '../lib/install.js';
 import {
   readLockfile,
   syncLockRootFromBundle,
@@ -51,9 +56,15 @@ export async function runSync(opts: SyncOptions): Promise<void> {
 
   for (const name of Object.keys(lock.skills).sort()) {
     const destDir = resolveSkillDestDir(scope.skillsDir, name);
+    const entry = lock.skills[name]!;
     const exists = await pathExists(destDir);
     const broken = exists && (await isBrokenLink(destDir));
-    const needsInstall = !exists || broken;
+    const wantCopy = opts.copy ?? entry.linkType === 'copy';
+    const onDisk = await onDiskMaterialization(destDir);
+    const linkTypeMismatch =
+      onDisk !== 'missing' &&
+      ((wantCopy && onDisk === 'symlink') || (!wantCopy && onDisk === 'copy'));
+    const needsInstall = !exists || broken || linkTypeMismatch;
 
     if (!needsInstall) {
       ok.push(name);
@@ -70,10 +81,9 @@ export async function runSync(opts: SyncOptions): Promise<void> {
     const linkType = await materializeSkill({
       sourceDir,
       destDir,
-      copy: opts.copy ?? false,
+      copy: wantCopy,
     });
     const computedHash = await computeSkillFolderHash(sourceDir);
-    const entry = lock.skills[name]!;
 
     upsertSkill(lock, name, {
       source: entry.source,

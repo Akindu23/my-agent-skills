@@ -81,7 +81,7 @@ describe('createInstallPlan', () => {
 
     expect(plan.linkType).toBe('copy');
     expect(plan.entries).toMatchObject([
-      { name: 'alpha', action: 'skip', linkType: 'copy' },
+      { name: 'alpha', action: 'confirm', linkType: 'copy' },
     ]);
   });
 

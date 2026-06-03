@@ -40,8 +40,26 @@ describe('resolvePlannedInstallAction', () => {
       destDir: dest,
       bundleHash: 'abc',
       lockEntry: entry('abc'),
+      plannedLinkType: 'symlink',
     });
     expect(action).toBe('skip');
+  });
+
+  it('confirms when hash matches but planned copy and on-disk is symlink', async () => {
+    const root = await tempDir();
+    const target = path.join(root, 'bundle', 'alpha');
+    const dest = path.join(root, 'dest', 'alpha');
+    await mkdir(target, { recursive: true });
+    await mkdir(path.dirname(dest), { recursive: true });
+    await symlink(target, dest, 'dir');
+
+    const action = await resolvePlannedInstallAction({
+      destDir: dest,
+      bundleHash: 'abc',
+      lockEntry: { ...entry('abc'), linkType: 'symlink' },
+      plannedLinkType: 'copy',
+    });
+    expect(action).toBe('confirm');
   });
 
   it('confirms when healthy but hash differs', async () => {
@@ -56,6 +74,7 @@ describe('resolvePlannedInstallAction', () => {
       destDir: dest,
       bundleHash: 'new-hash',
       lockEntry: entry('old-hash'),
+      plannedLinkType: 'symlink',
     });
     expect(action).toBe('confirm');
   });
@@ -66,6 +85,7 @@ describe('resolvePlannedInstallAction', () => {
     const action = await resolvePlannedInstallAction({
       destDir: dest,
       bundleHash: 'abc',
+      plannedLinkType: 'symlink',
     });
     expect(action).toBe('new');
   });
@@ -77,6 +97,7 @@ describe('resolvePlannedInstallAction', () => {
       destDir: dest,
       bundleHash: 'abc',
       lockEntry: entry('abc'),
+      plannedLinkType: 'symlink',
     });
     expect(action).toBe('update');
   });
