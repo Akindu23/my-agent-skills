@@ -1,496 +1,84 @@
 # cursor-agent-skills
 
-Node CLI (npm package **`cursor-agent-skills`**) that installs and maintains the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) **remote skill pack** under Cursor’s **`.agents/skills/`** layout, with a per-scope **`cursor-skills-lock.json`** for reproducibility and drift detection. The npm package ships the **CLI only**; skill content is fetched from GitHub at a pinned commit.
+**cursor-agent-skills** is a Node CLI that installs and maintains this repository’s [Cursor Agent Skills](https://github.com/Akindu23/my-agent-skills) pack under `.agents/skills/` (project or global). It downloads skill content from GitHub at a pinned commit, records installs in **`cursor-skills-lock.json`**, and provides commands to add skills, repair links after clone, and check or update when the pack moves forward. The npm package ships the **installer only**—not the skill trees themselves.
 
-**Audience:** contributors working in `cli/`, operators scripting installs in CI, and agents automating skill lifecycle commands.
+This tool is **not** [Vercel’s `npx skills`](https://github.com/vercel-labs/skills) installer; lockfile and paths are separate so they do not collide with `skills-lock.json`.
 
-Requires **Node ≥ 20**.
+**Requires Node ≥ 20.** Binary name: **`cursor-agent-skills`**.
+
+---
 
 ## Quick start
 
 ```bash
-# From this repo (development)
-cd cli && npm install && npm run build
-
-# Install one skill into the current project (non-interactive)
-node dist/cli.js add --skill caveman -p -y
-
-# After clone: restore symlinks from lock (project scope)
-node dist/cli.js sync -p -y
-
-# CI: fail when lock is stale vs bundle
-node dist/cli.js check -p --json
+npx cursor-agent-skills@latest
 ```
 
-Published binary name: **`cursor-agent-skills`** (`package.json` → `bin`).
+![Interactive hub menu](../cli.png)
 
----
+Use the menu to add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope and which skills to install.
 
-## What it does
+**After clone** (lockfile in git, `.agents/skills/` gitignored): run the CLI again and choose **Sync/Restore Skills from Lockfile**.
 
-| Concern | Behavior |
-|--------|----------|
-| **Install** | Materialize selected skills as **symlinks** (default) or **copies** into `.agents/skills/<name>/` |
-| **Lock** | Record installed skills, content hashes, link type, GitHub source, and pinned commit in `cursor-skills-lock.json` |
-| **Dependencies** | Auto-install `dependsOn` skills from `skills.json` when a dependent is selected |
-| **Drift** | Compare lock to the remote pack at the pinned commit; detect commit drift vs latest pack pin |
-| **Repair** | `sync` re-creates missing or broken links without changing the skill set |
-| **Safety** | Kebab-case skill names only; paths confined under scope dirs; atomic lock writes |
+**`--menu`** keeps the hub open between actions instead of exiting after one. For **CI and scripts** (non-interactive), use explicit subcommands and flags—see [Commands](#commands) below.
 
-This tool is **not** Vercel’s `npx skills` ecosystem installer. Lock path and schema are chosen to avoid colliding with `skills-lock.json` / `~/.agents/.skill-lock.json`.
-
----
-
-## Entry point and invocation
-
-Routing lives in `src/cli.ts` (Commander).
-
-### Interactive hub (TTY, no subcommand)
-
-When **stdin and stdout are TTYs** and argv has no subcommand (after stripping `--menu`):
-
-- Shows a **hub menu** (`src/commands/hub.ts`): Add, Update, Remove, List, Sync, Check, Quit.
-- **Default:** run **one** action, then exit.
-- **`--menu`:** return to the hub after each action until **Quit**.
-- On **`CliError`**, hub mode logs the error and reopens the menu; single-shot mode rethrows.
-- User cancel (`CliCancel`) exits **0**.
-
-### Non-TTY, no subcommand
-
-Prints a short hint (`failBareNoSubcommand`) and exits **1**. Pass an explicit subcommand, e.g. `add --skill caveman -p -y`.
-
-### Flags without subcommand → `add`
-
-If the first positional arg is not a known subcommand, argv is rewritten to insert `add` before flags:
+**Developing from this repo:**
 
 ```bash
-cursor-agent-skills --skill caveman -p -y --json
-# equivalent to: cursor-agent-skills add --skill caveman -p -y --json
+cd cli && npm install && npm run build
+node dist/cli.js
 ```
 
-Known subcommands: `add`, `list`, `remove`, `sync`, `check`, `update`, `help`.
+When the CLI lives inside a clone of this repo, it automatically uses the parent **`skills/`** folder instead of fetching GitHub.
 
 ---
 
 ## Install scope
 
-Two scopes; pass **exactly one** of `-p` / `--project` or `-g` / `--global` in scripts and CI.
+Pass **exactly one** of **`-p` / `--project`** or **`-g` / `--global`** in scripts and CI. In an interactive terminal, the CLI can prompt if you omit both.
 
 | Scope | Skills directory | Lockfile |
 |-------|------------------|----------|
 | **Project** (`-p`) | `<cwd>/.agents/skills/` | `<cwd>/.agents/cursor-skills-lock.json` |
 | **Global** (`-g`) | `~/.agents/skills/` | `~/.agents/cursor-skills-lock.json` |
 
-**Interactive:** if neither flag is set, a **Select scope** prompt runs (`resolveScopeInteractive` in `src/lib/scope.ts`).
+---
 
-**Non-interactive:** missing scope → `CliError` with an example command.
+## Commands
 
-`ensureAgentsDir` creates `.agents/` and `skills/` as needed.
+| Command | What it does |
+|---------|----------------|
+| **`add`** | Install selected skills and update the lockfile. |
+| **`sync`** | Repair missing or broken links for skills already in the lock (does not add new skills). |
+| **`check`** | Report lock vs pack drift; exits **1** when stale (use in CI). |
+| **`update`** | Apply drift fixes and advance the pack pin when needed. |
+| **`list`** | Show locked skills and on-disk health. |
+| **`remove`** | Remove skills from disk and the lockfile. |
 
-### Recommended team workflow
+**Script / CI flags:** `-p` / `-g` (scope; required when not a TTY), `-y` (skip confirms), `--json`, `--skill <name>` (repeatable). Example: `cursor-agent-skills check -p --json`.
 
-- Commit **`.agents/cursor-skills-lock.json`** to git.
-- Gitignore **`.agents/skills/`** (materialized trees) and the **pack fetch cache** (see below).
-- After clone: `cursor-agent-skills sync -p -y`.
+Full flag lists: **`cursor-agent-skills --help`** and **`cursor-agent-skills <command> --help`**.
 
 ---
 
-## Skills source resolution
+## Team workflow
 
-Production installs fetch the public GitHub pack at a **pinned commit** into a persistent cache, then materialize symlinks from `.agents/skills/<name>` into that cache (`src/lib/bundle.ts`, `src/lib/remote-pack.ts`).
+1. **Commit** `.agents/cursor-skills-lock.json` to git.
+2. **Gitignore** `.agents/skills/` (materialized skill trees).
+3. After clone: **`cursor-agent-skills sync -p -y`**.
+4. When **`check`** reports the pack moved on GitHub: **`cursor-agent-skills update -p -y`**.
 
-Resolution order for **skills source root** (`skills/` tree):
+Selecting a skill may auto-install **`dependsOn`** entries from root [`skills.json`](../skills.json) (for example `review` pulls in `council` and `setup-matt-pocock-skills`).
 
-1. **`--source <path>`** (CLI flag)
-2. **`CURSOR_AGENT_SKILLS_ROOT`** (env)
-3. **Monorepo dev layout:** if the CLI package lives in `cli/` inside a clone, use repo-root **`skills/`** when `../skills.json` validates
-4. **Remote pack:** tarball-first resolve — `codeload.github.com/.../tar.gz/main` → read `packCommit` from `skills.json` → cache at that SHA (or `git ls-remote` when `packCommit` is missing); `sync` with an existing lock uses the pinned commit only (no HEAD lookup)
-
-`skills.json` must sit in the **parent** of the skills root. Pack identity (`name`, `version`) comes from that manifest, not the npm CLI version.
-
-### Pack fetch cache
-
-Extracted packs are stored under:
-
-| Platform | Default cache base |
-|----------|-------------------|
-| Linux | `$XDG_CACHE_HOME/cursor-agent-skills` or `~/.cache/cursor-agent-skills` |
-| macOS | `~/Library/Caches/cursor-agent-skills` (or `$XDG_CACHE_HOME/...` if set) |
-| Windows | `%LOCALAPPDATA%/cursor-agent-skills/Cache` |
-
-Override with **`CURSOR_AGENT_SKILLS_CACHE`**. Layout: `<cache>/<owner>/<repo>/<full-sha>/skills.json` + `skills/`.
-
-Override example (local dev):
+**CI example** (no TTY—flags required):
 
 ```bash
-CURSOR_AGENT_SKILLS_ROOT=/path/to/my-agent-skills/skills \
-  cursor-agent-skills add --skill caveman -p -y
+cursor-agent-skills sync -p -y && cursor-agent-skills check -p --json
 ```
 
-### Manifest (`skills.json`)
-
-| Field | Role |
-|-------|------|
-| `schema_version` | Manifest format version |
-| `name`, `version` | Skill pack identity (stored in lock `package`) |
-| `packCommit` | Full 40-char SHA of the pack tree; CI-stamped on `main`; used on first install when no lock |
-| `skills` | Paths like `skills/<folder>`; folder name must match `SKILL.md` `name:` |
-| `dependsOn` | Map of skill → required skill names (hand-edited; generator preserves it) |
-
-Validation: every listed skill must have `SKILL.md` under the repo root path implied by the manifest entry.
-
 ---
 
-## Lockfile (`cursor-skills-lock.json`)
+## More detail
 
-Written by `src/lib/lockfile.ts`.
-
-- **`version`:** lock schema (`LOCK_VERSION = 2`)
-- **`source`:** GitHub pack id (`Akindu23/my-agent-skills`)
-- **`sourceType`:** `github`
-- **`commit`:** full 40-char SHA of the pinned pack
-- **`package`:** `{ name, version }` from remote `skills.json` at the pin
-- **`defaultLinkType`:** optional `symlink` | `copy` (defaults to `symlink` when missing; set on first **`add`** in interactive mode or via `--copy` / `--symlink`)
-- **`skills`:** map of skill name → entry:
-  - `source`, `sourceType` (`github`)
-  - `computedHash` (SHA-256 over skill folder files; see Hashing)
-  - `linkType`: `symlink` | `copy`
-  - `installedAt`, `updatedAt` (ISO timestamps)
-
-v1 locks (`sourceType: bundled`) are **auto-migrated** to v2 on read.
-
-**Read safety:** every key in `skills` is validated as **kebab-case** (`assertValidSkillName`); paths like `../evil` are rejected before disk ops.
-
-**Write safety:** JSON is written to a unique temp file in the same directory, synced, then **renamed** over the lock path.
-
-**Failure on `add`:** if `applyInstallPlan` throws mid-run, the in-memory lock is reverted and destinations materialized in that run are removed best-effort; the on-disk lock is not updated until a successful full apply.
-
-One CLI writer per scope is assumed (no file locking).
-
----
-
-## Hashing and drift
-
-**`computeSkillFolderHash`** (`src/lib/hash.ts`): SHA-256 over all files under the skill directory (sorted relative paths + contents). Skips `.git` and `node_modules`.
-
-**Drift** (`src/lib/drift-plan.ts`) per locked skill:
-
-| Status | Meaning |
-|--------|---------|
-| `ok` | Lock `computedHash` matches pack folder hash at **pinned** commit |
-| `hashDrift` | Lock hash ≠ pack at pin (**pin drift**) |
-| `orphan` | Skill in lock but not in manifest at the **remote** commit when pack pin is behind |
-
-When **commit drift** (lock pin behind GitHub HEAD), **`check`** also labels each skill **changed** vs **unchanged** by comparing the lock hash to content at the **remote** commit. **`update`** on pin advance **relinks all** non-orphan skills (even unchanged content) so install paths target the new cache SHA; the summary shows **content changed** separately from **will relink N skills**.
-
-**Cache:** after a successful pin advance, **`pruneRepoCache`** removes older SHA directories under `<cache>/<owner>/<repo>/` (keeps the new pin only).
-
-**Manifest drift:** `lock.package.version` ≠ `skills.json` at the relevant commit (remote when commit drift).
-
-**Note:** `check` compares **pack cache** hashes, not live edits inside a **copy** install.
-
----
-
-## Dependencies
-
-`dependsOn` in `skills.json` is expanded in `src/lib/deps.ts`:
-
-- Selecting a skill pulls in dependencies **not** already in the user’s selection (tracked as `dependencyOf` in the install plan).
-- Topological visit detects **cycles** and unknown dependency names.
-- **`remove`** warns in TTY when removing a skill that others still depend on (manifest-based), with optional **Continue removing?**
-
----
-
-## Materialization: symlink vs copy
-
-Default: **directory symlink** to the bundle source (`junction` on Windows).
-
-- **`add --copy`** / **`add --symlink`** / **`sync --copy`:** override interactive **Materialize as** picker.
-- Interactive **`add`:** after scope, choose **Symlink (recommended)** or **Copy**; sets `defaultLinkType` and per-skill `linkType` for that run.
-- Symlink failure (`EPERM` / `EACCES`): error suggests `--copy` or Windows Developer Mode.
-
-**`sync`:** for each lock entry, if destination is missing or a **broken symlink**, re-materialize from bundle and refresh hash in lock.
-
-**`update`:** on pin advance, re-materializes **all** non-orphan skills; otherwise only **hashDrift**. Always uses each lock entry’s **`linkType`** (`materializeFromLockEntry`).
-
----
-
-## UI modes
-
-Resolved in `src/lib/ui-mode.ts`:
-
-| Mode | When | UX |
-|------|------|-----|
-| `json` | `--json` | Single JSON object on stdout; no Clack prompts |
-| `interactive` | TTY stdin+stdout, no `--json` | Banner, notes, confirms, multiselect |
-| `nonInteractive` | piped/CI | Plain log lines; scope and skill names must be on CLI |
-
-`runScopedCommand` centralizes intro banner, scope resolution, and optional `afterIntro` hooks (used by `add` for skill picking).
-
----
-
-## Commands (reference)
-
-Global patterns:
-
-- **Scope:** `-p` / `-g` (required in CI unless interactive picker).
-- **`--json`:** machine-readable stdout; see schemas below.
-- **`--source`:** bundle root override (`add`, `sync`, `check`, `update`).
-- **`-y` / `--yes`:** skip confirmation prompts where applicable.
-
-### `add`
-
-Install skills into the chosen scope.
-
-| Flag | Description |
-|------|-------------|
-| `--skill <name>` | Repeatable; skill id (kebab-case folder name) |
-| `--all` | Install every skill in the manifest |
-| `--copy` | Copy trees instead of symlinking |
-| `-y` | Auto-confirm install summary in TTY; required for unattended confirm paths |
-
-**Flow:** `createInstallPlan` → optional summary + `confirmInstallPlan` → `applyInstallPlan`.
-
-**Interactive skill picker:** multiselect over the bundled manifest; **space** toggles the highlighted skill, **`a`** toggles all skills, **Enter** confirms.
-
-**Install actions** (`install-policy.ts`):
-
-| Action | When |
-|--------|------|
-| `new` | Not on disk, or not in lock |
-| `skip` | On disk, healthy link, lock hash matches bundle |
-| `update` | Missing/broken on disk but lock has entry |
-| `confirm` | On disk and healthy, but lock hash ≠ bundle (TTY asks to overwrite) |
-
-**JSON output:**
-
-```json
-{
-  "scope": "project",
-  "installed": ["caveman"],
-  "reinstalled": [],
-  "skipped": [],
-  "lockPath": "/path/to/.agents/cursor-skills-lock.json"
-}
-```
-
-Non-interactive script mode also prints per-skill lines for dependencies, skips, and reinstalls.
-
-### `list`
-
-Read-only view of lock entries plus on-disk health.
-
-| Flag | Description |
-|------|-------------|
-| `--json` | Includes `exists`, `healthy`, `linkType`, `hashPrefix`, `path`; `deps` when bundle is available |
-
-Empty lock: human message or `{ "scope", "skills": [] }`.
-
-### `remove`
-
-Remove skills from disk and lock.
-
-| Flag | Description |
-|------|-------------|
-| `--skill <name>` | Repeatable; required in non-interactive mode |
-| `-y` | Skip dependent warning confirm in TTY |
-
-Interactive: multiselect from locked skills. Deletes `skillsDir/<name>` and updates lock.
-
-**JSON:** `{ "scope", "removed": ["..."], "lockPath" }`.
-
-### `sync`
-
-Repair **existing** lock entries only (does not add new skills).
-
-| Flag | Description |
-|------|-------------|
-| `--copy` | Use copies when re-materializing |
-| `--source` | Bundle override |
-
-Requires non-empty lock. Updates hashes for repaired skills and syncs `package` metadata.
-
-**JSON:** `{ "scope", "synced": ["..."], "ok": ["..."], "lockPath" }` — `synced` = re-materialized; `ok` = already healthy.
-
-### `check`
-
-Report lock vs bundle drift. Does **not** mutate disk except in the hub shortcut below.
-
-| Flag | Description |
-|------|-------------|
-| `--source` | Bundle override |
-
-**Exit codes:**
-
-- **0** — in sync (no hash/orphan drift, no package version drift).
-- **1** — drift in **non-interactive** mode (for CI).
-- Interactive **Check** from hub: shows summary; may offer **Update drifted skills now?** (`offerUpdateOnDrift`) then exits 0.
-
-**JSON** (`buildDriftReport`):
-
-```json
-{
-  "inSync": false,
-  "scope": "project",
-  "lockPath": "...",
-  "summary": {
-    "changedOnRemote": 1,
-    "unchangedOnRemote": 7,
-    "pinDrift": 0,
-    "orphans": 0,
-    "willRelink": 8
-  },
-  "remote": {
-    "source": "Akindu23/my-agent-skills",
-    "lockCommit": "abc…",
-    "remoteCommit": "def…",
-    "commitDrift": true
-  },
-  "package": {
-    "name": "cursor-agent-skills",
-    "lockVersion": "0.1.0",
-    "bundleVersion": "0.1.0",
-    "manifestDrift": false
-  },
-  "skills": [
-    {
-      "name": "caveman",
-      "status": "ok",
-      "linkType": "symlink",
-      "remote": { "changed": true }
-    }
-  ]
-}
-```
-
-### `update`
-
-Apply drift fixes: on **commit drift**, fetch remote SHA, prune old cache dirs, **relink all** non-orphan skills, and advance the lock pin; otherwise refresh **hashDrift** skills only. Handles **orphans** per policy. TTY confirm text includes changed vs relink counts.
-
-| Flag | Description |
-|------|-------------|
-| `-y` | Skip update confirm in TTY |
-| `--source` | Bundle override |
-
-**Orphans:** interactive **per-skill** confirm; non-interactive **skips** with a warning (does not remove). Hub **check** shortcut uses `orphanPolicy: 'skip'`.
-
-Syncs lock `package.version` when package drift or skill updates occur.
-
-**JSON:**
-
-```json
-{
-  "scope": "project",
-  "updated": ["alpha", "beta"],
-  "contentChanged": ["alpha"],
-  "orphansRemoved": [],
-  "orphansSkipped": [],
-  "lockPath": "..."
-}
-```
-
-`updated` = all re-materialized skills; `contentChanged` = skills whose remote content differed from the lock hash.
-
----
-
-## Source layout (`cli/`)
-
-```
-cli/
-├── package.json          # npm package cursor-agent-skills
-├── scripts/
-│   └── generate-skills-manifest.mjs  # regenerate repo-root skills.json skills[]
-├── src/
-│   ├── cli.ts            # Commander program, hub vs add default routing
-│   ├── commands/         # One module per subcommand (+ hub)
-│   │   ├── add.ts
-│   │   ├── check.ts
-│   │   ├── hub.ts
-│   │   ├── list.ts
-│   │   ├── remove.ts
-│   │   ├── sync.ts
-│   │   └── update.ts
-│   └── lib/
-│       ├── apply-drift-plan.ts   # update + hub check refresh
-│       ├── apply-install-plan.ts   # add execution + rollback
-│       ├── bundle.ts             # resolve bundle root + validate manifest
-│       ├── deps.ts               # dependsOn expand + remove warnings
-│       ├── drift-plan.ts         # check/update planning + JSON report
-│       ├── drift-summary.ts      # human drift summaries
-│       ├── hash.ts
-│       ├── install.ts            # symlink/copy materialize, broken link detect
-│       ├── install-plan.ts       # add planning
-│       ├── install-policy.ts     # new | skip | update | confirm
-│       ├── install-summary.ts    # add summary text
-│       ├── lockfile.ts
-│       ├── scope.ts
-│       ├── skill-paths.ts        # name validation + path containment
-│       ├── run-scoped-command.ts # TTY intro + scope for all commands
-│       ├── run-command.ts        # hub → command dispatch
-│       ├── prompts.ts            # Clack multiselect / confirm helpers
-│       ├── ui-mode.ts
-│       ├── output.ts             # JSON print, non-interactive errors
-│       ├── errors.ts             # CliError, CliCancel
-│       └── …                     # banner, theme, *-summary formatters
-├── test/
-│   ├── unit/
-│   ├── integration/
-│   └── fixtures/bundle-mini/
-└── dist/                 # build output (tsdown); not committed
-```
-
-**Command layer** (`commands/*`): orchestration, Clack UX, `--json` emission.
-
-**Library layer** (`lib/*`): pure planning (install/drift), filesystem ops, lock I/O — covered by unit tests.
-
-**Hub** reuses commands via `runCommand` with `skipIntro: true` (and `offerUpdateOnDrift` on check).
-
----
-
-## Development
-
-```bash
-cd cli
-npm install
-
-npm run manifest       # regenerate repo-root skills.json skills[] from SKILL.md
-npm run build          # tsdown → dist/
-npm test               # vitest unit + integration
-npm run test:watch
-```
-
-When developing **inside the git clone**, `add` / `sync` / `list` / `remove` / `check` / `update` automatically prefer **repo-root `skills/`** and **`skills.json`** via `detectMonorepoSkillsRoot` — you usually do not need to sync before local runs.
-
-### Tests
-
-- **Unit:** lockfile, hash, deps, install/drift plans, summaries, scope, bundle detection.
-- **Integration:** full CLI subprocess flows (`test/helpers/run-cli.ts`, `test/fixtures/bundle-mini/`).
-
-Run before publishing: `prepublishOnly` = manifest + build + tests + `npm pack --dry-run`.
-
----
-
-## CI examples
-
-```bash
-# Install skills from lock after checkout
-cursor-agent-skills sync -p -y
-
-# Fail pipeline when remote pack advanced but lock not updated
-cursor-agent-skills check -p --json
-
-# Non-interactive add
-cursor-agent-skills add --skill document --skill handoff -p -y
-```
-
-Always pass **`-p` or `-g`** in CI. Use **`-y`** when the command would otherwise prompt in TTY-equivalent flows.
-
----
-
-## Publish
-
-npm package **`cursor-agent-skills`** ships **`dist/`** and this README only (`package.json` `files`). Skill content is fetched from GitHub at install time.
-
-`prepare` runs `build` on install. Production installs use the remote pack fetch cache unless `CURSOR_AGENT_SKILLS_ROOT` or `--source` is set.
-
----
+- Repo glossary and terminology: [`CONTEXT.md`](../CONTEXT.md)
+- Contributor internals, tests, and publish: work in **`cli/`** (`npm test`, `npm run build`)
