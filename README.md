@@ -22,7 +22,8 @@ Skills land under `.agents/skills/`; what you installed is recorded in `.agents/
 
 **After cloning a team repo** that commits the lockfile: run the CLI again and choose **Sync/Restore Skills from Lockfile** (same project scope as before). Commit the lockfile to git; gitignore `.agents/skills/` (the installed trees).
 
-Flags like `-p`, `-y`, and `--json` are for scripts and CI only—see [cli/README.md](./cli/README.md) if you need those.
+Flags like `-p`, `-y`, and `--json` are for scripts and CI only. Full CLI docs: [npm](https://www.npmjs.com/package/cursor-agent-skills) · [source](./cli/README.md).
+
 
 ### Other installer (optional)
 

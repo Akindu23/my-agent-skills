@@ -1,10 +1,11 @@
 # cursor-agent-skills
 
-**cursor-agent-skills** is a Node CLI that installs and maintains this repository’s [Cursor Agent Skills](https://github.com/Akindu23/my-agent-skills) pack under `.agents/skills/` (project or global). It downloads skill content from GitHub at a pinned commit, records installs in **`cursor-skills-lock.json`**, and provides commands to add skills, repair links after clone, and check or update when the pack moves forward. The npm package ships the **installer only**—not the skill trees themselves.
+Install and sync [Cursor Agent Skills](https://cursor.com/docs/skills) from the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) GitHub pack into `.agents/skills/` (project or global). The npm package ships the **installer only**—not the skill trees.
 
-This tool is **not** [Vercel’s `npx skills`](https://github.com/vercel-labs/skills) installer; lockfile and paths are separate so they do not collide with `skills-lock.json`.
+[![npm version](https://img.shields.io/npm/v/cursor-agent-skills.svg)](https://www.npmjs.com/package/cursor-agent-skills)
+[![license](https://img.shields.io/npm/l/cursor-agent-skills.svg)](https://github.com/Akindu23/my-agent-skills/blob/main/LICENSE)
 
-**Requires Node ≥ 20.** Binary name: **`cursor-agent-skills`**.
+**Requires Node ≥ 20.** Binary: **`cursor-agent-skills`**.
 
 ---
 
@@ -14,33 +15,18 @@ This tool is **not** [Vercel’s `npx skills`](https://github.com/vercel-labs/sk
 npx cursor-agent-skills@latest
 ```
 
-![Interactive hub menu](../cli.png)
+Interactive hub: add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope. Use **`--menu`** to stay in the hub between actions.
 
-Use the menu to add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope and which skills to install.
-
-**After clone** (lockfile in git, `.agents/skills/` gitignored): run the CLI again and choose **Sync/Restore Skills from Lockfile**.
-
-**`--menu`** keeps the hub open between actions instead of exiting after one. For **CI and scripts** (non-interactive), use explicit subcommands and flags—see [Commands](#commands) below.
-
-**Developing from this repo:**
-
-```bash
-cd cli && npm install && npm run build
-node dist/cli.js
-```
-
-When the CLI lives inside a clone of this repo, it automatically uses the parent **`skills/`** folder instead of fetching GitHub.
+**After clone** (lockfile in git, `.agents/skills/` gitignored): run again and choose **Sync/Restore Skills from Lockfile**, or use `sync` in scripts—see [Examples](#examples).
 
 ---
 
-## Install scope
+## Install (optional)
 
-Pass **exactly one** of **`-p` / `--project`** or **`-g` / `--global`** in scripts and CI. In an interactive terminal, the CLI can prompt if you omit both.
-
-| Scope | Skills directory | Lockfile |
-|-------|------------------|----------|
-| **Project** (`-p`) | `<cwd>/.agents/skills/` | `<cwd>/.agents/cursor-skills-lock.json` |
-| **Global** (`-g`) | `~/.agents/skills/` | `~/.agents/cursor-skills-lock.json` |
+```bash
+npm install -g cursor-agent-skills
+cursor-agent-skills
+```
 
 ---
 
@@ -55,9 +41,46 @@ Pass **exactly one** of **`-p` / `--project`** or **`-g` / `--global`** in scrip
 | **`list`** | Show locked skills and on-disk health. |
 | **`remove`** | Remove skills from disk and the lockfile. |
 
-**Script / CI flags:** `-p` / `-g` (scope; required when not a TTY), `-y` (skip confirms), `--json`, `--skill <name>` (repeatable). Example: `cursor-agent-skills check -p --json`.
+Full flags: **`cursor-agent-skills --help`** and **`cursor-agent-skills <command> --help`**.
 
-Full flag lists: **`cursor-agent-skills --help`** and **`cursor-agent-skills <command> --help`**.
+---
+
+## Scope
+
+Pass **exactly one** of **`-p` / `--project`** or **`-g` / `--global`** in scripts and CI. In an interactive terminal, the CLI can prompt if you omit both.
+
+| Scope | Skills directory | Lockfile |
+|-------|------------------|----------|
+| **Project** (`-p`) | `<cwd>/.agents/skills/` | `<cwd>/.agents/cursor-skills-lock.json` |
+| **Global** (`-g`) | `~/.agents/skills/` | `~/.agents/cursor-skills-lock.json` |
+
+---
+
+## Examples
+
+**Interactive (default)**
+
+```bash
+npx cursor-agent-skills@latest
+```
+
+**After clone** (repair links from committed lockfile)
+
+```bash
+cursor-agent-skills sync -p -y
+```
+
+**CI** (no TTY—scope and flags required; `check` exits 1 when the pack moved)
+
+```bash
+cursor-agent-skills sync -p -y && cursor-agent-skills check -p --json
+```
+
+**Add one skill non-interactively**
+
+```bash
+cursor-agent-skills add --skill review -p -y
+```
 
 ---
 
@@ -68,17 +91,33 @@ Full flag lists: **`cursor-agent-skills --help`** and **`cursor-agent-skills <co
 3. After clone: **`cursor-agent-skills sync -p -y`**.
 4. When **`check`** reports the pack moved on GitHub: **`cursor-agent-skills update -p -y`**.
 
-Selecting a skill may auto-install **`dependsOn`** entries from root [`skills.json`](../skills.json) (for example `review` pulls in `council` and `setup-matt-pocock-skills`).
+Selecting a skill may auto-install **`dependsOn`** entries from the pack [`skills.json`](https://github.com/Akindu23/my-agent-skills/blob/main/skills.json) (for example `review` pulls in `council` and `setup-matt-pocock-skills`).
 
-**CI example** (no TTY—flags required):
+---
 
-```bash
-cursor-agent-skills sync -p -y && cursor-agent-skills check -p --json
-```
+## Skill catalog
+
+Browse skills and descriptions on GitHub: **[Skill catalog](https://github.com/Akindu23/my-agent-skills#skill-catalog)**.
 
 ---
 
 ## More detail
 
-- Repo glossary and terminology: [`CONTEXT.md`](../CONTEXT.md)
-- Contributor internals, tests, and publish: work in **`cli/`** (`npm test`, `npm run build`)
+- Terminology and glossary: [CONTEXT.md](https://github.com/Akindu23/my-agent-skills/blob/main/CONTEXT.md)
+- Full CLI flags: `cursor-agent-skills --help`
+
+---
+
+## Contributing
+
+```bash
+cd cli && npm install && npm test
+```
+
+Source and tests: [github.com/Akindu23/my-agent-skills/tree/main/cli](https://github.com/Akindu23/my-agent-skills/tree/main/cli). When developing inside a clone of this repo, the CLI uses the parent **`skills/`** folder instead of fetching GitHub.
+
+---
+
+## License
+
+MIT
