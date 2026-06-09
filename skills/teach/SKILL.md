@@ -54,13 +54,15 @@ Before populating `RESOURCES.md`, finding communities, or grounding factual clai
 
 ## Lessons
 
-A lesson is the main thing you produce — one self-contained HTML file in `lessons/`, teaching one tightly-scoped thing tied to the mission. Write lessons per [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
+A lesson is the main thing you produce — one self-contained HTML file in `lessons/`, teaching one tightly-scoped thing tied to the mission. Each lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Vary visual design to fit the topic; do not default to the same palette or layout every time.
+
+Write lessons per [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
 
 ## Reference sheets
 
 While creating lessons, also create `reference/*.html` when the topic benefits from durable cheat-sheets (syntax snippets, pose cards, algorithms). Lessons are mission-scoped and taught once; reference sheets are compressed essence for repeat lookup. Glossaries in `GLOSSARY.md` are the essential reference for terminology — adhere to them in every lesson and reference sheet.
 
-Reference HTML should be beautiful, print-friendly, and quick to scan. No exercises. Reuse the Tailwind + highlight.js stack from [LESSON-FORMAT.md](references/LESSON-FORMAT.md) but keep layouts denser than lessons.
+Reference HTML should be beautiful, print-friendly, and quick to scan. No exercises. Same design freedom as lessons — see [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
 
 ## The Mission
 

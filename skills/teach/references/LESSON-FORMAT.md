@@ -21,9 +21,17 @@ Example:
 docs/learning/typescript-generics/lessons/0003-generic-constraints.html
 ```
 
+## Design
+
+Each lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review.
+
+Vary visual design to fit the topic and lesson mood. Do not reuse the same palette, layout, or section shape every time. Prefer print-friendly contrast and scannable hierarchy over a fixed house style.
+
+Make opening a lesson as easy as possible — ideally a single CLI command the user can run to open the HTML file in their browser.
+
 ## Preview
 
-Syntax highlighting works when the file is opened directly with `file://`, but Tailwind's browser CDN is more consistent from a local origin. After writing a lesson, offer this preview command:
+After writing a lesson, offer this preview command:
 
 ```bash
 python3 -m http.server 8765 --directory "docs/learning/<topic-slug>/lessons"
@@ -35,58 +43,11 @@ Then open:
 http://127.0.0.1:8765/0003-generic-constraints.html
 ```
 
-First load requires network access for Tailwind and highlight.js CDNs.
-
-## Scaffold
-
-Use Tailwind browser CDN plus highlight.js pinned to `11.11.1` via cdnjs. The `github-dark` theme stylesheet is mandatory; without a theme, highlighted code can render monochrome.
-
-```html
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{Lesson title}}</title>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.4"
-      crossorigin="anonymous"
-    ></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());
-    </script>
-  </head>
-  <body class="bg-slate-950 text-slate-100 antialiased">
-    <main class="mx-auto max-w-4xl px-6 py-12 space-y-10">
-      <header class="space-y-3">
-        <p class="text-sm uppercase tracking-[0.2em] text-cyan-300">{{Topic}}</p>
-        <h1 class="text-4xl font-semibold tracking-tight">{{Lesson title}}</h1>
-        <p class="text-lg text-slate-300">{{Mission-linked promise of the lesson}}</p>
-      </header>
-
-      <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 space-y-4">
-        <h2 class="text-2xl font-semibold">{{Concept}}</h2>
-        <p class="text-slate-300">{{Explanation grounded in RESOURCES.md and GLOSSARY.md}}</p>
-        <pre><code class="language-python">{{Code example}}</code></pre>
-      </section>
-
-      <section class="rounded-2xl border border-cyan-900/60 bg-cyan-950/30 p-6 space-y-4">
-        <h2 class="text-2xl font-semibold">Try It</h2>
-        <p class="text-slate-300">{{Retrieval or scenario-based exercise}}</p>
-      </section>
-    </main>
-  </body>
-</html>
-```
+Serving from a local origin is more reliable than `file://` when a lesson loads fonts, CSS, or scripts from a CDN. First load may require network access for those assets.
 
 ## Code Blocks
 
-Always use explicit language classes:
+When lessons include code, use explicit language classes so syntax highlighting is reliable:
 
 ```html
 <pre><code class="language-python">
@@ -95,11 +56,17 @@ def greet(name: str) -> str:
 </code></pre>
 ```
 
-Do not rely on auto-detection for short snippets; it often misfires. If a language is not included in the common highlight.js bundle, load the language module before `hljs.highlightAll()`:
+Do not rely on auto-detection for short snippets; it often misfires.
+
+For syntax highlighting, [highlight.js](https://highlightjs.org/) `11.11.1` via cdnjs is a good default. Load a theme stylesheet that matches the lesson's visual design — without a theme, highlighted code can render monochrome. If a language is not in the common bundle, load its module before calling `hljs.highlightAll()`:
 
 ```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/rust.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", () => hljs.highlightAll());</script>
 ```
+
+CSS approach is open: plain CSS, a CDN utility framework, or embedded styles are all fine. Choose what serves the lesson best.
 
 ## Content Rules
 
@@ -110,3 +77,7 @@ Do not rely on auto-detection for short snippets; it often misfires. If a langua
 - Litter lessons with citations — link only to entries in `RESOURCES.md` (Exa-verified when added). Do not link to URLs not yet listed there.
 - Keep each lesson focused on one concept. If it needs multiple major sections, create multiple lessons.
 - Include a reminder to ask follow-up questions to the agent when something is unclear.
+
+## Reference Sheets
+
+`reference/*.html` files follow the same design freedom as lessons: beautiful, print-friendly, quick to scan. No exercises. Layouts may be denser than lessons when the topic benefits from cheat-sheet compression.
