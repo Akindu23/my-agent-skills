@@ -1,38 +1,38 @@
-# HTML Explainer Format
+# HTML Lesson Format
 
-HTML explainers are self-contained lessons saved inside a topic workspace. Use them for knowledge delivery, worked examples, retrieval practice, and lightweight in-browser exercises.
+HTML lessons are self-contained teaching files saved inside a topic workspace. Use them for knowledge delivery, worked examples, retrieval practice, and lightweight in-browser exercises.
 
 ## Output Location
 
 | Artifact | Directory | Filename pattern |
 |----------|-----------|------------------|
-| HTML explainer | `docs/learning/<topic-slug>/explainers/` | `<lesson-slug>-<unique>.html` |
+| HTML lesson | `docs/learning/<topic-slug>/lessons/` | `0001-<lesson-slug>.html` |
 
 **Rules:**
 
-- Create `docs/learning/<topic-slug>/explainers/` lazily (`mkdir -p "docs/learning/<topic-slug>/explainers"`).
+- Create `docs/learning/<topic-slug>/lessons/` lazily (`mkdir -p "docs/learning/<topic-slug>/lessons"`).
 - `<lesson-slug>` is a short filesystem-safe hint from the lesson focus: lowercase, hyphens, ASCII, collapsed spaces, trimmed to about 40 characters.
-- `<unique>` is `YYYYMMDD-HHMMSS` in UTC, or 6 hex chars if a file was already written in the same second.
-- Do not create a `scripts/` directory or sidecar JavaScript file. Each explainer is one HTML file.
+- Scan `lessons/` for the highest existing number and increment by one (same scheme as `learning-records/`).
+- Do not create a `scripts/` directory or sidecar JavaScript file. Each lesson is one HTML file.
 
 Example:
 
 ```text
-docs/learning/typescript-generics/explainers/generic-constraints-20260531-081500.html
+docs/learning/typescript-generics/lessons/0003-generic-constraints.html
 ```
 
 ## Preview
 
-Syntax highlighting works when the file is opened directly with `file://`, but Tailwind's browser CDN is more consistent from a local origin. After writing an explainer, offer this preview command:
+Syntax highlighting works when the file is opened directly with `file://`, but Tailwind's browser CDN is more consistent from a local origin. After writing a lesson, offer this preview command:
 
 ```bash
-python3 -m http.server 8765 --directory "docs/learning/<topic-slug>/explainers"
+python3 -m http.server 8765 --directory "docs/learning/<topic-slug>/lessons"
 ```
 
 Then open:
 
 ```text
-http://127.0.0.1:8765/<lesson-slug>-<unique>.html
+http://127.0.0.1:8765/0003-generic-constraints.html
 ```
 
 First load requires network access for Tailwind and highlight.js CDNs.
@@ -104,7 +104,9 @@ Do not rely on auto-detection for short snippets; it often misfires. If a langua
 ## Content Rules
 
 - Ground factual explanations in verified entries from `RESOURCES.md`.
-- Use terms from `GLOSSARY.md`; if a term is not ready for the glossary, introduce it plainly in the explainer.
+- Use terms from `GLOSSARY.md`; if a term is not ready for the glossary, introduce it plainly in the lesson.
 - Tie the lesson to the user's `MISSION.md` in the opening promise or first exercise.
 - Include at least one active step: retrieval question, scenario, worked example with a pause, or small in-browser exercise.
-- Keep each explainer focused on one lesson-sized concept. If it needs multiple major sections, create multiple explainers.
+- Litter lessons with citations — link only to entries in `RESOURCES.md` (Exa-verified when added). Do not link to URLs not yet listed there.
+- Keep each lesson focused on one concept. If it needs multiple major sections, create multiple lessons.
+- Include a reminder to ask follow-up questions to the agent when something is unclear.

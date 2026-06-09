@@ -87,7 +87,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [setup-matt-pocock-skills](./skills/setup-matt-pocock-skills/) | `setup-matt-pocock-skills` | Add an `## Agent skills` block in `AGENTS.md`/`CLAUDE.md` and `docs/agents/` so tracker, triage labels, and domain docs are discoverable. |
 | [supabase-postgres-best-practices](./skills/supabase-postgres-best-practices/) | `supabase-postgres-best-practices` | Postgres performance and schema guidance from Supabase: queries, indexes, connection pooling, RLS, and monitoring. |
 | [tdd](./skills/tdd/) | `tdd` | Test-driven development with the red–green–refactor loop and disciplined tests. |
-| [teach](./skills/teach/) | `teach` | Teach a topic over multiple sessions with `docs/learning/<topic-slug>/` artifacts, Exa-verified resources, learning records, exercises, and HTML explainers. |
+| [teach](./skills/teach/) | `teach` | Teach a topic over multiple sessions with `docs/learning/<topic-slug>/` artifacts, Exa-verified resources, learning records, exercises, and HTML lessons. |
 | [to-issues](./skills/to-issues/) | `to-issues` | Break a plan, spec, or PRD into tracer-bullet vertical slices as issues on the project tracker. |
 | [to-prd](./skills/to-prd/) | `to-prd` | Turn the current conversation context into a PRD and publish it to the project issue tracker. |
 | [triage](./skills/triage/) | `triage` | Triage issues through a state machine driven by triage roles (create, AFK handoff, workflow). |

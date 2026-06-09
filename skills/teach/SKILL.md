@@ -1,7 +1,7 @@
 ---
 name: teach
 description: >-
-  Teaches the user a topic over multiple sessions using a grounded learning workspace under docs/learning/. Use when the user invokes /teach, asks to learn a concept, wants structured lessons, or needs curated resources, glossary terms, learning records, exercises, and HTML explainers.
+  Teaches the user a topic over multiple sessions using a grounded learning workspace under docs/learning/, with Exa-verified resources. Use when the user invokes /teach, asks to learn a concept, wants structured lessons, or needs curated resources, glossary terms, learning records, exercises, and HTML lessons.
 disable-model-invocation: true
 ---
 
@@ -18,29 +18,21 @@ docs/learning/<topic-slug>/
   MISSION.md
   GLOSSARY.md
   RESOURCES.md
+  NOTES.md
   learning-records/0001-<slug>.md
-  explainers/<slug>-<unique>.html
+  lessons/0001-<slug>.html
+  reference/<slug>.html
 ```
 
 The state of learning is captured in these files:
 
 - `MISSION.md`: The reason the user is learning the topic. Ground every teaching decision in it. Use [MISSION-FORMAT.md](references/MISSION-FORMAT.md).
-- `GLOSSARY.md`: The canonical terminology for the topic. All explainers, exercises, and records should follow it. Use [GLOSSARY-FORMAT.md](references/GLOSSARY-FORMAT.md).
+- `GLOSSARY.md`: The canonical terminology for the topic. All lessons, exercises, and records should follow it. Use [GLOSSARY-FORMAT.md](references/GLOSSARY-FORMAT.md).
 - `RESOURCES.md`: A curated set of verified sources and communities. Use [RESOURCES-FORMAT.md](references/RESOURCES-FORMAT.md).
 - `learning-records/*.md`: Short records of demonstrated understanding, prior knowledge, corrected misconceptions, or mission shifts. Use [LEARNING-RECORD-FORMAT.md](references/LEARNING-RECORD-FORMAT.md).
-- `explainers/*.html`: Self-contained HTML lessons and exercises. Use [EXPLAINER-FORMAT.md](references/EXPLAINER-FORMAT.md).
-
-## Reference Loading
-
-Load reference files only when needed:
-
-| Need | Reference |
-|------|-----------|
-| Create or revise the mission | [MISSION-FORMAT.md](references/MISSION-FORMAT.md) |
-| Create or revise terminology | [GLOSSARY-FORMAT.md](references/GLOSSARY-FORMAT.md) |
-| Curate sources or communities | [RESOURCES-FORMAT.md](references/RESOURCES-FORMAT.md) |
-| Record learning state | [LEARNING-RECORD-FORMAT.md](references/LEARNING-RECORD-FORMAT.md) |
-| Write an HTML explainer | [EXPLAINER-FORMAT.md](references/EXPLAINER-FORMAT.md) |
+- `lessons/*.html`: Self-contained HTML lessons and exercises — the primary teaching unit. Use [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
+- `reference/*.html`: Compressed quick-reference sheets (syntax, poses, algorithms) designed for repeat lookup. Create when a topic benefits from durable cheat-sheets beyond glossary terms.
+- `NOTES.md`: A scratchpad for user preferences and working notes.
 
 ## Philosophy
 
@@ -50,23 +42,39 @@ To learn at a deep level, the user needs three things:
 - **Skills**, acquired through highly-relevant exercises devised by you, based on the knowledge
 - **Wisdom**, which comes from interacting with other learners and practitioners
 
-Before `RESOURCES.md` is well-populated, focus on finding high-quality resources that will help the user acquire knowledge. Never trust parametric knowledge for teaching content.
+Before `RESOURCES.md` is well-populated, focus on finding high-quality resources that will help the user acquire knowledge. Never teach factual content from memory alone.
 
 Some topics may require more skills than knowledge. Learning more about theoretical physics might be more knowledge-based. For yoga, more skills-based.
 
+## Gathering knowledge
+
+Never cite sources or teach factual material from memory alone.
+
+Before populating `RESOURCES.md`, finding communities, or grounding factual claims in lessons, read [RESOURCES-FORMAT.md](references/RESOURCES-FORMAT.md) and follow its Exa discover-then-verify workflow. Lesson and reference-sheet links may only cite URLs already listed in `RESOURCES.md`; add new sources via that workflow before first use.
+
+## Lessons
+
+A lesson is the main thing you produce — one self-contained HTML file in `lessons/`, teaching one tightly-scoped thing tied to the mission. Write lessons per [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
+
+## Reference sheets
+
+While creating lessons, also create `reference/*.html` when the topic benefits from durable cheat-sheets (syntax snippets, pose cards, algorithms). Lessons are mission-scoped and taught once; reference sheets are compressed essence for repeat lookup. Glossaries in `GLOSSARY.md` are the essential reference for terminology — adhere to them in every lesson and reference sheet.
+
+Reference HTML should be beautiful, print-friendly, and quick to scan. No exercises. Reuse the Tailwind + highlight.js stack from [LESSON-FORMAT.md](references/LESSON-FORMAT.md) but keep layouts denser than lessons.
+
 ## The Mission
 
-Every teaching session should be tied into the mission - the reason that the user is interested in learning about the topic.
+Every teaching session should be tied into the mission — the reason the user is interested in learning about the topic.
 
 If the user is unclear about the mission, or the `MISSION.md` is not populated, your first job should be to question the user on why they want to learn this.
 
-Failing to understand the mission will mean knowledge acquisition is not grounded in real-world goals. Exercises will feel too abstract. You will have no way of judging what the user should do next.
+Failing to understand the mission will mean knowledge acquisition is not grounded in real-world goals. Lessons will feel too abstract. You will have no way of judging what the user should do next.
 
-Use structured multiple-choice prompts when narrowing discrete choices such as topic slug, topic split, preferred exercise style, or community preferences.
+When narrowing discrete choices (topic slug, topic split, exercise style, community preferences), prefer **`AskQuestion`** when available; otherwise ask the same choices in chat.
 
-## Zone Of Proximal Development
+## Zone of proximal development
 
-The user should always feel as if they are being challenged "just enough." Keep the scope tight and directly tied to their mission. This follows Vygotsky's zone of proximal development (1978) and the scaffolding pattern described by Wood, Bruner, and Ross (1976).
+The user should always feel as if they are being challenged "just enough." Keep the scope tight and directly tied to their mission.
 
 The user may specify an exact thing they want to learn. If they don't, figure out their zone of proximal development by:
 
@@ -80,47 +88,26 @@ A user may tell you that they already know about a topic. If so, record the dept
 
 A key part of acquiring knowledge is compressing knowledge into language. Once a term is known and understood, it can be used and combined in new ways to make more complex terms easier to understand.
 
-Building the glossary should be done once you feel confident that the user understands the term. Glossaries should use a strict format, and use as concise a definition as possible.
+Building the glossary should be done once you feel confident that the user understands the term. Use [GLOSSARY-FORMAT.md](references/GLOSSARY-FORMAT.md).
 
-## Gathering Knowledge
+## Acquiring knowledge and skills
 
-Use Exa MCP as the primary workflow for grounded teaching:
+Knowledge and skills usually need to be taught as a 1-2 punch. Teach the knowledge first, then get the user to practice the skill via exercises. Prefer retrieval practice and spaced review over passive rereading.
 
-1. Discover candidate sources with `web_search_exa`, using queries that describe the ideal page, paper, documentation, or community.
-2. Verify each source with `web_fetch_exa` before citing or adding it to `RESOURCES.md`.
-3. Summarize what the source is useful for in `RESOURCES.md`; do not store bare links.
-4. If Exa MCP is unavailable, fall back to built-in web search and fetch tools, but keep the same discover-then-verify discipline.
-
-Never cite sources or teach factual material from memory alone.
-
-## Acquiring Knowledge
-
-Knowledge and skills usually need to be taught as a 1-2 punch. Teach the knowledge first, then get the user to practice the skill via exercises. Prefer retrieval practice and spaced review over passive rereading (Roediger & Karpicke 2006; Carpenter et al. 2022).
-
-Knowledge should first be gathered from verified resources, then taught to the user via HTML explainers saved in `docs/learning/<topic-slug>/explainers/`.
-
-HTML explainers should be beautiful, adhere to the glossary, use explicit `language-xxx` classes for code blocks, and include exercises where useful. Make previewing the explainer easy with the local server command from [EXPLAINER-FORMAT.md](references/EXPLAINER-FORMAT.md).
-
-Once the user has read the knowledge, allow them to ask questions about it. Answer their questions directly, and amend the explainer if needed (or produce another one).
+Knowledge should first be gathered from verified resources in `RESOURCES.md`, then taught via HTML lessons. Prefer interactive HTML lessons with quizzes and in-browser exercises; use in-agent scenario quizzes when HTML isn't warranted.
 
 At this point, you can amend the glossary if it appears clear they understand a term.
 
-## Acquiring Skills
+## Acquiring wisdom
 
-Skills should be taught through interactive exercises. There are several tools at your disposal:
+Wisdom comes from true real-world interaction — testing your skills outside the learning environment.
 
-- Interactive HTML explainers, using quizzes and light in-browser exercises
-- HTML explainers which guide the user through a list of real-world steps to take (for instance, yoga poses)
-- In-agent quizzes, where you ask the user scenario-based questions about what they've learned
-
-Each exercise should be based on a **feedback loop**, where the user receives feedback on their performance. This feedback loop should be as tight as possible, giving feedback immediately.
-
-## Acquiring Wisdom
-
-Wisdom comes from true real-world interaction - testing your skills outside the learning environment.
-
-When the user asks a question that appears to require wisdom, your default posture should be to attempt to answer - but to ultimately delegate to a **community**.
+When the user asks a question that appears to require wisdom, your default posture should be to attempt to answer — but to ultimately delegate to a **community**.
 
 A community is a place (online or offline) where the user can test their skills in the real world. This might be a forum, a subreddit, a real-world class (budget permitting) or a local interest group.
 
 You should attempt to find high-reputation communities the user can join. If the user expresses a preference that they don't want to join a community, respect it.
+
+## `NOTES.md`
+
+The user will sometimes express preferences of how they want to be taught, or things you should keep in mind. Record those here so you can refer back when designing lessons or working with the user.

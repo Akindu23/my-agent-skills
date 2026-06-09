@@ -1,6 +1,6 @@
 # RESOURCES.md Format
 
-`RESOURCES.md` lives at `docs/learning/<topic-slug>/RESOURCES.md`. It is the curated set of verified sources for this topic. Knowledge for explainers should be drawn from here, not from parametric guesses. Wisdom comes from the communities listed here.
+`RESOURCES.md` lives at `docs/learning/<topic-slug>/RESOURCES.md`. It is the curated set of verified sources for this topic. Knowledge for lessons should be drawn from here, not from parametric guesses. Wisdom comes from the communities listed here.
 
 ## Structure
 
@@ -25,7 +25,7 @@
 ## Rules
 
 - **High-trust only.** Prefer primary sources, recognised experts, peer-reviewed work, and communities with strong moderation. If a resource is marketing dressed as education, leave it out.
-- **Discover, then verify.** Use Exa MCP first: discover with `web_search_exa`, then verify the page with `web_fetch_exa` before citing or adding it. If Exa MCP is unavailable, fall back to built-in web search and fetch tools with the same verification discipline.
+- **Discover, then verify.** Use Exa MCP as the primary workflow: discover candidate sources with `web_search_exa` (queries that describe the ideal page, paper, documentation, or community), then verify each source with `web_fetch_exa` before citing or adding it. Summarize what each source is useful for; do not store bare links. If Exa MCP is unavailable, fall back to built-in web search and fetch tools with the same verification discipline.
 - **Annotate every entry.** A bare link is useless in three months. Add one line: what it covers and when to reach for it.
 - **Group by Knowledge / Wisdom.** Mirrors the philosophy in [SKILL.md](../SKILL.md). It is fine for a resource to appear in only one group.
 - **Surface gaps explicitly.** If no good resource exists for an area the mission needs, write a `## Gaps` section listing what is missing. This drives future search.
