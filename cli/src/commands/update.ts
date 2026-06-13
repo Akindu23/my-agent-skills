@@ -7,7 +7,7 @@ import {
 import { createDriftPlan } from '../lib/drift-plan.js';
 import { renderDriftSummary } from '../lib/drift-summary.js';
 import { printJson } from '../lib/output.js';
-import { confirmProceed } from '../lib/prompts.js';
+import { confirmProceed, promptOrphanRemoval } from '../lib/prompts.js';
 import { runScopedCommand } from '../lib/run-scoped-command.js';
 
 export interface UpdateOptions {
@@ -18,6 +18,7 @@ export interface UpdateOptions {
   json?: boolean;
   cwd?: string;
   skipIntro?: boolean;
+  skipDriftSummary?: boolean;
 }
 
 export async function runUpdate(opts: UpdateOptions): Promise<void> {
@@ -52,8 +53,32 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     return;
   }
 
-  if (isInteractive) {
+  if (isInteractive && !opts.skipDriftSummary) {
     note(renderDriftSummary(plan, { mode: 'update' }), 'Update summary');
+  }
+
+  const orphanNames = orphans.map((e) => e.name);
+  let orphansToRemove: ReadonlySet<string>;
+  if (orphanNames.length === 0) {
+    orphansToRemove = new Set();
+  } else if (opts.yes === true) {
+    orphansToRemove = new Set(orphanNames);
+  } else if (isInteractive) {
+    orphansToRemove = new Set(await promptOrphanRemoval(orphanNames));
+  } else {
+    for (const name of orphanNames) {
+      console.warn(`Skipping orphan skill "${name}" (not in remote pack).`);
+    }
+    orphansToRemove = new Set();
+  }
+
+  const hasApplyWork =
+    plan.commitDrift ||
+    plan.manifestDrift ||
+    drifted.length > 0 ||
+    orphansToRemove.size > 0;
+
+  if (isInteractive && hasApplyWork) {
     const proceed = await confirmProceed({
       action: 'update',
       autoYes: opts.yes ?? false,
@@ -66,9 +91,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
   }
 
   const result = await applyDriftPlan(plan, {
-    orphanPolicy: 'prompt',
-    isInteractive,
-    autoYes: opts.yes,
+    orphansToRemove,
   });
 
   if (!planHasWork(plan, result)) {

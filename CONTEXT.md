@@ -83,7 +83,7 @@ _Avoid_: packages/ (not chosen), embedding skills only inside cli/ (duplicates r
 
 **Manifest generator**:
 A CLI-maintained script scans repo-root `skills/` and regenerates the `skills` list in `skills.json`; the **`dependsOn`** map is hand-edited and validated against known skill names.
-_Avoid_: fully manual skills list (error-prone at 36+ skills).
+_Avoid_: fully manual skills list (error-prone at 33+ skills).
 
 **cursor-agent-skills**:
 The npm CLI binary users invoke as `npx cursor-agent-skills …` to install and manage this skill collection.
@@ -130,7 +130,7 @@ GitHub default-branch HEAD ≠ `commit` in the lock. **`update`** fetches the ne
 _Avoid_: expecting **`sync`** alone to pull new upstream skills (sync only repairs broken/missing links for the current pin).
 
 **Update command**:
-Fetches the remote pack at the latest default-branch commit (or reapplies the current pin when only **lock–source hash mismatch** exists), then refreshes skills already listed in **cursor-skills-lock.json** for a scope. Does not install new skills that were never in the lock—use **add** for that. Summary separates **content changed** from **will relink N skills** on pin advance. Re-materializes using each lock entry’s **linkType** (symlink or copy); lock root **`defaultLinkType`** applies to new **`add`** installs.
+Fetches the remote pack at the latest default-branch commit (or reapplies the current pin when only **lock–source hash mismatch** exists), then refreshes skills already listed in **cursor-skills-lock.json** for a scope. Does not install new skills that were never in the lock—use **add** for that. When **orphan lock entries** exist, interactive runs show an orphan **multiselect** (pre-selected) before the main proceed prompt; **`update -y`** prunes all orphans. Summary separates **content changed** from **will relink N skills** on pin advance. Re-materializes using each lock entry’s **linkType** (symlink or copy); lock root **`defaultLinkType`** applies to new **`add`** installs.
 _Avoid_: `sync` as a substitute for upstream refresh, `npx skills update` (upstream Vercel CLI).
 
 **Check command**:
@@ -138,5 +138,5 @@ Read-only drift report for a scope: **pack commit drift**, per-skill **changed /
 _Avoid_: `update --dry-run` as the only surface (**`check`** remains the dedicated read-only command).
 
 **Orphan lock entry**:
-A skill recorded in **cursor-skills-lock.json** that no longer exists in the remote pack manifest at the resolved commit. **Update** warns and skips in non-TTY; in interactive TTY, prompts whether to **remove** the install path and lock entry.
-_Avoid_: silent auto-delete without confirmation in interactive mode.
+A skill recorded in **cursor-skills-lock.json** that no longer exists in the remote pack manifest at the resolved commit. During **update**, orphans are detected when the lock pin is behind the default branch (or when comparing against the resolved remote manifest). Interactive **update** shows a **multiselect** (same Clack control as **remove**) listing orphans **pre-selected**; the user deselects any to keep, then confirms. Non-interactive **`update -y`** removes **all** orphans automatically. Orphan cleanup runs **before** the main “Proceed with update?” step. The hub **check → update** path uses the same flow. **Check** remains read-only.
+_Avoid_: one `confirm()` per orphan with default No; leaving orphans in the lock after pin advance (breaks **sync**); silent auto-delete in interactive mode without the multiselect step.

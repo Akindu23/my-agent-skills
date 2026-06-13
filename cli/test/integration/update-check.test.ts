@@ -59,7 +59,7 @@ describe('update and check integration', () => {
     expect(result.exitCode, result.stderr).toBe(0);
   });
 
-  it('reports orphan on check; update -y warns without removing', async () => {
+  it('reports orphan on check; update -y removes it', async () => {
     const project = await emptyProject();
     const env = { CURSOR_AGENT_SKILLS_ROOT: bundleMini };
     const lockPath = path.join(project, '.agents/cursor-skills-lock.json');
@@ -86,12 +86,45 @@ describe('update and check integration', () => {
     result = await runCli(['update', '-p', '-y', '--json'], { cwd: project, env });
     expect(result.exitCode, result.stderr).toBe(0);
     const payload = JSON.parse(result.stdout);
-    expect(payload.orphansSkipped).toContain('ghost');
+    expect(payload.orphansRemoved).toEqual(['ghost']);
+    expect(payload.orphansSkipped).toEqual([]);
+
+    const afterLock = JSON.parse(await readFile(lockPath, 'utf8'));
+    expect(afterLock.skills.ghost).toBeUndefined();
+    expect(result.stderr).not.toContain('ghost');
+  });
+
+  it('non-TTY update without -y skips orphan with warning', async () => {
+    const project = await emptyProject();
+    const env = { CURSOR_AGENT_SKILLS_ROOT: bundleMini };
+    const lockPath = path.join(project, '.agents/cursor-skills-lock.json');
+
+    await runCli(['add', '--skill', 'alpha', '-p', '-y'], { cwd: project, env });
+
+    const lock = JSON.parse(await readFile(lockPath, 'utf8'));
+    lock.skills.ghost = {
+      source: 'Akindu23/my-agent-skills',
+      sourceType: 'github',
+      computedHash: 'deadbeef',
+      linkType: 'symlink',
+      installedAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+    await writeFile(lockPath, JSON.stringify(lock, null, 2));
+
+    const result = await runCli(['update', '-p', '--json'], {
+      cwd: project,
+      env,
+      nonTty: true,
+    });
+    expect(result.exitCode).toBe(0);
+    const payload = JSON.parse(result.stdout);
     expect(payload.orphansRemoved).toEqual([]);
+    expect(payload.orphansSkipped).toEqual(['ghost']);
 
     const afterLock = JSON.parse(await readFile(lockPath, 'utf8'));
     expect(afterLock.skills.ghost).toBeDefined();
-    expect(result.stderr).toContain('ghost');
+    expect(result.stderr).toContain('Skipping orphan skill "ghost"');
   });
 
   it('check without scope errors', async () => {

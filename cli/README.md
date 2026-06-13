@@ -2,10 +2,10 @@
 
 Install and sync [Cursor Agent Skills](https://cursor.com/docs/skills) from the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) GitHub pack into `.agents/skills/` (project or global). The npm package ships the **installer only**—not the skill trees.
 
-[![npm version](https://img.shields.io/npm/v/cursor-agent-skills.svg)](https://www.npmjs.com/package/cursor-agent-skills)
-[![license](https://img.shields.io/npm/l/cursor-agent-skills.svg)](https://github.com/Akindu23/my-agent-skills/blob/main/LICENSE)
+[npm version](https://www.npmjs.com/package/cursor-agent-skills)
+[license](https://github.com/Akindu23/my-agent-skills/blob/main/LICENSE)
 
-**Requires Node ≥ 20.** Binary: **`cursor-agent-skills`**.
+**Requires Node ≥ 20.** Binary: `**cursor-agent-skills`**.
 
 ---
 
@@ -15,7 +15,7 @@ Install and sync [Cursor Agent Skills](https://cursor.com/docs/skills) from the 
 npx cursor-agent-skills@latest
 ```
 
-Interactive hub: add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope. Use **`--menu`** to stay in the hub between actions.
+Interactive hub: add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope. Use `**--menu**` to stay in the hub between actions.
 
 **After clone** (lockfile in git, `.agents/skills/` gitignored): run again and choose **Sync/Restore Skills from Lockfile**, or use `sync` in scripts—see [Examples](#examples).
 
@@ -32,27 +32,33 @@ cursor-agent-skills
 
 ## Commands
 
-| Command | What it does |
-|---------|----------------|
-| **`add`** | Install selected skills and update the lockfile. |
-| **`sync`** | Repair missing or broken links for skills already in the lock (does not add new skills). |
-| **`check`** | Report lock vs pack drift; exits **1** when stale (use in CI). |
-| **`update`** | Apply drift fixes and advance the pack pin when needed. |
-| **`list`** | Show locked skills and on-disk health. |
-| **`remove`** | Remove skills from disk and the lockfile. |
 
-Full flags: **`cursor-agent-skills --help`** and **`cursor-agent-skills <command> --help`**.
+| Command      | What it does                                                                             |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `**add**`    | Install selected skills and update the lockfile.                                         |
+| `**sync**`   | Repair missing or broken links for skills already in the lock (does not add new skills). |
+| `**check**`  | Report lock vs pack drift; exits **1** when stale (use in CI).                           |
+| `**update`** | Apply drift fixes and advance the pack pin when needed.                                  |
+| `**list**`   | Show locked skills and on-disk health.                                                   |
+| `**remove**` | Remove skills from disk and the lockfile.                                                |
+
+
+Interactive `update` prompts to remove orphaned skills with a pre-selected multiselect; `update -y` prunes all orphans automatically.
+
+Full flags: `**cursor-agent-skills --help**` and `**cursor-agent-skills <command> --help**`.
 
 ---
 
 ## Scope
 
-Pass **exactly one** of **`-p` / `--project`** or **`-g` / `--global`** in scripts and CI. In an interactive terminal, the CLI can prompt if you omit both.
+Pass **exactly one** of `**-p` / `--project`** or `**-g` / `--global**` in scripts and CI. In an interactive terminal, the CLI can prompt if you omit both.
 
-| Scope | Skills directory | Lockfile |
-|-------|------------------|----------|
+
+| Scope              | Skills directory        | Lockfile                                |
+| ------------------ | ----------------------- | --------------------------------------- |
 | **Project** (`-p`) | `<cwd>/.agents/skills/` | `<cwd>/.agents/cursor-skills-lock.json` |
-| **Global** (`-g`) | `~/.agents/skills/` | `~/.agents/cursor-skills-lock.json` |
+| **Global** (`-g`)  | `~/.agents/skills/`     | `~/.agents/cursor-skills-lock.json`     |
+
 
 ---
 
@@ -88,10 +94,10 @@ cursor-agent-skills add --skill triage -p -y
 
 1. **Commit** `.agents/cursor-skills-lock.json` to git.
 2. **Gitignore** `.agents/skills/` (materialized skill trees).
-3. After clone: **`cursor-agent-skills sync -p -y`**.
-4. When **`check`** reports the pack moved on GitHub: **`cursor-agent-skills update -p -y`**.
+3. After clone: `**cursor-agent-skills sync -p -y`**.
+4. When `**check**` reports the pack moved on GitHub: `**cursor-agent-skills update -p -y**`.
 
-Selecting a skill may auto-install **`dependsOn`** entries from the pack [`skills.json`](https://github.com/Akindu23/my-agent-skills/blob/main/skills.json) (for example `triage` pulls in `grill-with-docs` and `setup-matt-pocock-skills`).
+Selecting a skill may auto-install `dependsOn` entries from the pack [skills.json](https://github.com/Akindu23/my-agent-skills/blob/main/skills.json) (for example `grill-with-docs` pulls in `architecture-decision-records`).
 
 ---
 
@@ -114,7 +120,7 @@ Browse skills and descriptions on GitHub: **[Skill catalog](https://github.com/A
 cd cli && npm install && npm test
 ```
 
-Source and tests: [github.com/Akindu23/my-agent-skills/tree/main/cli](https://github.com/Akindu23/my-agent-skills/tree/main/cli). When developing inside a clone of this repo, the CLI uses the parent **`skills/`** folder instead of fetching GitHub.
+Source and tests: [github.com/Akindu23/my-agent-skills/tree/main/cli](https://github.com/Akindu23/my-agent-skills/tree/main/cli). When developing inside a clone of this repo, the CLI uses the parent `**skills/**` folder instead of fetching GitHub.
 
 ---
 

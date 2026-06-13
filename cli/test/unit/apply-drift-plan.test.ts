@@ -89,8 +89,7 @@ describe('applyDriftPlan commit advance', () => {
     const pruneSpy = vi.spyOn(remotePack, 'pruneRepoCache').mockResolvedValue(undefined);
 
     const result = await applyDriftPlan(plan, {
-      orphanPolicy: 'skip',
-      isInteractive: false,
+      orphansToRemove: new Set(),
     });
 
     expect(result.updated).toEqual(['alpha', 'beta']);
@@ -101,5 +100,111 @@ describe('applyDriftPlan commit advance', () => {
     const alphaRemoteHash = await computeSkillFolderHash(path.join(bundleMiniV2, 'alpha'));
     expect(after?.skills.alpha?.computedHash).toBe(alphaRemoteHash);
     expect(pruneSpy).toHaveBeenCalledWith(DEFAULT_GITHUB_SOURCE, remoteBundle.commit);
+  });
+});
+
+describe('applyDriftPlan orphan handling', () => {
+  it('removes selected orphans from disk and lockfile', async () => {
+    const scope = await tempScope();
+    const bundle = await resolveBundle({ source: bundleMini });
+    const alphaHash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
+    const ghostDir = path.join(scope.skillsDir, 'ghost');
+
+    await symlink(path.join(bundleMini, 'alpha'), path.join(scope.skillsDir, 'alpha'), 'dir');
+    await mkdir(ghostDir, { recursive: true });
+    await writeFile(scope.lockPath, JSON.stringify({
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: bundle.commit,
+      defaultLinkType: 'symlink',
+      package: { name: 'bundle-mini', version: '0.0.0' },
+      skills: {
+        alpha: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: alphaHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+        ghost: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: 'deadbeef',
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }));
+
+    const lock = (await readLockfile(scope.lockPath))!;
+    const plan = await planDriftFromBundles({
+      scope,
+      lock,
+      bundle,
+      commitDrift: false,
+    });
+
+    const result = await applyDriftPlan(plan, {
+      orphansToRemove: new Set(['ghost']),
+    });
+
+    expect(result.orphansRemoved).toEqual(['ghost']);
+    expect(result.orphansSkipped).toEqual([]);
+    const after = await readLockfile(scope.lockPath);
+    expect(after?.skills.ghost).toBeUndefined();
+    await expect(readFile(ghostDir, 'utf8')).rejects.toThrow();
+  });
+
+  it('skips unselected orphans without writing the lockfile', async () => {
+    const scope = await tempScope();
+    const bundle = await resolveBundle({ source: bundleMini });
+    const alphaHash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
+    const lockBody = {
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: bundle.commit,
+      defaultLinkType: 'symlink',
+      package: { name: 'bundle-mini', version: '0.0.0' },
+      skills: {
+        alpha: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: alphaHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+        ghost: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: 'deadbeef',
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    };
+    await writeFile(scope.lockPath, JSON.stringify(lockBody, null, 2));
+
+    const lock = (await readLockfile(scope.lockPath))!;
+    const plan = await planDriftFromBundles({
+      scope,
+      lock,
+      bundle,
+      commitDrift: false,
+    });
+
+    const result = await applyDriftPlan(plan, {
+      orphansToRemove: new Set(),
+    });
+
+    expect(result.orphansRemoved).toEqual([]);
+    expect(result.orphansSkipped).toEqual(['ghost']);
+    const after = JSON.parse(await readFile(scope.lockPath, 'utf8'));
+    expect(after.skills.ghost).toBeDefined();
   });
 });

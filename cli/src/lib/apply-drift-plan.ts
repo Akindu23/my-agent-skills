@@ -1,12 +1,10 @@
 import { rm } from 'node:fs/promises';
-import { confirm, isCancel } from '@clack/prompts';
 import { skillSourcePath } from './bundle.js';
 import {
   classifyDriftSummary,
   contentChangedSkillNames,
   type DriftPlan,
 } from './drift-plan.js';
-import { CliCancel } from './errors.js';
 import { computeSkillFolderHash } from './hash.js';
 import { materializeFromLockEntry } from './install.js';
 import {
@@ -17,8 +15,6 @@ import {
 } from './lockfile.js';
 import { pruneRepoCache } from './remote-pack.js';
 import { ensureAgentsDir } from './scope.js';
-
-export type OrphanPolicy = 'prompt' | 'skip' | 'remove-all';
 
 export interface ApplyDriftResult {
   updated: string[];
@@ -42,9 +38,7 @@ export function planHasWork(plan: DriftPlan, result: ApplyDriftResult): boolean 
 export async function applyDriftPlan(
   plan: DriftPlan,
   opts: {
-    orphanPolicy: OrphanPolicy;
-    isInteractive: boolean;
-    autoYes?: boolean;
+    orphansToRemove: ReadonlySet<string>;
   },
 ): Promise<ApplyDriftResult> {
   const orphans = plan.entries.filter((e) => e.status === 'orphan');
@@ -52,35 +46,14 @@ export async function applyDriftPlan(
   const orphansSkipped: string[] = [];
 
   for (const orphan of orphans) {
-    let remove = false;
-
-    if (opts.orphanPolicy === 'remove-all') {
-      remove = true;
-    } else if (opts.orphanPolicy === 'skip') {
-      orphansSkipped.push(orphan.name);
-      continue;
-    } else if (opts.isInteractive) {
-      const ok = await confirm({
-        message: `Remove orphan "${orphan.name}" from disk and lockfile?`,
-        initialValue: false,
-      });
-      if (isCancel(ok)) {
-        throw new CliCancel();
-      }
-      remove = ok === true;
-    } else {
-      console.warn(`Skipping orphan skill "${orphan.name}" (not in remote pack).`);
+    if (!opts.orphansToRemove.has(orphan.name)) {
       orphansSkipped.push(orphan.name);
       continue;
     }
 
-    if (remove) {
-      removeSkill(plan.lock, orphan.name);
-      await rm(orphan.destDir!, { recursive: true, force: true });
-      orphansRemoved.push(orphan.name);
-    } else {
-      orphansSkipped.push(orphan.name);
-    }
+    removeSkill(plan.lock, orphan.name);
+    await rm(orphan.destDir!, { recursive: true, force: true });
+    orphansRemoved.push(orphan.name);
   }
 
   const bundle = plan.remoteBundle ?? plan.bundle;

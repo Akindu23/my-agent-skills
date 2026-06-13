@@ -66,6 +66,26 @@ export async function promptSkillSelection(
   return selected as string[];
 }
 
+export async function promptOrphanRemoval(orphanNames: string[]): Promise<string[]> {
+  if (orphanNames.length === 0) {
+    return [];
+  }
+
+  const selected = await multiselect({
+    message: 'Remove skills no longer in the pack? (deselect to keep)',
+    options: orphanNames.map((name) => ({ value: name, label: name })),
+    initialValues: orphanNames,
+    required: false,
+  });
+
+  if (isCancel(selected)) {
+    cancel('Cancelled.');
+    throw new CliCancel();
+  }
+
+  return selected as string[];
+}
+
 export type ConfirmAction = 'install' | 'update';
 
 const CONFIRM_MESSAGES: Record<ConfirmAction, string> = {

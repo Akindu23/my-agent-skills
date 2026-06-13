@@ -1,10 +1,10 @@
 import { confirm, isCancel, note, outro, cancel } from '@clack/prompts';
-import { applyDriftPlan, formatUpdateConfirmMessage } from '../lib/apply-drift-plan.js';
 import { createDriftPlan, buildDriftReport } from '../lib/drift-plan.js';
 import { renderDriftSummary } from '../lib/drift-summary.js';
 import { CliCancel } from '../lib/errors.js';
 import { printJson } from '../lib/output.js';
 import { runScopedCommand } from '../lib/run-scoped-command.js';
+import { runUpdate } from './update.js';
 
 export interface CheckOptions {
   global?: boolean;
@@ -33,7 +33,7 @@ export async function runCheck(opts: CheckOptions): Promise<void> {
 
     if (report.hasDrift && opts.offerUpdateOnDrift) {
       const runUpdateNow = await confirm({
-        message: formatUpdateConfirmMessage(plan),
+        message: 'Run update now?',
         initialValue: true,
       });
       if (isCancel(runUpdateNow)) {
@@ -41,11 +41,14 @@ export async function runCheck(opts: CheckOptions): Promise<void> {
         throw new CliCancel();
       }
       if (runUpdateNow) {
-        await applyDriftPlan(plan, {
-          orphanPolicy: 'skip',
-          isInteractive: false,
+        await runUpdate({
+          project: scope.scope === 'project',
+          global: scope.scope === 'global',
+          source: opts.source,
+          cwd: scope.cwd,
+          skipIntro: true,
+          skipDriftSummary: true,
         });
-        outro('Update complete.');
       } else {
         outro(DRIFT_HINT);
       }
