@@ -79,7 +79,7 @@ cursor-agent-skills sync -p -y && cursor-agent-skills check -p --json
 **Add one skill non-interactively**
 
 ```bash
-cursor-agent-skills add --skill review -p -y
+cursor-agent-skills add --skill triage -p -y
 ```
 
 ---
@@ -91,7 +91,7 @@ cursor-agent-skills add --skill review -p -y
 3. After clone: **`cursor-agent-skills sync -p -y`**.
 4. When **`check`** reports the pack moved on GitHub: **`cursor-agent-skills update -p -y`**.
 
-Selecting a skill may auto-install **`dependsOn`** entries from the pack [`skills.json`](https://github.com/Akindu23/my-agent-skills/blob/main/skills.json) (for example `review` pulls in `council` and `setup-matt-pocock-skills`).
+Selecting a skill may auto-install **`dependsOn`** entries from the pack [`skills.json`](https://github.com/Akindu23/my-agent-skills/blob/main/skills.json) (for example `triage` pulls in `grill-with-docs` and `setup-matt-pocock-skills`).
 
 ---
 

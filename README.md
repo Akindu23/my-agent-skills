@@ -54,7 +54,7 @@ Cursor marketplace plugins that pair well with these skills:
 
 ## Skill catalog
 
-**36** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
+**33** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
 
 | Folder | `name` | One-line intent |
 | --- | --- | --- |
@@ -83,15 +83,12 @@ Cursor marketplace plugins that pair well with these skills:
 | [prototype](./skills/prototype/) | `prototype` | Build a throwaway prototype: terminal app for logic/state questions or multiple UI variations on one route. |
 | [python-patterns](./skills/python-patterns/) | `python-patterns` | Apply Python idioms, PEP 8 norms, typing, packaging, concurrency, and tooling discipline to everyday Python code. |
 | [recursive-decomposition](./skills/recursive-decomposition/) | `recursive-decomposition` | Handle oversized tasks via programmatic decomposition and recursive sub-inquiry (RLM-inspired; large docs, many files, huge token spans). |
-| [review](./skills/review/) | `review` | Two-axis diff review (Standards vs Spec) since a user-chosen baseline; parallel **Task** runs with `generalPurpose` and explicit **model**. |
 | [setup-matt-pocock-skills](./skills/setup-matt-pocock-skills/) | `setup-matt-pocock-skills` | Add an `## Agent skills` block in `AGENTS.md`/`CLAUDE.md` and `docs/agents/` so tracker, triage labels, and domain docs are discoverable. |
-| [supabase-postgres-best-practices](./skills/supabase-postgres-best-practices/) | `supabase-postgres-best-practices` | Postgres performance and schema guidance from Supabase: queries, indexes, connection pooling, RLS, and monitoring. |
 | [tdd](./skills/tdd/) | `tdd` | Test-driven development with the red–green–refactor loop and disciplined tests. |
 | [teach](./skills/teach/) | `teach` | Teach a topic over multiple sessions with `docs/learning/<topic-slug>/` artifacts, Exa-verified resources, learning records, exercises, and HTML lessons. |
 | [to-issues](./skills/to-issues/) | `to-issues` | Break a plan, spec, or PRD into tracer-bullet vertical slices as issues on the project tracker. |
 | [to-prd](./skills/to-prd/) | `to-prd` | Turn the current conversation context into a PRD and publish it to the project issue tracker. |
 | [triage](./skills/triage/) | `triage` | Triage issues through a state machine driven by triage roles (create, AFK handoff, workflow). |
-| [vercel-react-best-practices](./skills/vercel-react-best-practices/) | `vercel-react-best-practices` | React and Next.js performance rules from Vercel Engineering (RSC, data fetching, bundle size, re-renders, waterfalls). |
 | [web-design-guidelines](./skills/web-design-guidelines/) | `web-design-guidelines` | Review UI code for **Web Interface Guidelines** compliance (accessibility, UX, best-practice audits). |
 | [zoom-out](./skills/zoom-out/) | `zoom-out` | Zoom out for broader context: map relevant modules, callers, and domain vocabulary at a higher level of abstraction. |
 
@@ -121,7 +118,6 @@ Cursor marketplace plugins that pair well with these skills:
 | --- | --- |
 | **[mattpocock/skills](https://github.com/mattpocock/skills)** | Productivity and engineering workflows (MIT) |
 | **[hunvreus/skill-issue](https://github.com/hunvreus/skill-issue)** | [document](./skills/document/) skill |
-| **[vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)** | React best practices; **[web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines)** |
-| **[supabase/agent-skills](https://github.com/supabase/agent-skills)** | Postgres guidance |
+| **[vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines)** | `web-design-guidelines` |
 | **[massimodeluisa/recursive-decomposition-skill](https://github.com/massimodeluisa/recursive-decomposition-skill)** | RLM-inspired decomposition; [paper](https://arxiv.org/abs/2512.24601) |
 | **[Everything Claude Code](https://github.com/affaan-m/everything-claude-code)** | Claude Code skills adapted for cursor. |

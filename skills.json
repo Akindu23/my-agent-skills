@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/caveman",
@@ -28,15 +28,12 @@
     "skills/prototype",
     "skills/python-patterns",
     "skills/recursive-decomposition",
-    "skills/review",
     "skills/setup-matt-pocock-skills",
-    "skills/supabase-postgres-best-practices",
     "skills/tdd",
     "skills/teach",
     "skills/to-issues",
     "skills/to-prd",
     "skills/triage",
-    "skills/vercel-react-best-practices",
     "skills/web-design-guidelines",
     "skills/zoom-out"
   ],
@@ -51,10 +48,6 @@
     ],
     "recursive-decomposition": [
       "council"
-    ],
-    "review": [
-      "council",
-      "setup-matt-pocock-skills"
     ],
     "tdd": [
       "setup-matt-pocock-skills"
