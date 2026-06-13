@@ -23,9 +23,11 @@ docs/learning/typescript-generics/lessons/0003-generic-constraints.html
 
 ## Design
 
-Each lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review.
+Each lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Think Tufte.
 
 Vary visual design to fit the topic and lesson mood. Do not reuse the same palette, layout, or section shape every time. Prefer print-friendly contrast and scannable hierarchy over a fixed house style.
+
+Keep each lesson **short** and completable in one sitting. Deliver a **single tangible win** tied to `MISSION.md`. If it needs multiple major sections, split into multiple lessons.
 
 Make opening a lesson as easy as possible — ideally a single CLI command the user can run to open the HTML file in their browser.
 
@@ -75,7 +77,9 @@ CSS approach is open: plain CSS, a CDN utility framework, or embedded styles are
 - Tie the lesson to the user's `MISSION.md` in the opening promise or first exercise.
 - Include at least one active step: retrieval question, scenario, worked example with a pause, or small in-browser exercise.
 - Litter lessons with citations — link only to entries in `RESOURCES.md` (Exa-verified when added). Do not link to URLs not yet listed there.
-- Keep each lesson focused on one concept. If it needs multiple major sections, create multiple lessons.
+- Recommend a **primary source** from `RESOURCES.md` for the user to read or watch after the lesson.
+- Link to sibling lessons and `reference/*.html` files via HTML anchors when relevant.
+- For quizzes, make each answer option the same number of words (and characters, if possible). Do not clue answers through formatting.
 - Include a reminder to ask follow-up questions to the agent when something is unclear.
 
 ## Reference Sheets

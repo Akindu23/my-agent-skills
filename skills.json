@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "skills": [
     "skills/architecture-decision-records",
     "skills/caveman",
