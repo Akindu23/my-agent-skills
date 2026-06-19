@@ -54,7 +54,7 @@ Cursor marketplace plugins that pair well with these skills:
 
 ## Skill catalog
 
-**33** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
+**34** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
 
 | Folder | `name` | One-line intent |
 | --- | --- | --- |
@@ -90,6 +90,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [to-prd](./skills/to-prd/) | `to-prd` | Turn the current conversation context into a PRD and publish it to the project issue tracker. |
 | [triage](./skills/triage/) | `triage` | Triage issues through a state machine driven by triage roles (create, AFK handoff, workflow). |
 | [web-design-guidelines](./skills/web-design-guidelines/) | `web-design-guidelines` | Review UI code for **Web Interface Guidelines** compliance (accessibility, UX, best-practice audits). |
+| [yagni](./skills/yagni/) | `yagni` | Forces the laziest working solution: YAGNI, stdlib-first, shortest diff; intensity levels lite, full (default), ultra. |
 | [zoom-out](./skills/zoom-out/) | `zoom-out` | Zoom out for broader context: map relevant modules, callers, and domain vocabulary at a higher level of abstraction. |
 
 ---
@@ -120,4 +121,5 @@ Cursor marketplace plugins that pair well with these skills:
 | **[hunvreus/skill-issue](https://github.com/hunvreus/skill-issue)** | [document](./skills/document/) skill |
 | **[vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines)** | `web-design-guidelines` |
 | **[massimodeluisa/recursive-decomposition-skill](https://github.com/massimodeluisa/recursive-decomposition-skill)** | RLM-inspired decomposition; [paper](https://arxiv.org/abs/2512.24601) |
+| **[DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)** | [`yagni`](./skills/yagni/) — adapted from upstream [`ponytail`](https://github.com/DietrichGebert/ponytail/blob/main/skills/ponytail/SKILL.md), renamed in this pack (MIT) |
 | **[Everything Claude Code](https://github.com/affaan-m/everything-claude-code)** | Claude Code skills adapted for cursor. |
