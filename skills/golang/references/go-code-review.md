@@ -27,27 +27,27 @@ description: Quick-reference checklist for Go code review based on the Go Wiki C
 
 ## Error Handling
 
-- [ ] **Handle errors**: No discarded errors with `_`; handle, return, or (exceptionally) panic → [go-error-handling](go-error-handling/go-error-handling.md)
-- [ ] **Error strings**: Lowercase, no punctuation (unless starting with proper noun/acronym) → [go-error-handling](go-error-handling/go-error-handling.md)
-- [ ] **In-band errors**: No magic values (-1, "", nil); use multiple returns with error or ok bool → [go-error-handling](go-error-handling/go-error-handling.md)
-- [ ] **Indent error flow**: Handle errors first and return; keep normal path at minimal indentation → [go-error-handling](go-error-handling/go-error-handling.md)
+- [ ] **Handle errors**: No discarded errors with `_`; handle, return, or (exceptionally) panic → [go-error-handling](go-error-handling.md)
+- [ ] **Error strings**: Lowercase, no punctuation (unless starting with proper noun/acronym) → [go-error-handling](go-error-handling.md)
+- [ ] **In-band errors**: No magic values (-1, "", nil); use multiple returns with error or ok bool → [go-error-handling](go-error-handling.md)
+- [ ] **Indent error flow**: Handle errors first and return; keep normal path at minimal indentation → [go-error-handling](go-error-handling.md)
 
 ---
 
 ## Naming
 
-- [ ] **MixedCaps**: Use `MixedCaps` or `mixedCaps`, never underscores; unexported is `maxLength` not `MAX_LENGTH` → [go-naming](go-naming/go-naming.md)
-- [ ] **Initialisms**: Keep consistent case: `URL`/`url`, `ID`/`id`, `HTTP`/`http` (e.g., `ServeHTTP`, `xmlHTTPRequest`) → [go-naming](go-naming/go-naming.md)
-- [ ] **Variable names**: Short names for limited scope (`i`, `r`, `c`); longer names for wider scope → [go-naming](go-naming/go-naming.md)
-- [ ] **Receiver names**: One or two letter abbreviation of type (`c` for `Client`); no `this`, `self`, `me`; consistent across methods → [go-naming](go-naming/go-naming.md)
+- [ ] **MixedCaps**: Use `MixedCaps` or `mixedCaps`, never underscores; unexported is `maxLength` not `MAX_LENGTH` → [go-naming](go-naming.md)
+- [ ] **Initialisms**: Keep consistent case: `URL`/`url`, `ID`/`id`, `HTTP`/`http` (e.g., `ServeHTTP`, `xmlHTTPRequest`) → [go-naming](go-naming.md)
+- [ ] **Variable names**: Short names for limited scope (`i`, `r`, `c`); longer names for wider scope → [go-naming](go-naming.md)
+- [ ] **Receiver names**: One or two letter abbreviation of type (`c` for `Client`); no `this`, `self`, `me`; consistent across methods → [go-naming](go-naming.md)
 - [ ] **Package names**: No stuttering (use `chubby.File` not `chubby.ChubbyFile`); avoid `util`, `common`, `misc` → [go-packages](go-packages.md)
 
 ---
 
 ## Concurrency
 
-- [ ] **Goroutine lifetimes**: Clear when/whether goroutines exit; document if not obvious → [go-concurrency](go-concurrency/go-concurrency.md)
-- [ ] **Synchronous functions**: Prefer sync over async; let callers add concurrency if needed → [go-concurrency](go-concurrency/go-concurrency.md)
+- [ ] **Goroutine lifetimes**: Clear when/whether goroutines exit; document if not obvious → [go-concurrency](go-concurrency.md)
+- [ ] **Synchronous functions**: Prefer sync over async; let callers add concurrency if needed → [go-concurrency](go-concurrency.md)
 - [ ] **Contexts**: First parameter; not in structs; no custom Context types; pass even if you think you don't need to → [go-context](go-context.md)
 
 ---
@@ -62,15 +62,15 @@ description: Quick-reference checklist for Go code review based on the Go Wiki C
 
 ## Data Structures
 
-- [ ] **Empty slices**: Prefer `var t []string` (nil) over `t := []string{}` (non-nil zero-length) → [go-data-structures](go-data-structures/go-data-structures.md)
-- [ ] **Copying**: Be careful copying structs with pointer/slice fields; don't copy `*T` methods' receivers by value → [go-data-structures](go-data-structures/go-data-structures.md)
+- [ ] **Empty slices**: Prefer `var t []string` (nil) over `t := []string{}` (non-nil zero-length) → [go-data-structures](go-data-structures.md)
+- [ ] **Copying**: Be careful copying structs with pointer/slice fields; don't copy `*T` methods' receivers by value → [go-data-structures](go-data-structures.md)
 
 ---
 
 ## Security
 
-- [ ] **Crypto rand**: Use `crypto/rand` for keys, not `math/rand` → [go-defensive](go-defensive/go-defensive.md)
-- [ ] **Don't panic**: Use error returns for normal error handling; panic only for truly exceptional cases → [go-defensive](go-defensive/go-defensive.md)
+- [ ] **Crypto rand**: Use `crypto/rand` for keys, not `math/rand` → [go-defensive](go-defensive.md)
+- [ ] **Don't panic**: Use error returns for normal error handling; panic only for truly exceptional cases → [go-defensive](go-defensive.md)
 
 ---
 

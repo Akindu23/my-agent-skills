@@ -124,7 +124,7 @@ Map intent + scope + tech stack (from Phase 0) to **Cursor-native** levers: **Ru
 | Review | Agent | Cursor's built-in `/review` skill when available; otherwise `web-design-guidelines` for UI audits and security-focused skills if installed |
 | Documentation | Agent | Project conventions from AGENTS.md |
 | Infrastructure | Plan for blast radius; Agent | `docker-patterns`, `postgres-patterns` |
-| Design (UI) | Plan for IA; Agent | `frontend-design`, `design-taste-frontend` |
+| Design (UI) | Plan for IA; Agent | `frontend-design` |
 
 #### By tech stack (suggest skills by name; user invokes with `/name`)
 
@@ -134,7 +134,7 @@ Map intent + scope + tech stack (from Phase 0) to **Cursor-native** levers: **Ru
 | Go | `golang`, `golang-pro`, `coding-standards` | `code-reviewer` |
 | Spring Boot / Java | `coding-standards` | `code-reviewer` |
 | Kotlin / Android | `coding-standards` | `code-reviewer` |
-| TypeScript / React | `frontend-design`, `design-taste-frontend`, `coding-standards` | `code-reviewer` |
+| TypeScript / React | `frontend-design`, `coding-standards` | `code-reviewer` |
 | Swift / iOS | `coding-standards` | `code-reviewer` |
 | PostgreSQL | `postgres-patterns` | `code-reviewer` |
 | Other / Unlisted | `coding-standards` | `code-reviewer` |

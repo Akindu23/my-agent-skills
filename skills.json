@@ -1,17 +1,19 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/caveman",
     "skills/code-simplifier",
+    "skills/codebase-design",
     "skills/codebase-onboarding",
     "skills/council",
-    "skills/design-taste-frontend",
-    "skills/diagnose",
+    "skills/decision-mapping",
+    "skills/diagnosing-bugs",
     "skills/docker-patterns",
     "skills/document",
+    "skills/domain-modeling",
     "skills/explain-code",
     "skills/frontend-design",
     "skills/frontend-slides",
@@ -19,6 +21,7 @@
     "skills/gpt-taste",
     "skills/grill-me",
     "skills/grill-with-docs",
+    "skills/grilling",
     "skills/handoff",
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
@@ -35,35 +38,51 @@
     "skills/to-prd",
     "skills/triage",
     "skills/web-design-guidelines",
-    "skills/yagni",
-    "skills/zoom-out"
+    "skills/yagni"
   ],
   "dependsOn": {
     "grill-with-docs": [
-      "architecture-decision-records"
+      "grilling",
+      "domain-modeling"
+    ],
+    "grill-me": [
+      "grilling"
     ],
     "improve-codebase-architecture": [
+      "codebase-design",
+      "grilling",
+      "domain-modeling",
       "architecture-decision-records",
-      "council",
-      "grill-with-docs"
+      "council"
+    ],
+    "decision-mapping": [
+      "grilling",
+      "domain-modeling",
+      "prototype",
+      "to-prd"
+    ],
+    "domain-modeling": [
+      "architecture-decision-records"
     ],
     "recursive-decomposition": [
       "council"
     ],
     "tdd": [
+      "codebase-design",
+      "setup-matt-pocock-skills"
+    ],
+    "diagnosing-bugs": [
       "setup-matt-pocock-skills"
     ],
     "to-issues": [
       "setup-matt-pocock-skills"
     ],
     "to-prd": [
+      "codebase-design",
       "setup-matt-pocock-skills"
     ],
     "triage": [
       "grill-with-docs",
-      "setup-matt-pocock-skills"
-    ],
-    "zoom-out": [
       "setup-matt-pocock-skills"
     ]
   },

@@ -64,6 +64,7 @@ Every new ADR and every index row must record how it was captured:
 | Value | When |
 |-------|------|
 | `architecture-decision-records` | Default for this skill (implicit offer accepted or manual via this skill) |
+| `domain-modeling` | User accepted an ADR offer during a domain-modeling session |
 | `grill-with-docs` | User accepted an ADR offer during a grill-with-docs session |
 | `improve-codebase-architecture` | User accepted an ADR offer after rejecting an ICA deepening candidate |
 | `manual` | User supplied content or insisted on recording outside satellite skills |

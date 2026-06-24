@@ -2,11 +2,12 @@
 name: handoff
 description: >-
   Writes a compact handoff to docs/handoffs/CURRENT.md from the current Agent chat so a new session or another agent can continue without re-deriving context. Use when the user asks for a handoff, session summary, continuation doc, context for the next chat, or ending work with follow-on tasks. Triggers: "handoff", "hand off", "summary for next session", "new agent", "pick up later", "/handoff".
+disable-model-invocation: true
 ---
 
 # Handoff
 
-In **Cursor Agent** chat, this skill is invoked manually with **`/handoff`** or when the agent matches the description. The artifact is a single canonical file — **`docs/handoffs/CURRENT.md`** — that the next session opens with **`@docs/handoffs/CURRENT.md`**.
+Invoke with **`/handoff`** in Agent chat. The artifact is a single canonical file — **`docs/handoffs/CURRENT.md`** — that the next session opens with **`@docs/handoffs/CURRENT.md`**.
 
 A handoff is **transient continuation context**, not an archive. There is only ever one of them, and each `/handoff` **overwrites** the previous one.
 

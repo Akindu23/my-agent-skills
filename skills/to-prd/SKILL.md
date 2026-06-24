@@ -5,7 +5,7 @@ description: Turns the current conversation context into a PRD and publishes it 
 
 # To PRD
 
-This skill takes the current conversation context and codebase understanding and produces a PRD. Do NOT interview the user — just synthesize what you already know.
+This skill takes the current conversation context and codebase understanding and produces a PRD. Synthesize what you already know — do not run a grilling interview. If module boundaries or test scope are genuinely ambiguous after exploration, ask one focused confirmation (modules to build/modify, which modules get tests); otherwise proceed.
 
 For publishing to the issue tracker or applying triage labels, follow `docs/agents/issue-tracker.md` when it exists, or run `/setup-matt-pocock-skills` to scaffold tracker and label docs. If the user only wants an in-chat or in-repo PRD draft without publishing, skip tracker steps and say so.
 
@@ -13,11 +13,9 @@ For publishing to the issue tracker or applying triage labels, follow `docs/agen
 
 1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the PRD, and respect any ADRs in the area you're touching.
 
-2. Sketch out the major modules you will need to build or modify to complete the implementation. Actively look for opportunities to extract deep modules that can be tested in isolation.
+2. Sketch out the major modules you will need to build or modify to complete the implementation. Actively look for opportunities to extract **deep modules** (see `/codebase-design` — simple, testable interface hiding substantial functionality).
 
-A deep module (as opposed to a shallow module) is one which encapsulates a lot of functionality in a simple, testable interface which rarely changes.
-
-Check with the user that these modules match their expectations. Check with the user which modules they want tests written for.
+If module boundaries or test scope are unclear after exploration, ask one confirmation covering both (modules to build/modify and which get tests). Otherwise proceed from context.
 
 3. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
 

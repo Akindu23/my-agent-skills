@@ -13,7 +13,7 @@ HTML lessons are self-contained teaching files saved inside a topic workspace. U
 - Create `docs/learning/<topic-slug>/lessons/` lazily (`mkdir -p "docs/learning/<topic-slug>/lessons"`).
 - `<lesson-slug>` is a short filesystem-safe hint from the lesson focus: lowercase, hyphens, ASCII, collapsed spaces, trimmed to about 40 characters.
 - Scan `lessons/` for the highest existing number and increment by one (same scheme as `learning-records/`).
-- Do not create a `scripts/` directory or sidecar JavaScript file. Each lesson is one HTML file.
+- Each lesson is one HTML file. Do not create a `scripts/` directory or arbitrary sidecar files. A lesson may link to shared widgets in `../assets/` (see the teach skill's Assets section).
 
 Example:
 
@@ -25,7 +25,7 @@ docs/learning/typescript-generics/lessons/0003-generic-constraints.html
 
 Each lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Think Tufte.
 
-Vary visual design to fit the topic and lesson mood. Do not reuse the same palette, layout, or section shape every time. Prefer print-friendly contrast and scannable hierarchy over a fixed house style.
+Vary visual design to fit the topic and lesson mood. Do not reuse the same palette, layout, or section shape every time. Prefer print-friendly contrast and scannable hierarchy over a fixed house style. Shared files in `assets/` are for interactive behavior (quizzes, simulators), not lesson-wide styling.
 
 Keep each lesson **short** and completable in one sitting. Deliver a **single tangible win** tied to `MISSION.md`. If it needs multiple major sections, split into multiple lessons.
 
@@ -36,16 +36,16 @@ Make opening a lesson as easy as possible — ideally a single CLI command the u
 After writing a lesson, offer this preview command:
 
 ```bash
-python3 -m http.server 8765 --directory "docs/learning/<topic-slug>/lessons"
+python3 -m http.server 8765 --directory "docs/learning/<topic-slug>"
 ```
 
 Then open:
 
 ```text
-http://127.0.0.1:8765/0003-generic-constraints.html
+http://127.0.0.1:8765/lessons/0003-generic-constraints.html
 ```
 
-Serving from a local origin is more reliable than `file://` when a lesson loads fonts, CSS, or scripts from a CDN. First load may require network access for those assets.
+Serve from the topic root so `lessons/` and `assets/` are both reachable. Serving from a local origin is more reliable than `file://` when a lesson loads fonts, CSS, or scripts from a CDN. First load may require network access for those external assets.
 
 ## Code Blocks
 

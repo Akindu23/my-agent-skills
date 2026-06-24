@@ -1,15 +1,13 @@
 ---
-name: diagnose
-description: Runs a disciplined diagnosis loop for hard bugs, flaky failures, and performance regressions—reproduce, minimise, hypothesise, instrument, fix, and regression-test. Use when the user says diagnose this, debug this, debug-this, reports something broken, throwing, failing tests, unexpected behavior, or a performance regression; or invokes /diagnose.
+name: diagnosing-bugs
+description: Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow.
 ---
 
-# Diagnose
+# Diagnosing Bugs
 
 A discipline for hard bugs. Skip phases only when explicitly justified.
 
-**Scope:** a bug report, failing command or test, error message, performance complaint, reproduction steps, or affected scope. If no repro is provided, build an agent-runnable feedback loop first (Phase 1).
-
-When exploring the codebase, use the project's domain glossary to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
+When exploring the codebase, read `CONTEXT.md` (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
 
 ## User clarifications (Cursor)
 
@@ -21,7 +19,7 @@ Use **plain chat** (not forced multiple-choice) when the answer is inherently fr
 
 ## Phase 1 — Build a feedback loop
 
-**This is the skill.** Everything else is mechanical. If you have a fast, deterministic, agent-runnable pass/fail signal for the bug, you will find the cause — bisection, hypothesis-testing, and instrumentation all just consume that signal. If you don't have one, no amount of staring at code will save you.
+**This is the skill.** Everything else is mechanical. If you have a **tight** pass/fail signal for the bug — one that goes red on _this_ bug — you will find the cause; bisection, hypothesis-testing, and instrumentation all just consume it. If you don't have one, no amount of staring at code will save you.
 
 Spend disproportionate effort here. **Be aggressive. Be creative. Refuse to give up.**
 
@@ -40,15 +38,15 @@ Spend disproportionate effort here. **Be aggressive. Be creative. Refuse to give
 
 Build the right feedback loop, and the bug is 90% fixed.
 
-### Iterate on the loop itself
+### Tighten the loop
 
-Treat the loop as a product. Once you have _a_ loop, ask:
+Treat the loop as a product. Once you have _a_ loop, **tighten** it:
 
 - Can I make it faster? (Cache setup, skip unrelated init, narrow the test scope.)
 - Can I make the signal sharper? (Assert on the specific symptom, not "didn't crash".)
 - Can I make it more deterministic? (Pin time, seed RNG, isolate filesystem, freeze network.)
 
-A 30-second flaky loop is barely better than no loop. A 2-second deterministic loop is a debugging superpower.
+A 30-second flaky loop is barely better than no loop; a 2-second deterministic one is tight — a debugging superpower.
 
 ### Non-deterministic bugs
 
@@ -58,11 +56,20 @@ The goal is not a clean repro but a **higher reproduction rate**. Loop the trigg
 
 Stop and say so explicitly. List what you tried. Ask the user for: (a) access to whatever environment reproduces it, (b) a captured artifact (HAR file, log dump, core dump, screen recording with timestamps), or (c) permission to add temporary production instrumentation. Do **not** proceed to hypothesise without a loop.
 
-Do not proceed to Phase 2 until you have a loop you believe in.
+### Completion criterion — a tight loop that goes red
 
-## Phase 2 — Reproduce
+Phase 1 is done when the loop is **tight** and **red-capable**: you can name **one command** — a script path, a test invocation, a curl — that you have **already run at least once** (paste the invocation and its output), and that is:
 
-Run the loop. Watch the bug appear.
+- [ ] **Red-capable** — it drives the actual bug code path and asserts the **user's exact symptom**, so it can go red on this bug and green once fixed. Not "runs without erroring" — it must be able to _catch this specific bug_.
+- [ ] **Deterministic** — same verdict every run (flaky bugs: a pinned, high reproduction rate, per above).
+- [ ] **Fast** — seconds, not minutes.
+- [ ] **Agent-runnable** — you can run it unattended; a human in the loop only via `scripts/hitl-loop.template.sh`.
+
+If you catch yourself reading code to build a theory before this command exists, **stop — jumping straight to a hypothesis is the exact failure this skill prevents.** No red-capable command, no Phase 2.
+
+## Phase 2 — Reproduce + minimise
+
+Run the loop. Watch it go red — the bug appears.
 
 Confirm:
 
@@ -70,19 +77,17 @@ Confirm:
 - [ ] The failure is reproducible across multiple runs (or, for non-deterministic bugs, reproducible at a high enough rate to debug against).
 - [ ] You have captured the exact symptom (error message, wrong output, slow timing) so later phases can verify the fix actually addresses it.
 
-Do not proceed until you reproduce the bug.
+### Minimise
 
-## Phase 3 — Minimise
+Once it's red, shrink the repro to the **smallest scenario that still goes red**. Cut inputs, callers, config, data, and steps **one at a time**, re-running the loop after each cut — keep only what's load-bearing for the failure.
 
-Reduce inputs, state, or steps until the failing behaviour is isolated but still matches what the user reported.
+Why bother: a minimal repro shrinks the hypothesis space in Phase 3 (fewer moving parts left to suspect) and becomes the clean regression test in Phase 5.
 
-- Remove unrelated setup, data, and code paths while the loop still fails the same way.
-- Prefer one sharp assertion or symptom over a broad "something broke" signal.
-- Note what you stripped out so you can explain the minimal case later.
+Done when **every remaining element is load-bearing** — removing any one of them makes the loop go green.
 
-Do not proceed to Phase 4 until the repro is small enough to reason about—not so stripped that you are debugging a different failure.
+Do not proceed until you have reproduced **and** minimised.
 
-## Phase 4 — Hypothesise
+## Phase 3 — Hypothesise
 
 Generate **3–5 ranked hypotheses** before testing any of them. Single-hypothesis generation anchors on the first plausible idea.
 
@@ -94,9 +99,9 @@ If you cannot state the prediction, the hypothesis is a vibe — discard or shar
 
 **Show the ranked list to the user before testing.** They often have domain knowledge that re-ranks instantly ("we just deployed a change to #3"), or know hypotheses they've already ruled out. Cheap checkpoint, big time saver. Don't block on it — proceed with your ranking if the user is AFK.
 
-## Phase 5 — Instrument
+## Phase 4 — Instrument
 
-Each probe must map to a specific prediction from Phase 4. **Change one variable at a time.**
+Each probe must map to a specific prediction from Phase 3. **Change one variable at a time.**
 
 Tool preference:
 
@@ -108,7 +113,7 @@ Tool preference:
 
 **Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
 
-## Phase 6 — Fix + regression test
+## Phase 5 — Fix + regression test
 
 Write the regression test **before the fix** — but only if there is a **correct seam** for it.
 
@@ -124,7 +129,7 @@ If a correct seam exists:
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
 
-## Phase 7 — Cleanup + post-mortem
+## Phase 6 — Cleanup + post-mortem
 
 Required before declaring done:
 

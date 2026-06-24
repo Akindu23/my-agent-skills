@@ -16,7 +16,7 @@ Explain the user-scoped code as a short, scannable post. Prefer plain-English pr
 - Keep prose simple and snippets small.
 - Simplify code when useful, but stay faithful to behavior.
 - Do not invent intent that the code or prompt does not support.
-- When **design-taste-frontend** or **gpt-taste** is also in scope for UI or markup output, follow their stricter presentation rules (no emojis in code, markup, text content, or alt text) even though this skill otherwise allows plain headings.
+- When **gpt-taste** is also in scope for UI or markup output, follow its stricter presentation rules (no emojis in code, markup, text content, or alt text) even though this skill otherwise allows plain headings.
 
 ## Format
 

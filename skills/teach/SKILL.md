@@ -21,6 +21,7 @@ docs/learning/<topic-slug>/
   NOTES.md
   learning-records/0001-<slug>.md
   lessons/0001-<slug>.html
+  assets/<name>.<ext>
   reference/<slug>.html
   reference/glossary.html
 ```
@@ -32,6 +33,7 @@ The state of learning is captured in these files:
 - `RESOURCES.md`: A curated set of verified sources and communities. Use [RESOURCES-FORMAT.md](references/RESOURCES-FORMAT.md).
 - `learning-records/*.md`: Short records of demonstrated understanding, prior knowledge, corrected misconceptions, or mission shifts. Use [LEARNING-RECORD-FORMAT.md](references/LEARNING-RECORD-FORMAT.md).
 - `lessons/*.html`: Self-contained HTML lessons and exercises — the primary teaching unit. Use [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
+- `assets/*`: Reusable interactive components shared across lessons in this topic. See [Assets](#assets).
 - `reference/*.html`: Compressed quick-reference sheets (syntax, poses, algorithms, glossary render) designed for repeat lookup. Create when a topic benefits from durable cheat-sheets beyond glossary terms.
 - `NOTES.md`: A scratchpad for user preferences and working notes.
 
@@ -81,6 +83,14 @@ Pedagogical rules:
 - **Follow-up** — remind the user they can ask the agent when something is unclear.
 
 HTML implementation, preview commands, and code-block rules: [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
+
+## Assets
+
+Lessons are built from reusable **interactive components**, stored in `assets/`: quiz and feedback widgets, simulators, diagram helpers — anything a second lesson in this topic could reuse.
+
+**Not for shared stylesheets.** Each lesson owns its own visual design. Assets are for behavior, not a house style.
+
+Before authoring a lesson, read `assets/` and build from components already there. When a lesson needs something new and reusable in principle, write it to `assets/` and link from the lesson HTML — do not inline code a future lesson would duplicate. Create `assets/` lazily on first write.
 
 ## Reference documents
 

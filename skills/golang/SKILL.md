@@ -1,6 +1,10 @@
 ---
 name: golang
 description: Routes Go work to the right reference guides and conventions for the task. Use when working on Go architecture, implementation, refactoring, concurrency, error handling, testing, performance, or code review.
+paths:
+  - "**/*.go"
+  - "**/go.mod"
+  - "**/go.sum"
 disable-model-invocation: true
 ---
 
@@ -19,6 +23,7 @@ Use this as the entry point for Go work in this skill package. It routes to the 
 ## Instructions
 - Identify the dominant Go task (implementation, review, testing, design, or optimization).
 - Always apply foundational style guidance first.
+- Load **top-level** files under `references/` from the index below — one hop from this skill. Only open a nested `references/<topic>/` file when the parent reference explicitly points you there for that subtopic.
 - Add one or more specialized reference guides based on task scope.
 - For multi-domain requests, combine relevant guides and use `go-style-core` as the tiebreaker.
 - Keep outputs concise and idiomatic to Go conventions.
