@@ -3,8 +3,8 @@
 Use this when launching **Task** subagents from Cursor.
 
 1. **Probe** the Task `model` enum before fan-out.
-2. **Default:** `composer-2.5` → `composer-2.5-fast` → `composer-2` → `composer-2-fast` → inherit.
-3. **Parallel (n ≥ 6):** fast-first — `composer-2.5-fast` → `composer-2.5` → `composer-2-fast` → `composer-2` → inherit.
+2. **Default:** `composer-2.5` → `composer-2.5-fast` → inherit.
+3. **Parallel (n ≥ 6):** fast-first — `composer-2.5-fast` → `composer-2.5` → inherit.
 
 Set `model: <slug>` when a Composer slug matches; omit only when no Composer slug is in the enum.
 
