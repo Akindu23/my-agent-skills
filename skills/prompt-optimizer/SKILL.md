@@ -1,12 +1,7 @@
 ---
 name: prompt-optimizer
-description: >-
-  Analyzes raw prompts, surfaces intent and gaps, maps them to Cursor context
-  (AGENTS.md, Rules, Agent Skills via /name, Plan vs Agent mode, Task subagents), and outputs a
-  ready-to-paste optimized prompt. Advisory only — never executes the task itself.
-  Triggers on "optimize prompt", "improve my prompt", "rewrite this prompt",
-  "help me prompt", and Chinese equivalents; does not trigger on "optimize code"
-  or direct execution requests ("just do it" / 直接做).
+description: Analyzes prompts and outputs a ready-to-paste optimized version mapped to Cursor context — advisory only, never executes the task.
+disable-model-invocation: true
 ---
 
 # Prompt Optimizer

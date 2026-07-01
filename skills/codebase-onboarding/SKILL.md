@@ -1,10 +1,7 @@
 ---
 name: codebase-onboarding
-description: >-
-  Analyzes an unfamiliar codebase and produces a structured onboarding guide with
-  architecture map, key entry points, conventions, and a starter AGENTS.md for
-  Cursor. Use when joining a new repo, onboarding to a project, or when the user
-  asks to understand, map, or document how the codebase is organized.
+description: Analyze an unfamiliar codebase and produce a structured onboarding guide with architecture map, conventions, and a starter AGENTS.md.
+disable-model-invocation: true
 ---
 
 # Codebase Onboarding

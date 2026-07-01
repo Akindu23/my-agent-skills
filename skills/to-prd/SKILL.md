@@ -1,6 +1,7 @@
 ---
 name: to-prd
-description: Turns the current conversation context into a PRD and publishes it to the project issue tracker. Use when the user wants a PRD from the current context.
+description: Turn the current conversation into a PRD and publish it to the project issue tracker — no interview, just synthesis.
+disable-model-invocation: true
 ---
 
 # To PRD

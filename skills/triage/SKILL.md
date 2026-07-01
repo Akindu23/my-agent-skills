@@ -1,6 +1,7 @@
 ---
 name: triage
-description: Triages issues on the project issue tracker through a state machine driven by triage roles. Use when the user wants to create an issue, triage issues, review incoming bugs or feature requests, prepare issues for an AFK agent, or manage issue workflow.
+description: Move issues on the project issue tracker through a state machine of triage roles.
+disable-model-invocation: true
 ---
 
 # Triage
