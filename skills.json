@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
@@ -23,6 +23,7 @@
     "skills/grill-with-docs",
     "skills/grilling",
     "skills/handoff",
+    "skills/implement-plan",
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
     "skills/mermaid",
@@ -49,6 +50,12 @@
     ],
     "grill-me": [
       "grilling"
+    ],
+    "implement-plan": [
+      "council",
+      "karpathy-guidelines",
+      "best-practices-research",
+      "yagni"
     ],
     "improve-codebase-architecture": [
       "codebase-design",

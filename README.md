@@ -58,7 +58,7 @@ Cursor marketplace plugins that pair well with these skills:
 
 ## Skill catalog
 
-**35** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
+**36** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
 
 
 | Folder                                                                   | `name`                          | One-line intent                                                                                                                                                                    |
@@ -83,6 +83,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [grill-with-docs](./skills/grill-with-docs/)                             | `grill-with-docs`               | User-invoked router: `/grilling` plus `/domain-modeling` to sharpen a plan and update `CONTEXT.md` / ADRs inline.                                                                  |
 | [grilling](./skills/grilling/)                                           | `grilling`                      | Model-invoked relentless interview leaf — stress-test plans and designs one question at a time.                                                                                    |
 | [handoff](./skills/handoff/)                                             | `handoff`                       | Compact session handoff to a single `docs/handoffs/CURRENT.md`, to be used by another agent in a new session                                                                       |
+| [implement-plan](./skills/implement-plan/)                               | `implement-plan`                | User-invoked router: `/council` on the plan, implement following `karpathy-guidelines` and `best-practices-research`, then a `/yagni` pass to simplify.                            |
 | [improve-codebase-architecture](./skills/improve-codebase-architecture/) | `improve-codebase-architecture` | User-invoked architecture review: explore via Task/council, HTML report to `docs/architecture-reviews/`, then `/grilling` + `/domain-modeling` on a chosen candidate.              |
 | [karpathy-guidelines](./skills/karpathy-guidelines/)                     | `karpathy-guidelines`           | Behavioral guidelines to reduce common LLM coding mistakes when writing, reviewing, or refactoring code.                                                                           |
 | [mermaid](./skills/mermaid/)                                             | `mermaid`                       | Author **[Mermaid](https://mermaid.js.org/)** diagrams for docs and design discussions-many diagram types, ADR/RFC/README-friendly; selection and tooling guides in `references/`. |
