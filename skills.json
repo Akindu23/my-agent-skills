@@ -1,9 +1,10 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "skills": [
     "skills/architecture-decision-records",
+    "skills/best-practices-research",
     "skills/caveman",
     "skills/codebase-design",
     "skills/codebase-onboarding",
@@ -39,6 +40,9 @@
     "skills/yagni"
   ],
   "dependsOn": {
+    "best-practices-research": [
+      "council"
+    ],
     "grill-with-docs": [
       "grilling",
       "domain-modeling"
