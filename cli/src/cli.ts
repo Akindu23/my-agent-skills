@@ -29,8 +29,8 @@ Examples:
       (TTY: pick one action, then exit; use --menu to stay in the hub)
   $ cursor-agent-skills --menu
       (TTY: hub menu until Quit)
-  $ cursor-agent-skills add --skill caveman -p -y
-  $ cursor-agent-skills --skill caveman -p -y --json
+  $ cursor-agent-skills add --skill pitstop -p -y
+  $ cursor-agent-skills --skill pitstop -p -y --json
   $ cursor-agent-skills check -p --json
   $ cursor-agent-skills update -p -y
 `);

@@ -8,7 +8,7 @@ export function printJson(data: unknown): void {
 
 export function failNonInteractive(message: string): never {
   throw new CliError(
-    `${message}\n\nExample:\n  cursor-agent-skills add --skill caveman -p -y`,
+    `${message}\n\nExample:\n  cursor-agent-skills add --skill pitstop -p -y`,
   );
 }
 
@@ -20,7 +20,7 @@ export function failBareNoSubcommand(): never {
       'Commands: add, update, remove, list, sync, check',
       '',
       'Example:',
-      '  cursor-agent-skills add --skill caveman -p -y',
+      '  cursor-agent-skills add --skill pitstop -p -y',
       '',
       'Run cursor-agent-skills --help for full usage.',
     ].join('\n'),

@@ -10,7 +10,7 @@ import { CliError } from '../../src/lib/errors.js';
 
 describe('assertValidSkillName', () => {
   it('accepts kebab-case names', () => {
-    expect(() => assertValidSkillName('caveman')).not.toThrow();
+    expect(() => assertValidSkillName('pitstop')).not.toThrow();
     expect(() => assertValidSkillName('my-skill')).not.toThrow();
   });
 

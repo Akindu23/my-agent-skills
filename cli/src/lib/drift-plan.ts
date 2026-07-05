@@ -163,7 +163,7 @@ export async function createDriftPlan(opts: {
   if (!lock || Object.keys(lock.skills).length === 0) {
     const { CliError } = await import('./errors.js');
     throw new CliError(
-      `No lockfile or empty skills at ${opts.scope.lockPath}. Run add first.\n\nExample:\n  cursor-agent-skills add --skill caveman -p -y`,
+      `No lockfile or empty skills at ${opts.scope.lockPath}. Run add first.\n\nExample:\n  cursor-agent-skills add --skill pitstop -p -y`,
     );
   }
 

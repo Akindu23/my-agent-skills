@@ -5,7 +5,6 @@
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
-    "skills/caveman",
     "skills/codebase-design",
     "skills/codebase-onboarding",
     "skills/council",
@@ -27,6 +26,7 @@
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
     "skills/mermaid",
+    "skills/pitstop",
     "skills/postgres-patterns",
     "skills/prototype",
     "skills/python-patterns",
