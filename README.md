@@ -98,7 +98,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [to-prd](./skills/to-prd/)                                               | `to-prd`                        | Turn the current conversation context into a PRD and publish it to the project issue tracker.                                                                                      |
 | [triage](./skills/triage/)                                               | `triage`                        | Triage issues through a state machine driven by triage roles (create, AFK handoff, workflow).                                                                                      |
 | [web-design-guidelines](./skills/web-design-guidelines/)                 | `web-design-guidelines`         | Review UI code for **Web Interface Guidelines** compliance (accessibility, UX, best-practice audits).                                                                              |
-| [yagni](./skills/yagni/)                                                 | `yagni`                         | Forces the laziest working solution: YAGNI, stdlib-first, shortest diff; intensity levels lite, full (default), ultra.                                                             |
+| [yagni](./skills/yagni/)                                                 | `yagni`                         | Forces the laziest working solution: YAGNI, stdlib-first, shortest diff; full (default) flags speculative scope but ships, ultra may skip it on greenfield.                        |
 
 
 
