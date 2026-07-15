@@ -30,12 +30,14 @@
     "skills/prototype",
     "skills/python-patterns",
     "skills/recursive-decomposition",
+    "skills/research",
     "skills/setup-matt-pocock-skills",
     "skills/tdd",
     "skills/teach",
     "skills/to-spec",
     "skills/to-tickets",
     "skills/triage",
+    "skills/wayfinder",
     "skills/web-design-guidelines",
     "skills/yagni"
   ],
@@ -85,6 +87,13 @@
     "triage": [
       "grill-with-docs",
       "setup-matt-pocock-skills"
+    ],
+    "wayfinder": [
+      "setup-matt-pocock-skills",
+      "grilling",
+      "domain-modeling",
+      "prototype",
+      "research"
     ]
   },
   "packCommit": "a3797471827434017696930eb22dbc2520532d89"
