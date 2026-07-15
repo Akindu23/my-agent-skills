@@ -8,7 +8,6 @@
     "skills/codebase-design",
     "skills/codebase-onboarding",
     "skills/council",
-    "skills/decision-mapping",
     "skills/diagnosing-bugs",
     "skills/docker-patterns",
     "skills/document",
@@ -34,8 +33,8 @@
     "skills/setup-matt-pocock-skills",
     "skills/tdd",
     "skills/teach",
-    "skills/to-issues",
-    "skills/to-prd",
+    "skills/to-spec",
+    "skills/to-tickets",
     "skills/triage",
     "skills/web-design-guidelines",
     "skills/yagni"
@@ -64,12 +63,6 @@
       "architecture-decision-records",
       "council"
     ],
-    "decision-mapping": [
-      "grilling",
-      "domain-modeling",
-      "prototype",
-      "to-prd"
-    ],
     "domain-modeling": [
       "architecture-decision-records"
     ],
@@ -83,11 +76,10 @@
     "diagnosing-bugs": [
       "setup-matt-pocock-skills"
     ],
-    "to-issues": [
+    "to-tickets": [
       "setup-matt-pocock-skills"
     ],
-    "to-prd": [
-      "codebase-design",
+    "to-spec": [
       "setup-matt-pocock-skills"
     ],
     "triage": [

@@ -21,7 +21,7 @@ A handoff is **transient continuation context**, not an archive. There is only e
 
 1. **Next-session focus** — If the user typed text after `/handoff` or described a focus in the same message, use it as the primary goal for the handoff. Otherwise infer the most important continuation goal from the conversation.
 2. **Redact sensitive content** — Before writing, redact API keys, passwords, tokens, and personally identifiable information. Replace each with `[REDACTED]` or a short generic label (e.g. `[REDACTED: API key]`). Do not paste secrets even if they appeared in the chat.
-3. **Extract, do not duplicate** — Do not paste large chunks of PRDs, plans, ADRs, issues, commit messages, or diffs. **Link** them by workspace path or URL. Quote at most a line or two if absolutely necessary. Capture only what the next agent cannot recover from those links:
+3. **Extract, do not duplicate** — Do not paste large chunks of specs, plans, ADRs, issues, commit messages, or diffs. **Link** them by workspace path or URL. Quote at most a line or two if absolutely necessary. Capture only what the next agent cannot recover from those links:
    - **Current state** — What works and what was tried. Include **environment** when relevant: branch, uncommitted or dirty tree, services or commands that mattered, tooling versions only if they affected this session.
    - **Preferences (this session):** constraints the user stated in chat (e.g. no commits unless asked, use `AskQuestion` for discrete choices). Do not copy all of `AGENTS.md` or rules files—only what this thread established.
    - **Decisions and constraints** — Outcomes the next agent must not reverse. Include **rejected or failed approaches** as one line each (`what was tried → why stopped`) so the next agent does not repeat dead ends. If a decision is durable beyond this task, promote it to an ADR and link it here instead of relying on the handoff to preserve it.
@@ -68,7 +68,7 @@ Use this structure inside the written file (replace placeholders; delete sub-bul
 
 ## Links (no prose duplication)
 
-- Plan / PRD: <path or URL>
+- Plan / Spec: <path or URL>
 - ADR: <path or URL>
 - Issue / ticket: <path or URL>
 - PR / diff: <path or URL>
