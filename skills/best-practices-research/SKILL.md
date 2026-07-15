@@ -20,7 +20,7 @@ Identify 1-3 domains the task touches (a stack, library, or framework). For each
 
 One domain → one subagent with all its questions. 2-3 clearly unrelated domains → one subagent per domain, dispatched together in a single message (parallel `Task` calls).
 
-Before dispatch, probe the Task tool's `model` enum and apply the Composer priority rule from [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md) (`composer-2.5` → `composer-2.5-fast` → inherit).
+Before dispatch, probe the Task tool's `model` enum and set `model` per [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md) (do not copy priority tables here).
 
 Use `subagent_type: generalPurpose`, run in the foreground since you need the findings before writing code. Do **not** set `readonly: true`: readonly mode disables MCP and internet access, which these subagents need to search at all.
 
