@@ -1,6 +1,6 @@
 ---
 name: pitstop
-description: Pit-crew response mode for coding and agent work: action-first, numbered steps, state restated every turn, compressed grammar by default.
+description: Pit-crew response mode for coding and agent work. Action-first, numbered steps, state restated every turn, compressed grammar by default.
 disable-model-invocation: true
 ---
 
