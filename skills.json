@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
@@ -21,6 +21,7 @@
     "skills/grill-with-docs",
     "skills/grilling",
     "skills/handoff",
+    "skills/implement",
     "skills/implement-plan",
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
@@ -34,6 +35,7 @@
     "skills/setup-matt-pocock-skills",
     "skills/tdd",
     "skills/teach",
+    "skills/to-plan",
     "skills/to-spec",
     "skills/to-tickets",
     "skills/triage",
@@ -68,31 +70,17 @@
       "architecture-decision-records",
       "council"
     ],
-    "domain-modeling": [
-      "architecture-decision-records"
-    ],
     "recursive-decomposition": [
       "council"
     ],
-    "tdd": [
-      "codebase-design",
-      "setup-matt-pocock-skills"
-    ],
-    "diagnosing-bugs": [
-      "setup-matt-pocock-skills"
-    ],
-    "to-tickets": [
-      "setup-matt-pocock-skills"
+    "research": [
+      "council"
     ],
     "to-spec": [
-      "setup-matt-pocock-skills"
-    ],
-    "triage": [
-      "grill-with-docs",
-      "setup-matt-pocock-skills"
+      "council",
+      "best-practices-research"
     ],
     "wayfinder": [
-      "setup-matt-pocock-skills",
       "grilling",
       "domain-modeling",
       "prototype",

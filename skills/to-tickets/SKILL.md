@@ -113,3 +113,5 @@ The end-to-end behaviour this ticket makes work, from the user's perspective —
 In either form, avoid specific file paths or code snippets — they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
 
 Publish the approved tickets, then stop — do not start implementation.
+
+Work the frontier **one ticket at a time** with `/implement`, clearing context between tickets. Do not run `/implement-plan` per ticket (that skill is for `/to-plan` / attached plans). Escalate to `/implement-plan` only if a ticket is still full of unknowns — treat that as a process smell.

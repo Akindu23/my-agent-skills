@@ -122,9 +122,12 @@ User invokes with a loose idea.
 
 1. **Name the destination.** Run a `/grilling` and `/domain-modeling` session to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first. Glossary updates may land; **do not offer ADRs** in this pass (see step 6).
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and use **AskQuestion** (or plain chat if unavailable) with these options:
-   - **`/to-spec`** — write a spec (then `/to-tickets` when ready to slice)
-   - **Implement now** — start building in this session
+   - **`/to-spec`** — Matt path: spec + council/BPR (hard-stop) → `/to-tickets` → `/implement` (one ticket per session)
+   - **`/to-plan`** — escape hatch: one-session plan → `/implement-plan`
+   - **Implement now** — start building in this session (skip durable artifacts)
    - **Stop** — end here
+
+   When recommending, prefer a short **context-risk** check: would clearing context mid-build force re-deriving seams/contracts? If yes → `/to-spec`; if no → `/to-plan` is fine; if unsure → `/to-spec` first.
 3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 4. **Create the tickets you can specify now** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
 5. **Fire research.** For each `research` ticket you just created, invoke `/research` in parallel (background Tasks). The findings **Markdown file** is the SSOT — add a context pointer from the ticket to that file. Only ask `/research` for a throwaway `research/<name>` branch when isolation is needed; otherwise leave the branch alone.
@@ -146,3 +149,11 @@ User invokes with a map (URL or number). A ticket is **optional** — without on
 The user may run unblocked tickets in parallel, so expect other sessions to be editing the tracker concurrently.
 
 **Done when**: exactly one non-research ticket was claimed, resolved, and closed (or ruled out of scope), any ADR offer for that answer was handled (accepted → written and dual-linked, declined → discarded, or criteria not met → no offer), the map's Decisions-so-far / fog / out-of-scope sections reflect that outcome, and any newly graduated tickets are created and wired — or, for research-only parallel work, every research ticket this session fired has a findings-file context pointer (and the same ADR offer step applies if a research answer somehow meets ADR-POLICY).
+
+## When the map is clear
+
+Wayfinder **decides**; it does not ship the build. When no open decision tickets remain and the destination is a change to implement, **recommend** (user confirms) using the same context-risk gate as the no-fog exit:
+
+- **Multi-session / dumb-zone risk** → `/to-spec` → `/to-tickets` → `/implement` (one ticket per session, clear context between)
+- **Fits one session** → `/to-plan` → `/implement-plan`
+- **Unsure** → `/to-spec`, then choose tickets vs `/to-plan`

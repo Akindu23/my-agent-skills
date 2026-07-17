@@ -6,6 +6,7 @@ Issues and specs (you may know a spec as a PRD) for this repo live as markdown f
 
 - One feature per directory: `work/<feature-slug>/`
 - The spec is `work/<feature-slug>/spec.md`
+- The one-session implementation plan (from `/to-plan`, for `/implement-plan`) is `work/<feature-slug>/plan.md`
 - Implementation issues are one file per ticket at `work/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` — never a single combined tickets file
 - Triage state is recorded as a `Status:` line near the top of each issue file (see `triage-labels.md` for the role strings)
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading

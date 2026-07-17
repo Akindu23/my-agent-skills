@@ -1,12 +1,12 @@
 ---
 name: to-spec
-description: Turn the current conversation into a spec and publish it to the project issue tracker — no interview, just synthesis of what you've already discussed.
+description: Turn the current conversation into a published spec, then validate it with /council and /best-practices-research — no interview, no tickets.
 disable-model-invocation: true
 ---
 
-This skill takes the current conversation context and codebase understanding and produces a spec (you may know this document as a PRD). Do NOT interview the user — just synthesize what you already know.
+Synthesize a spec (PRD) from what you already know — do **not** interview. Then validate it once. **Do not** run `/to-tickets` or implement unless the user asks in the same turn.
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+The issue tracker and triage label vocabulary should have been provided — run `/setup-matt-pocock-skills` if not.
 
 ## User clarifications (Cursor)
 
@@ -18,13 +18,25 @@ Use **plain chat** (not forced multiple-choice) when the answer is inherently fr
 
 ## Process
 
-1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the spec, and respect any ADRs in the area you're touching.
+1. Explore the repo if you haven't already. Use the project's domain glossary; respect ADRs in the area you're touching.
+   **Done when**: you can write the spec in glossary vocabulary without inventing modules you haven't seen.
 
-2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better - the ideal number is one.
+2. Sketch test seams — prefer existing, highest seam; fewer is better (ideal: one). Check with the user that seams match expectations.
+   **Done when**: user has confirmed the seams (or accepted the default).
 
-Check with the user that these seams match their expectations.
+3. Write the spec with the template below; publish to the issue tracker; apply `ready-for-agent`.
+   **Done when**: the spec is published and reachable by path or issue URL.
 
-3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
+4. Run `/council` scoped to every area the spec touches.
+   **Done when**: every file/area the spec will change has been explored.
+
+5. Run `/best-practices-research` on the domains the spec touches. Fold each recommendation into the published spec or reject it explicitly (brief note under Further Notes or Implementation Decisions).
+   **Done when**: every recommendation is incorporated or explicitly rejected on the published spec.
+
+6. **Hard stop.** Tell the user the spec is ready. Next is `/to-tickets` → `/implement` (one ticket per session), or `/to-plan` → `/implement-plan` if the remaining build fits one session. Do **not** start tickets, plans, or implementation unless asked in the same turn.
+   **Done when**: this session has stopped without `/to-tickets`, `/to-plan`, or implementation unless the user explicitly requested one of those in the same turn.
+
+Skip steps 4–5 only when the user asked for a draft spec without validation.
 
 <spec-template>
 

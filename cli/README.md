@@ -97,7 +97,7 @@ cursor-agent-skills add --skill triage -p -y
 3. After clone: `**cursor-agent-skills sync -p -y`**.
 4. When `**check**` reports the pack moved on GitHub: `**cursor-agent-skills update -p -y**`.
 
-Selecting a skill may auto-install `dependsOn` entries from the pack [skills.json](https://github.com/Akindu23/my-agent-skills/blob/main/skills.json) (for example `grill-with-docs` pulls in `architecture-decision-records`).
+Selecting a skill may auto-install `dependsOn` entries from the pack [skills.json](https://github.com/Akindu23/my-agent-skills/blob/main/skills.json) (for example `grill-with-docs` pulls in `grilling` and `domain-modeling`).
 
 ---
 
