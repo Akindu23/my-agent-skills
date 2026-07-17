@@ -72,4 +72,4 @@ Apply the three criteria in [ADR-POLICY.md](references/ADR-POLICY.md) before off
 
 ## Satellite skills
 
-`grill-with-docs` and `improve-codebase-architecture` may **offer** ADRs under stricter or session-specific rules. When the user accepts, they hand off to **this workflow** (draft → approval → write → index) and set `Captured via` to their skill slug.
+`grill-with-docs`, `improve-codebase-architecture`, and `wayfinder` may **offer** ADRs under stricter or session-specific rules. When the user accepts, they hand off to **this workflow** (draft → approval → write → index) and set `Captured via` to their skill slug.

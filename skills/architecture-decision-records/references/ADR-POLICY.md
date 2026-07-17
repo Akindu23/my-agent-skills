@@ -67,6 +67,7 @@ Every new ADR and every index row must record how it was captured:
 | `domain-modeling` | User accepted an ADR offer during a domain-modeling session |
 | `grill-with-docs` | User accepted an ADR offer during a grill-with-docs session |
 | `improve-codebase-architecture` | User accepted an ADR offer after rejecting an ICA deepening candidate |
+| `wayfinder` | User accepted an ADR offer on wayfinder ticket close (Work through the map) |
 | `manual` | User supplied content or insisted on recording outside satellite skills |
 
 In the ADR file, use YAML frontmatter when present:

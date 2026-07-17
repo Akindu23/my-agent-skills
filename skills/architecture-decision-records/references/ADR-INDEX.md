@@ -40,6 +40,6 @@ Seed `README.md` with the table header below and a one-line intro.
 
 ## Captured via values
 
-Documented in [ADR-POLICY.md](ADR-POLICY.md): `architecture-decision-records`, `grill-with-docs`, `improve-codebase-architecture`, `manual`.
+Documented in [ADR-POLICY.md](ADR-POLICY.md): `architecture-decision-records`, `domain-modeling`, `grill-with-docs`, `improve-codebase-architecture`, `wayfinder`, `manual`.
 
 Satellite skills set their own slug when they initiated the offer and the user approved writing through the canonical workflow.

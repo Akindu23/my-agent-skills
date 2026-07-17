@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.
+description: Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way is clear. On ticket close, may offer ADRs (promotion into docs/adr/) when ADR-POLICY criteria hold.
 disable-model-invocation: true
 ---
 
@@ -20,6 +20,8 @@ Use **plain chat** (not forced multiple-choice) when the answer is inherently fr
 
 Wayfinder is **planning** by default: each ticket resolves a decision, and the map is done when the way is clear — nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you've reached the edge of the map and it's time to hand off. An effort can override this in its **Notes** — carrying execution into the map itself — but absent that, produce decisions, not deliverables.
 
+**ADRs are promotion, not deliverables.** Closing a ticket records the answer on the tracker (resolution comment + Decisions-so-far gist). When that answer meets ADR-POLICY criteria, **offer** an ADR so durable project law lives in `docs/adr/` — the map stays the effort index, not a second copy of the ruling. Never delete or rewrite away a ticket because an ADR was written; tickets remain the debate trail.
+
 ## Refer by name
 
 Every map and ticket is an issue, so it has a **name** — its title. In everything the human reads — narration, the map's Decisions-so-far — refer to it by that name, never by a bare id, number, or slug. A wall of `#42, #43, #44` is illegible; names read at a glance. The id and URL don't vanish — a name wraps its link — but they ride *inside* the name, never stand in for it.
@@ -28,7 +30,7 @@ Every map and ticket is an issue, so it has a **name** — its title. In everyth
 
 The map is a single issue on this repo's issue tracker, labelled `wayfinder:map` — the canonical artifact. Its tickets are child issues of the map.
 
-The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; a decision lives in exactly one place — its ticket — so the map never restates it, only gists it and links.
+The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; the effort answer lives on the ticket — so the map never restates it, only gists it and links. When an answer is promoted to an ADR, `docs/adr/` holds durable project law; the map dual-links that ADR without becoming a second copy of the ruling.
 
 **Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if not. Consult the tracker doc's "Wayfinding operations" section for how _this_ repo expresses them. If no tracker has been provided, default to the local-markdown tracker under `work/<feature-slug>/` (see the setup skill's `issue-tracker-local.md`).
 
@@ -48,8 +50,10 @@ The whole map at low resolution, loaded once per session. Open tickets are **not
 ## Decisions so far
 
 <!-- the index — one line per closed ticket: enough to judge relevance, then zoom the link for the detail the ticket holds -->
+<!-- when an ADR was accepted for that answer, keep the ticket link and add the ADR path — dual links, not replacement -->
 
 - [<closed ticket title>](link) — <one-line gist of the answer>
+- [<closed ticket title>](link) — <gist> · [ADR-NNNN](docs/adr/NNNN-slug.md)
 
 ## Not yet specified
 
@@ -84,7 +88,7 @@ Every ticket is either **HITL** — human in the loop, worked *with* a human who
 
 - **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by `/research` (background Task). Use when knowledge outside the current working directory is required.
 - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — an outline, a rough take, a stub, or UI/logic code via the /prototype skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
-- **Grilling** (HITL): Conversation via the /grilling and /domain-modeling skills, one question at a time. The default case.
+- **Grilling** (HITL): Conversation via the /grilling and /domain-modeling skills, one question at a time. The default case. While resolving a wayfinder ticket, `/domain-modeling` still updates `CONTEXT.md` live, but **defer ADR offers** to ticket close under this skill (`Captured via: wayfinder`). Standalone `/grill-with-docs` or `/domain-modeling` sessions are unchanged.
 - **Task** (HITL or AFK): Manual work that must happen before a *decision* can be made — nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that *does* rather than decides — and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
 
 ## Fog of war
@@ -116,7 +120,7 @@ Two modes. Either way, **never resolve more than one ticket per session** — wi
 
 User invokes with a loose idea.
 
-1. **Name the destination.** Run a `/grilling` and `/domain-modeling` session to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first.
+1. **Name the destination.** Run a `/grilling` and `/domain-modeling` session to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first. Glossary updates may land; **do not offer ADRs** in this pass (see step 6).
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and use **AskQuestion** (or plain chat if unavailable) with these options:
    - **`/to-spec`** — write a spec (then `/to-tickets` when ready to slice)
    - **Implement now** — start building in this session
@@ -124,7 +128,7 @@ User invokes with a loose idea.
 3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 4. **Create the tickets you can specify now** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
 5. **Fire research.** For each `research` ticket you just created, invoke `/research` in parallel (background Tasks). The findings **Markdown file** is the SSOT — add a context pointer from the ticket to that file. Only ask `/research` for a throwaway `research/<name>` branch when isolation is needed; otherwise leave the branch alone.
-6. Stop — charting is one session's work; it hand-resolves nothing.
+6. Stop — charting is one session's work; it hand-resolves nothing. **Do not offer ADRs while charting** — destination grilling orients the map; durable promotion happens on ticket close in Work through the map. (Manual “ADR this” / `/architecture-decision-records` remains available if the user asks.)
 
 **Done when**: either the no-fog exit was offered and the user chose a path, or the map exists with wired tickets, any research Tasks launched, and this session has stopped without hand-resolving HITL tickets.
 
@@ -134,10 +138,11 @@ User invokes with a map (URL or number). A ticket is **optional** — without on
 
 1. Load the **map** — the low-res view, not every ticket body.
 2. Choose the ticket. If the user named one, use it. Otherwise take the first frontier ticket in order. **Claim it**: assign it to yourself before any work.
-3. Resolve it — **zoom as needed**: fetch the full body of any related or closed ticket on demand; invoke the skills the `## Notes` block names. If in doubt, use `/grilling` and `/domain-modeling`.
-4. Record the resolution: post the answer as a **resolution comment**, **close** the issue, and **append a context pointer** to the map's Decisions-so-far.
-5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
+3. Resolve it — **zoom as needed**: fetch the full body of any related or closed ticket on demand; invoke the skills the `## Notes` block names. If in doubt, use `/grilling` and `/domain-modeling`. While on this ticket, defer ADR offers from `/domain-modeling` to step 5 (glossary updates still happen live).
+4. Record the resolution: post the answer as a **resolution comment**, **close** the issue, and **append a context pointer** to the map's Decisions-so-far (ticket link + one-line gist). Do **not** delete the ticket.
+5. **Offer an ADR when criteria hold** — After the answer is recorded, apply the three [ADR-POLICY](../architecture-decision-records/references/ADR-POLICY.md) criteria (any ticket type; research/task answers usually fail the bar). If all three are true, **offer** to record an ADR. On acceptance, follow `/architecture-decision-records` with **`Captured via: wayfinder`**, then **dual-link** the ADR on that Decisions-so-far line (keep the ticket link; add the ADR path). If the user declines, move on — no park, no re-offer for that ticket unless they ask later.
+6. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
 
 The user may run unblocked tickets in parallel, so expect other sessions to be editing the tracker concurrently.
 
-**Done when**: exactly one non-research ticket was claimed, resolved, and closed (or ruled out of scope), the map's Decisions-so-far / fog / out-of-scope sections reflect that outcome, and any newly graduated tickets are created and wired — or, for research-only parallel work, every research ticket this session fired has a findings-file context pointer.
+**Done when**: exactly one non-research ticket was claimed, resolved, and closed (or ruled out of scope), any ADR offer for that answer was handled (accepted → written and dual-linked, declined → discarded, or criteria not met → no offer), the map's Decisions-so-far / fog / out-of-scope sections reflect that outcome, and any newly graduated tickets are created and wired — or, for research-only parallel work, every research ticket this session fired has a findings-file context pointer (and the same ADR offer step applies if a research answer somehow meets ADR-POLICY).
