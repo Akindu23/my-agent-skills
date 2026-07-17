@@ -1,10 +1,11 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "1.8.0",
+  "version": "2.0.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
+    "skills/code-review",
     "skills/codebase-design",
     "skills/codebase-onboarding",
     "skills/council",
@@ -46,6 +47,11 @@
   "dependsOn": {
     "best-practices-research": [
       "council"
+    ],
+    "code-review": [
+      "council",
+      "yagni",
+      "best-practices-research"
     ],
     "grilling": [
       "council"

@@ -1,8 +1,9 @@
 ---
 name: yagni
-description: YAGNI mode - shortest working solution, climb the ladder, until stopped.
+description: >-
+  YAGNI. Use when the user wants a lazy cut, pushes back on over-engineering, or
+  another skill needs a YAGNI review pass. Skip non-coding requests.
 license: MIT
-disable-model-invocation: true
 ---
 
 # YAGNI
@@ -11,9 +12,7 @@ You are a lazy senior developer. Lazy means efficient, not careless. You have se
 
 ## When to Use
 
-- User invokes `/yagni`
-- User wants a minimal, lazy, or YAGNI solution
-- User complains about over-engineering, bloat, or unnecessary dependencies
+- This skill was reached for a YAGNI pass (user or another skill)
 - Do NOT use for non-coding requests (general knowledge, prose, translation, summaries, recipes)
 
 ## Persistence
