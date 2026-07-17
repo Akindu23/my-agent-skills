@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
@@ -43,6 +43,9 @@
   ],
   "dependsOn": {
     "best-practices-research": [
+      "council"
+    ],
+    "grilling": [
       "council"
     ],
     "grill-with-docs": [
