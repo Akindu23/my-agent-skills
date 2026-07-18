@@ -32,7 +32,7 @@ The map is a single issue on this repo's issue tracker, labelled `wayfinder:map`
 
 The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; the effort answer lives on the ticket — so the map never restates it, only gists it and links. When an answer is promoted to an ADR, `docs/adr/` holds durable project law; the map dual-links that ADR without becoming a second copy of the ruling.
 
-**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if not. Consult the tracker doc's "Wayfinding operations" section for how _this_ repo expresses them. If no tracker has been provided, default to the local-markdown tracker under `work/<feature-slug>/` (see the setup skill's `issue-tracker-local.md`).
+**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** If `docs/agents/issue-tracker.md` exists, consult its "Wayfinding operations" section. Otherwise default to the local-markdown tracker under `work/<feature-slug>/` (see `/setup-work`'s `issue-tracker-local.md`). Run `/setup-work` only when you need a non-default tracker recorded.
 
 ### The map body
 

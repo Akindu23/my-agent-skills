@@ -12,6 +12,6 @@ Use /tdd where possible, at pre-agreed seams.
 
 Run typechecking regularly, single test files regularly, and the full test suite once at the end.
 
-Do **not** commit. Do **not** run /code-review yet (wire it here when that skill exists).
+Do **not** commit. After the slice is done, run `/code-review` in a fresh turn (or ask for it explicitly).
 
 For a whole attached plan with council / best-practices / YAGNI, use /implement-plan instead.

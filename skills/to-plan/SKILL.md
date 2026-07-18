@@ -4,7 +4,7 @@ description: Publish a one-session implementation plan for /implement-plan — e
 disable-model-invocation: true
 ---
 
-Synthesize an implementation plan from what you already know — do **not** interview. Default artifact: `work/<feature-slug>/plan.md` (run `/setup-matt-pocock-skills` if the tracker is unknown).
+Synthesize an implementation plan from what you already know — do **not** interview. Default artifact: `work/<feature-slug>/plan.md`. If `docs/agents/issue-tracker.md` exists, follow it; otherwise assume local `work/`. Run `/setup-work` only for a non-default tracker.
 
 **SSOT is the markdown plan.** HTML is an optional review render only — `/implement-plan` reads the `.md`.
 
@@ -30,7 +30,7 @@ Use **plain chat** for free-form answers.
 3. Sketch seams briefly (prefer existing, highest; fewer is better). Confirm if non-obvious.
    **Done when**: seams are agreed or accepted.
 
-4. Write and publish the plan (`work/<feature-slug>/plan.md` locally, or tracker equivalent). Apply `ready-for-agent` when the tracker uses triage labels.
+4. Write and publish the plan (`work/<feature-slug>/plan.md` locally, or tracker equivalent).
    **Done when**: `plan.md` (or tracker equivalent) exists with the template sections filled.
 
 5. **HTML (optional):** If the user already said “with HTML,” write `plan.html` beside the plan per [references/PLAN-HTML.md](references/PLAN-HTML.md). Otherwise AskQuestion — write HTML review companion? — default **No**.

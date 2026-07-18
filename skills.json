@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
@@ -33,13 +33,12 @@
     "skills/python-patterns",
     "skills/recursive-decomposition",
     "skills/research",
-    "skills/setup-matt-pocock-skills",
+    "skills/setup-work",
     "skills/tdd",
     "skills/teach",
     "skills/to-plan",
     "skills/to-spec",
     "skills/to-tickets",
-    "skills/triage",
     "skills/wayfinder",
     "skills/web-design-guidelines",
     "skills/yagni"

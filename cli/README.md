@@ -85,7 +85,7 @@ cursor-agent-skills sync -p -y && cursor-agent-skills check -p --json
 **Add one skill non-interactively**
 
 ```bash
-cursor-agent-skills add --skill triage -p -y
+cursor-agent-skills add --skill wayfinder -p -y
 ```
 
 ---
