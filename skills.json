@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
@@ -47,6 +47,9 @@
     "best-practices-research": [
       "council"
     ],
+    "domain-modeling": [
+      "architecture-decision-records"
+    ],
     "code-review": [
       "council",
       "yagni",
@@ -57,10 +60,16 @@
     ],
     "grill-with-docs": [
       "grilling",
-      "domain-modeling"
+      "domain-modeling",
+      "wayfinder",
+      "handoff"
     ],
     "grill-me": [
       "grilling"
+    ],
+    "implement": [
+      "code-review",
+      "tdd"
     ],
     "implement-plan": [
       "council",

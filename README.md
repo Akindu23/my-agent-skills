@@ -41,6 +41,56 @@ Flags like `-p`, `-y`, and `--json` are for scripts and CI only. Full CLI docs: 
 
 
 
+## Optimal dev flow
+
+Defaults: local markdown under `work/`, single-context `CONTEXT.md` / `docs/adr/`. Optional [`/setup-work`](./skills/setup-work/) only when you need GitHub/GitLab/custom tracker or multi-context domain layout recorded under `docs/agents/`.
+
+Start with an idea: **`/grill-with-docs`** to sharpen against the repo. If it's already clearly foggy, go straight to **`/wayfinder`**. After the design is sharp enough to build, pick a path by **context risk**: would clearing the chat mid-build force you to re-derive seams and contracts?
+
+**Fog** means you know roughly where you want to end up, but the open decisions (and what depends on what) are not clear enough to write a spec or one-session plan yet: usually more than one agent session of deciding before building.
+
+```mermaid
+flowchart TD
+  idea[Idea / change request]
+  grill["/grill-with-docs<br/>(sharpen)"]
+  fog{"Still foggy?"}
+  way["/wayfinder<br/>(decision map)"]
+  size{"Fits one agent<br/>session?"}
+  spec["/to-spec"]
+  tickets["/to-tickets"]
+  impl["/implement<br/>(one ticket per session)"]
+  plan["/to-plan"]
+  implPlan["/implement-plan"]
+  review["/code-review"]
+
+  idea --> grill
+  idea -->|already foggy| way
+  grill --> fog
+  fog -->|yes: offer switch| way
+  fog -->|no: design sharp| size
+  way -->|map clear| size
+  size -->|no / unsure| spec
+  spec --> tickets --> impl --> review
+  size -->|yes| plan
+  plan --> implPlan --> review
+```
+
+| Stage | Skills | Notes |
+| ----- | ------ | ----- |
+| Sharpen | `/grill-with-docs` | Default entry with an idea. May offer `/wayfinder` when destination is nameable and fog appears. |
+| Decide in fog | `/wayfinder` | Decision tickets, not build slices. Enter directly when already foggy, or continue from a grill fog offer. |
+| Spec path (default) | `/to-spec` → `/to-tickets` → `/implement` | Multi-session / dumb-zone risk. One ticket per session; prefer `/tdd` at agreed seams. |
+| Plan path (escape hatch) | `/to-plan` → `/implement-plan` | Only when the whole build fits one context window. |
+| Review | `/code-review` | After implementation. Needs the [Thermos](https://cursor.com/marketplace/cursor/thermos) plugin. Report only. |
+
+**Optional orient:** `/setup-work` when defaults (local `work/`, single-context domain) are wrong. **Also sharpening:** `/grill-me` when you want grilling without domain-modeling. **Bugs:** `/diagnosing-bugs`. **Architecture debt:** `/improve-codebase-architecture`.
+
+Hard stops are intentional: `/to-spec`, `/to-plan`, and `/to-tickets` do not start the next stage unless you ask in the same turn. Clear context between sessions on the ticket path.
+
+---
+
+
+
 ## Recommended Cursor plugins
 
 Cursor marketplace plugins that pair well with these skills:
@@ -50,7 +100,6 @@ Cursor marketplace plugins that pair well with these skills:
 - [Thermos](https://cursor.com/marketplace/cursor/thermos)
 - [Docs Canvas](https://cursor.com/marketplace/cursor/docs-canvas)
 - [Cursor Team Kit](https://cursor.com/marketplace/cursor/cursor-team-kit)
-- [Continual Learning](https://cursor.com/marketplace/cursor/continual-learning)
 
 ---
 
@@ -58,7 +107,7 @@ Cursor marketplace plugins that pair well with these skills:
 
 ## Skill catalog
 
-**37** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
+**39** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
 
 
 | Folder                                                                   | `name`                          | One-line intent                                                                                                                                                                    |
@@ -66,22 +115,23 @@ Cursor marketplace plugins that pair well with these skills:
 | [architecture-decision-records](./skills/architecture-decision-records/) | `architecture-decision-records` | Owns lightweight ADRs with detailed rationale, optional expanded sections, scaffolding, and `docs/adr/README.md` index maintenance (draft → approval → write).                     |
 | [best-practices-research](./skills/best-practices-research/)             | `best-practices-research`       | Recon current best practices per domain via live web search (Exa-first) before implementing; fans out one **Task** subagent per unrelated domain.                                  |
 | [code-review](./skills/code-review/)                                     | `code-review`                   | User-invoked diff/PR review: council → thermos/`yagni` → delta BPR → Sol merge. Report only. Requires Thermos plugin.                                                              |
-| [codebase-design](./skills/codebase-design/)                             | `codebase-design`               | Shared vocabulary for designing deep modules — interface, seam, depth, leverage, locality — and deepening or design-it-twice patterns.                                             |
+| [codebase-design](./skills/codebase-design/)                             | `codebase-design`               | Shared vocabulary for designing deep modules (interface, seam, depth, leverage, locality) and deepening or design-it-twice patterns.                                             |
 | [codebase-onboarding](./skills/codebase-onboarding/)                     | `codebase-onboarding`           | Analyze an unfamiliar codebase and produce a structured onboarding guide, architecture map, conventions, and starter `AGENTS.md` for Cursor.                                       |
 | [council](./skills/council/)                                             | `council`                       | Explore a codebase area, spawn **Task** subagents for parallel deep dives, then synthesize results (e.g. multi-area review, reconnaissance before planning).                       |
 | [diagnosing-bugs](./skills/diagnosing-bugs/)                             | `diagnosing-bugs`               | Disciplined diagnosis loop: build a tight red-capable feedback loop, reproduce, minimise, hypothesise, instrument, fix, regression-test.                                           |
 | [docker-patterns](./skills/docker-patterns/)                             | `docker-patterns`               | Apply Dockerfile, Docker Compose, BuildKit, and container security patterns for local dev and hardened deployable images.                                                          |
 | [document](./skills/document/)                                           | `document`                      | Create or update durable repo docs (README, API, runbooks) verified against code; prune stale docs in the touched area.                                                            |
-| [domain-modeling](./skills/domain-modeling/)                             | `domain-modeling`               | Build and sharpen the project's domain model — glossary in `CONTEXT.md`, ADR offers via canonical workflow.                                                                        |
+| [domain-modeling](./skills/domain-modeling/)                             | `domain-modeling`               | Build and sharpen the project's domain model: glossary in `CONTEXT.md`, ADR offers via canonical workflow.                                                                        |
 | [explain-code](./skills/explain-code/)                                   | `explain-code`                  | Explain code in a short, scannable structure (TL;DR, sections, small examples) for walkthroughs or doc-style breakdowns.                                                           |
-| [frontend-design](./skills/frontend-design/)                             | `frontend-design`               | Distinctive, intentional visual design when building or reshaping UI — aesthetic direction, typography, and choices that don't read as templated defaults.                         |
+| [frontend-design](./skills/frontend-design/)                             | `frontend-design`               | Distinctive, intentional visual design when building or reshaping UI: aesthetic direction, typography, and choices that don't read as templated defaults.                         |
 | [frontend-slides](./skills/frontend-slides/)                             | `frontend-slides`               | Create animation-rich HTML presentations from scratch or by converting PowerPoint files.                                                                                           |
 | [golang](./skills/golang/)                                               | `golang`                        | Route Go work to the right reference guides and conventions for architecture, implementation, concurrency, errors, testing, performance, or review.                                |
 | [gpt-taste](./skills/gpt-taste/)                                         | `gpt-taste`                     | Elite marketing/React landing UX with GSAP ScrollTrigger discipline, AIDA structure, bento/editorial typography, and strict motion rules.                                          |
 | [grill-me](./skills/grill-me/)                                           | `grill-me`                      | User-invoked router to a relentless interview (`/grilling`) to sharpen a plan or design.                                                                                           |
-| [grill-with-docs](./skills/grill-with-docs/)                             | `grill-with-docs`               | User-invoked router: `/grilling` plus `/domain-modeling` to sharpen a plan and update `CONTEXT.md` / ADRs inline.                                                                  |
-| [grilling](./skills/grilling/)                                           | `grilling`                      | Model-invoked relentless interview leaf — stress-test plans and designs in frontier rounds.                                                                                        |
+| [grill-with-docs](./skills/grill-with-docs/)                             | `grill-with-docs`               | User-invoked: `/grilling` + `/domain-modeling` to sharpen a plan (`CONTEXT.md` / ADRs); may offer `/wayfinder` when fog appears.                                                  |
+| [grilling](./skills/grilling/)                                           | `grilling`                      | Model-invoked relentless interview leaf: stress-test plans and designs in frontier rounds.                                                                                        |
 | [handoff](./skills/handoff/)                                             | `handoff`                       | Compact session handoff to a single `docs/handoffs/CURRENT.md`, to be used by another agent in a new session                                                                       |
+| [implement](./skills/implement/)                                         | `implement`                     | Implement one ticket (or small attached slice) per session; prefer `/tdd` at agreed seams. Not for whole-plan runs; that is `/implement-plan`.                                    |
 | [implement-plan](./skills/implement-plan/)                               | `implement-plan`                | User-invoked router: `/council` on the plan, implement following `karpathy-guidelines` and `best-practices-research`, then a `/yagni` pass to simplify.                            |
 | [improve-codebase-architecture](./skills/improve-codebase-architecture/) | `improve-codebase-architecture` | User-invoked architecture review: explore via Task/council, HTML report to `docs/architecture-reviews/`, then `/grilling` + `/domain-modeling` on a chosen candidate.              |
 | [karpathy-guidelines](./skills/karpathy-guidelines/)                     | `karpathy-guidelines`           | Behavioral guidelines to reduce common LLM coding mistakes when writing, reviewing, or refactoring code.                                                                           |
@@ -92,12 +142,12 @@ Cursor marketplace plugins that pair well with these skills:
 | [python-patterns](./skills/python-patterns/)                             | `python-patterns`               | Apply Python idioms, PEP 8 norms, typing, packaging, concurrency, and tooling discipline to everyday Python code.                                                                  |
 | [recursive-decomposition](./skills/recursive-decomposition/)             | `recursive-decomposition`       | Handle oversized tasks via programmatic decomposition and recursive sub-inquiry (RLM-inspired; large docs, many files, huge token spans).                                          |
 | [research](./skills/research/)                                           | `research`                      | Investigate a question against primary sources via a background Task; write cited findings to a Markdown file in the repo.                                                         |
-| [setup-matt-pocock-skills](./skills/setup-matt-pocock-skills/)           | `setup-matt-pocock-skills`      | Add an `## Agent skills` block in `AGENTS.md`/`CLAUDE.md` and `docs/agents/` so tracker, triage labels, and domain docs are discoverable.                                          |
+| [setup-work](./skills/setup-work/)                                           | `setup-work`                    | Optional bootstrap of `docs/agents/issue-tracker.md` and `docs/agents/domain.md` when defaults (local `work/`, single-context domain) are wrong. |
 | [tdd](./skills/tdd/)                                                     | `tdd`                           | Test-driven development with the red–green–refactor loop; planning delegates deepening vocabulary to `/codebase-design`.                                                           |
 | [teach](./skills/teach/)                                                 | `teach`                         | User-invoked multi-session tutoring with `docs/learning/<topic-slug>/` artifacts, Exa-verified resources, and HTML lessons.                                                        |
+| [to-plan](./skills/to-plan/)                                             | `to-plan`                       | Publish a one-session plan for `/implement-plan`: escape hatch when the build fits one context window.                                                                            |
 | [to-spec](./skills/to-spec/)                                             | `to-spec`                       | Turn the current conversation context into a spec and publish it to the project issue tracker.                                                                                     |
 | [to-tickets](./skills/to-tickets/)                                       | `to-tickets`                    | Break a plan, spec, or conversation into tracer-bullet tickets with blocking edges on the project tracker.                                                                         |
-| [triage](./skills/triage/)                                               | `triage`                        | Triage issues through a state machine driven by triage roles (create, AFK handoff, workflow).                                                                                      |
 | [wayfinder](./skills/wayfinder/)                                         | `wayfinder`                     | Chart oversized work as a shared decision-ticket map; resolve one frontier ticket per session; on close, may promote answers to ADRs when ADR-POLICY criteria hold.                |
 | [web-design-guidelines](./skills/web-design-guidelines/)                 | `web-design-guidelines`         | Review UI code for **Web Interface Guidelines** compliance (accessibility, UX, best-practice audits).                                                                              |
 | [yagni](./skills/yagni/)                                                 | `yagni`                         | Forces the laziest working solution: YAGNI, stdlib-first, shortest diff; full (default) flags speculative scope but ships, ultra may skip it on greenfield.                        |
@@ -142,7 +192,7 @@ The skills in this repo were referenced and adapted from the sources listed belo
 
 | Source                                                                                                              | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[mattpocock/skills](https://github.com/mattpocock/skills)**                                                       | Productivity and engineering workflows (MIT): [setup-matt-pocock-skills](./skills/setup-matt-pocock-skills/), [tdd](./skills/tdd/), [triage](./skills/triage/), [to-spec](./skills/to-spec/), [to-tickets](./skills/to-tickets/), [wayfinder](./skills/wayfinder/), [research](./skills/research/), [diagnosing-bugs](./skills/diagnosing-bugs/), [prototype](./skills/prototype/), [improve-codebase-architecture](./skills/improve-codebase-architecture/), [grill-with-docs](./skills/grill-with-docs/), [grill-me](./skills/grill-me/), [grilling](./skills/grilling/), [domain-modeling](./skills/domain-modeling/), [codebase-design](./skills/codebase-design/), [teach](./skills/teach/), [handoff](./skills/handoff/) |
+| **[mattpocock/skills](https://github.com/mattpocock/skills)**                                                       | Productivity and engineering workflows (MIT): [setup-work](./skills/setup-work/) (adapted from upstream setup-matt-pocock-skills), [tdd](./skills/tdd/), [to-spec](./skills/to-spec/), [to-tickets](./skills/to-tickets/), [wayfinder](./skills/wayfinder/), [research](./skills/research/), [diagnosing-bugs](./skills/diagnosing-bugs/), [prototype](./skills/prototype/), [improve-codebase-architecture](./skills/improve-codebase-architecture/), [grill-with-docs](./skills/grill-with-docs/), [grill-me](./skills/grill-me/), [grilling](./skills/grilling/), [domain-modeling](./skills/domain-modeling/), [codebase-design](./skills/codebase-design/), [teach](./skills/teach/), [handoff](./skills/handoff/) ; upstream also ships a `triage` skill not included in this pack |
 | **[hunvreus/skill-issue](https://github.com/hunvreus/skill-issue)**                                                 | [document](./skills/document/)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **[vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines)**                 | [web-design-guidelines](./skills/web-design-guidelines/)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **[anthropics/skills](https://github.com/anthropics/skills)**                                                       | [frontend-design](./skills/frontend-design/) (Apache 2.0)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |

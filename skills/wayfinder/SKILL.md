@@ -118,7 +118,10 @@ Two modes. Either way, **never resolve more than one ticket per session** — wi
 
 ### Chart the map
 
-User invokes with a loose idea.
+**Entry**
+
+- **Fresh** — user invokes with a loose idea; start at step 1.
+- **Mid-session from `/grill-with-docs`** — user accepted a fog offer; destination already named. Skip step 1 (restate the destination once in the map body). Continue from step 2.
 
 1. **Name the destination.** Run a `/grilling` and `/domain-modeling` session to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first. Glossary updates may land; **do not offer ADRs** in this pass (see step 6).
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and use **AskQuestion** (or plain chat if unavailable) with these options:
@@ -128,12 +131,12 @@ User invokes with a loose idea.
    - **Stop** — end here
 
    When recommending, prefer a short **context-risk** check: would clearing context mid-build force re-deriving seams/contracts? If yes → `/to-spec`; if no → `/to-plan` is fine; if unsure → `/to-spec` first.
-3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
-4. **Create the tickets you can specify now** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
+3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in; Decisions-so-far empty for now; fog sketched into **Not yet specified**.
+4. **Import locked decisions** when mid-session (or any charting that inherits prior accepts) — follow [Import locked decisions](references/import-locked-decisions.md); otherwise skip. Then **create the tickets you can specify now** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
 5. **Fire research.** For each `research` ticket you just created, invoke `/research` in parallel (background Tasks). The findings **Markdown file** is the SSOT — add a context pointer from the ticket to that file. Only ask `/research` for a throwaway `research/<name>` branch when isolation is needed; otherwise leave the branch alone.
 6. Stop — charting is one session's work; it hand-resolves nothing. **Do not offer ADRs while charting** — destination grilling orients the map; durable promotion happens on ticket close in Work through the map. (Manual “ADR this” / `/architecture-decision-records` remains available if the user asks.)
 
-**Done when**: either the no-fog exit was offered and the user chose a path, or the map exists with wired tickets, any research Tasks launched, and this session has stopped without hand-resolving HITL tickets.
+**Done when (chart):** either the no-fog exit was offered and the user chose a path, or the map exists with wired tickets (plus any imported closes), any research Tasks launched, and this session has stopped without hand-resolving HITL tickets.
 
 ### Work through the map
 
