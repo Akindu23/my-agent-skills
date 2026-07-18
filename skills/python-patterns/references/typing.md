@@ -1,53 +1,53 @@
 # Type hints
 
+Target **Python 3.12+** in examples (minimum supported baseline **3.10+**). Prefer
+builtin generics and `|` unions. Legacy `typing.List` / `Optional` / `Dict` are
+EOL-era forms — do not teach them for new code.
+
 ### Basic Type Annotations
 
 ```python
-from typing import Optional, List, Dict, Any
+from typing import Any
 
 def process_user(
     user_id: str,
-    data: Dict[str, Any],
+    data: dict[str, Any],
     active: bool = True
-) -> Optional[User]:
+) -> User | None:
     """Process a user and return the updated User or None."""
     if not active:
         return None
     return User(user_id, data)
 ```
 
-### Modern Type Hints (Python 3.9+)
+### Modern builtins and unions
 
 ```python
-# Python 3.9+ - Use built-in types
 def process_items(items: list[str]) -> dict[str, int]:
     return {item: len(item) for item in items}
 
-# Python 3.8 and earlier - Use typing module
-from typing import List, Dict
-
-def process_items(items: List[str]) -> Dict[str, int]:
-    return {item: len(item) for item in items}
+def find_user(user_id: str) -> User | None:
+    ...
 ```
 
-### Type Aliases and TypeVar
+### Type aliases and generics (3.12+)
 
 ```python
-from typing import TypeVar, Union
+import json
+from typing import Any
 
-# Type alias for complex types
-JSON = Union[dict[str, Any], list[Any], str, int, float, bool, None]
+type JSON = dict[str, Any] | list[Any] | str | int | float | bool | None
 
 def parse_json(data: str) -> JSON:
     return json.loads(data)
 
-# Generic types
-T = TypeVar('T')
-
-def first(items: list[T]) -> T | None:
+def first[T](items: list[T]) -> T | None:
     """Return the first item or None if list is empty."""
     return items[0] if items else None
 ```
+
+On 3.10–3.11 without PEP 695 syntax, use `TypeVar` / `TypeAlias` instead of
+`type` / `def first[T]`.
 
 ### Protocol-Based Duck Typing
 

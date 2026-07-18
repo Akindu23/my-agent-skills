@@ -10,6 +10,9 @@ disable-model-invocation: true
 
 # Go Skill
 
+Target **Go 1.24+** / current stable unless the repo pins older. Prefer
+`log/slog` for services and `testing/synctest` for tricky concurrency/time tests.
+
 ## When to Use
 Use this as the entry point for Go work in this skill package. It routes to the right reference guides for the task.
 

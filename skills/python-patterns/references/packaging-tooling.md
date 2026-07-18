@@ -25,6 +25,7 @@ myproject/
 │   ├── test_api.py
 │   └── test_models.py
 ├── pyproject.toml
+├── uv.lock
 ├── README.md
 └── .gitignore
 ```
@@ -33,6 +34,7 @@ myproject/
 
 ```python
 # Good: Import order - stdlib, third-party, local
+# Ruff's I (isort) rules sort this automatically via `ruff check --fix`
 import os
 import sys
 from pathlib import Path
@@ -42,9 +44,6 @@ from fastapi import FastAPI
 
 from mypackage.models import User
 from mypackage.utils import format_name
-
-# Good: Use isort for automatic import sorting
-# pip install isort
 ```
 
 ### __init__.py for Package Exports
@@ -64,16 +63,20 @@ __all__ = ["User", "Post", "format_name"]
 
 ## Python Tooling Integration
 
+Prefer **uv** for envs/deps/lockfiles and **ruff** for format + lint. Keep mypy
+and pytest for types and tests.
+
 ### Essential Commands
 
 ```bash
-# Code formatting
-black .
-isort .
+# Project / deps (uv)
+uv sync
+uv add requests
+uv run pytest
 
-# Linting
-ruff check .
-pylint mypackage/
+# Format + lint (ruff consolidates black/isort)
+ruff format .
+ruff check . --fix
 
 # Type checking
 mypy .
@@ -83,43 +86,46 @@ pytest --cov=mypackage --cov-report=html
 
 # Security scanning
 bandit -r .
-
-# Dependency management
 pip-audit
-safety check
+# safety scan   # not the deprecated `safety check`
 ```
 
 ### pyproject.toml Configuration
 
 ```toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "mypackage"
 version = "1.0.0"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
     "requests>=2.31.0",
     "pydantic>=2.0.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
+    "ruff>=0.8.0",
     "mypy>=1.5.0",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py39']
-
 [tool.ruff]
 line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
 
+[tool.ruff.format]
+quote-style = "double"
+
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

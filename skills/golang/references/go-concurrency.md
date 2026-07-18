@@ -347,12 +347,12 @@ func transform(in <-chan int, out chan<- int) { /* both directions */ }
 
 ## Atomic Operations
 
-Use [go.uber.org/atomic](https://pkg.go.dev/go.uber.org/atomic) for type-safe
-atomic operations. The standard `sync/atomic` package operates on raw types
-(`int32`, `int64`, etc.), making it easy to forget to use atomic operations
-consistently.
+Prefer the typed APIs in the standard [`sync/atomic`](https://pkg.go.dev/sync/atomic)
+package (`atomic.Bool`, `atomic.Int64`, …, since Go 1.19). They hide the raw
+integer and make non-atomic reads a compile-time mistake.
 
-> **Source**: Uber Go Style Guide
+Reserve [`go.uber.org/atomic`](https://pkg.go.dev/go.uber.org/atomic) for legacy
+code or helpers it still uniquely provides (e.g. JSON marshal of atomics).
 
 ```go
 // Bad: Easy to forget atomic operation
@@ -373,7 +373,7 @@ func (f *foo) isRunning() bool {
 ```
 
 ```go
-// Good: Type-safe atomic operations
+// Good: Type-safe atomic operations (stdlib)
 type foo struct {
     running atomic.Bool
 }
@@ -389,9 +389,6 @@ func (f *foo) isRunning() bool {
     return f.running.Load() // can't accidentally read non-atomically
 }
 ```
-
-The `go.uber.org/atomic` package adds type safety by hiding the underlying type
-and includes convenient types like `atomic.Bool`, `atomic.Int64`, etc.
 
 ---
 
@@ -430,7 +427,7 @@ pattern with examples and production alternatives using `sync.Pool`.
 | Synchronous functions | Prefer over async | Normative |
 | Channel direction | Always specify | Normative |
 | Channel size | One or none by default | Advisory |
-| Atomic operations | Use go.uber.org/atomic | Advisory |
+| Atomic operations | Prefer `sync/atomic` typed APIs | Advisory |
 | Concurrency docs | Document when not obvious | Advisory |
 
 ### Concurrency Checklist
@@ -452,7 +449,7 @@ Before spawning a goroutine, answer:
 | Embedded mutexes | Leaks Lock/Unlock into API | Use named `mu` field |
 | Pointer to mutex | Unnecessary indirection | Zero-value is valid |
 | Arbitrary channel buffers | Hidden blocking issues | Default to 0 or 1 |
-| Raw sync/atomic | Easy to forget atomic reads | Use go.uber.org/atomic |
+| Raw `int32` + `atomic.Load/Store` mixups | Easy to forget atomic reads | Use `sync/atomic` typed types (`atomic.Bool`, …) |
 | Undocumented thread-safety | Callers may race | Document when unclear |
 
 ---
@@ -475,5 +472,4 @@ Before spawning a goroutine, answer:
 - [When Go programs end](https://changelog.com/gotime/165) - Go Time podcast
 - [go.uber.org/goleak](https://pkg.go.dev/go.uber.org/goleak) - Goroutine leak
   detector for testing
-- [go.uber.org/atomic](https://pkg.go.dev/go.uber.org/atomic) - Type-safe atomic
-  operations
+- [`sync/atomic`](https://pkg.go.dev/sync/atomic) - Typed atomic types (Go 1.19+)

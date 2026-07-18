@@ -8,8 +8,10 @@ description: >-
   stacks.
 paths:
   - "Dockerfile*"
-  - "**/docker-compose*.yml"
+  - "**/compose*.yaml"
   - "**/compose*.yml"
+  - "**/docker-compose*.yml"
+  - "**/docker-compose*.yaml"
 ---
 
 # Docker Patterns

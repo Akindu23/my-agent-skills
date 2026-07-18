@@ -6,7 +6,7 @@ Linux containers inherit the host’s **default seccomp** profile unless `securi
 
 ```dockerfile
 # Use specific tags or digests (never :latest for anything you ship)
-FROM node:22.12-alpine3.20
+FROM node:22-alpine
 
 RUN addgroup -g 1001 -S appgroup && adduser -S appuser -u 1001 -G appgroup
 WORKDIR /app
@@ -38,6 +38,10 @@ services:
 - **Non-sensitive config** (feature flags, public URLs, log levels): environment variables, `environment:` / `env_file:` pointing at **`.env`** (gitignored) are fine.
 - **Secrets** (tokens, DB passwords, signing keys): **do not** treat “plain `.env` on disk” as strong secret storage for production. Prefer **orchestrator-backed secrets** (Kubernetes secrets + CSI, ECS secrets, Swarm secrets), **secret managers** (Vault, cloud SM) with injection at runtime, or **runtime-mounted secret files** on **tmpfs** with minimal permissions—**not** baking credentials into images or checked-in compose.
 
+Compose **v2.6+** also supports top-level `secrets:` with `file:` / `environment:`
+sources on **standalone** Compose (not only Swarm). Secrets mount under
+`/run/secrets/<name>`.
+
 ```yaml
 # Runtime injection from host env (secret value lives outside compose YAML)
 services:
@@ -45,7 +49,7 @@ services:
     environment:
       - API_KEY                    # sourced from shell or CI inject
 
-# Swarm: secrets as files under /run/secrets (example pattern)
+# Compose-native secrets (standalone or Swarm): files under /run/secrets
 secrets:
   db_password:
     file: ./secrets/db_password.txt
@@ -81,12 +85,12 @@ Ship **`.env.example`** (names only, dummy values) so onboarding stays explicit;
 
 **Common mistakes**
 
-- Running production multi-service stacks on **`docker compose up`** without orchestration where HA, rollouts, or enforced resource limits matter.
+- Running production multi-service stacks on **`docker compose up`** without orchestration where HA, rollouts, or Swarm-only deploy fields matter.
 - Storing state only in container writable layers—use volumes for data you care about.
 - Running as root when the workload does not require it.
 - Using **`:latest`** for images you deploy or debug reproducibly.
 - One giant container running many unrelated processes—prefer one main process per container.
-- Putting raw secrets in **`docker-compose.yml`** committed to git—use CI/orchestrator injection, secret managers, or Swarm/K8s secrets—not “secrets live in plain compose/env files” as the final story for high-value credentials.
+- Putting raw secrets in **`compose.yaml`** / committed env files—use CI/orchestrator injection, Compose-native secrets, secret managers, or K8s/Swarm secrets.
 
 # .dockerignore
 
@@ -101,6 +105,8 @@ coverage
 *.log
 .next
 .cache
+compose*.yaml
+compose*.yml
 docker-compose*.yml
 Dockerfile*
 README.md

@@ -140,26 +140,27 @@ return err
 
 > **Advisory**: Recommended best practice.
 
-When you do log errors, follow these guidelines:
+Prefer [`log/slog`](https://pkg.go.dev/log/slog) for new services (stable since
+Go 1.21). Inject `*slog.Logger` where useful; use `slog.InfoContext` /
+`slog.ErrorContext` when a request `context.Context` is in scope.
 
-- **`log.Error`**: Use sparingly - causes a flush and is expensive. Reserve for
-  actionable issues.
-- **`log.Warning`**: For issues that may need attention but aren't immediately
-  actionable.
-- **Verbose logging (`log.V`)**: Use for development and tracing.
+Google-internal style guides still mention `log.Error` / `log.V` / `log.Infof`
+(glog-shaped APIs). Those are **not** methods on the standard `log` package —
+do not copy them into stdlib-only code.
 
 ```go
-// Good: Verbose logging with appropriate levels
+// Good: structured levels; expensive fields only when enabled
+ctx := context.Background()
 for _, sql := range queries {
-    log.V(1).Infof("Handling %v", sql)
-    if log.V(2) {
-        log.Infof("Handling %v", sql.Explain())
+    slog.Debug("handling query", "sql", sql)
+    if slog.Default().Enabled(ctx, slog.LevelDebug) {
+        slog.Debug("query plan", "explain", sql.Explain())
     }
     sql.Run()
 }
 
-// Bad: Expensive call even when log is disabled
-log.V(2).Infof("Handling %v", sql.Explain())
+// Bad: always pays for Explain even when debug is off
+slog.Debug("query plan", "explain", sql.Explain())
 ```
 
 ### Protect Sensitive Information

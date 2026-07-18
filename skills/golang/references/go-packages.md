@@ -92,7 +92,7 @@ import (
     "fmt"
     "os"
 
-    "go.uber.org/atomic"
+    "sync/atomic"
     "golang.org/x/sync/errgroup"
 )
 ```

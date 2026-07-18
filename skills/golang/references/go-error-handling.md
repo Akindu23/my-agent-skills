@@ -77,12 +77,12 @@ an exported name, proper noun, or acronym.
 printed.
 
 For **displayed messages** (logs, test failures, API responses), capitalization
-is appropriate:
+is appropriate. Prefer [`log/slog`](https://pkg.go.dev/log/slog) for services:
 
 ```go
 // Good:
-log.Infof("Operation aborted: %v", err)
-log.Errorf("Operation aborted: %v", err)
+slog.Info("Operation aborted", "err", err)
+slog.Error("Operation aborted", "err", err)
 t.Errorf("Op(%q) failed unexpectedly; err=%v", args, err)
 ```
 

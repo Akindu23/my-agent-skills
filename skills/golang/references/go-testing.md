@@ -284,7 +284,9 @@ func TestTranslate(t *testing.T) {
 
 > **Source**: Uber Go Style Guide
 
-When using `t.Parallel()` in table tests, be aware of loop variable capture:
+When using `t.Parallel()` in table tests on **Go 1.22+**, loop variables are
+per-iteration (no `tt := tt` capture needed). On Go 1.21 and earlier, capture
+explicitly.
 
 ```go
 for _, tt := range tests {
@@ -296,6 +298,29 @@ for _, tt := range tests {
         if got != tt.want {
             t.Errorf("Process(%q) = %q, want %q", tt.give, got, tt.want)
         }
+    })
+}
+```
+
+### Concurrent tests with `testing/synctest`
+
+> **GA since Go 1.25** ([testing/synctest](https://pkg.go.dev/testing/synctest))
+
+Use `synctest.Test` when the code under test depends on time, timers, or
+goroutine scheduling bubbles that are painful to assert with `time.Sleep` or
+channels alone. Prefer ordinary table tests + channels for simple coordination;
+reach for synctest when virtualized time removes flakiness.
+
+```go
+import (
+    "testing"
+    "testing/synctest"
+)
+
+func TestWorkerWaits(t *testing.T) {
+    synctest.Test(t, func(t *testing.T) {
+        // Code under test that blocks on time.After / timers...
+        // synctest advances virtual time when the bubble is idle.
     })
 }
 ```

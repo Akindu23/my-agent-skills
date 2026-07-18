@@ -260,7 +260,6 @@ func FetchAll(ctx context.Context, urls []string) ([][]byte, error) {
     results := make([][]byte, len(urls))
 
     for i, url := range urls {
-        i, url := i, url // Capture loop variables
         g.Go(func() error {
             data, err := FetchWithTimeout(ctx, url)
             if err != nil {
@@ -532,7 +531,7 @@ func processItems(items []Item) []Result {
 
 ```go
 var bufferPool = sync.Pool{
-    New: func() interface{} {
+    New: func() any {
         return new(bytes.Buffer)
     },
 }
@@ -546,7 +545,10 @@ func ProcessRequest(data []byte) []byte {
 
     buf.Write(data)
     // Process...
-    return buf.Bytes()
+    // Copy before return — buf.Bytes() aliases pooled memory that may be reused.
+    out := make([]byte, buf.Len())
+    copy(out, buf.Bytes())
+    return out
 }
 ```
 
@@ -608,32 +610,10 @@ gofmt -w .
 goimports -w .
 ```
 
-### Recommended Linter Configuration (.golangci.yml)
+### Recommended Linter Configuration
 
-```yaml
-linters:
-  enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
-    - gofmt
-    - goimports
-    - misspell
-    - unconvert
-    - unparam
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-  govet:
-    check-shadowing: true
-
-issues:
-  exclude-use-default: false
-```
+Do **not** paste a legacy v1 `.golangci.yml` here. Use the **golangci-lint v2**
+example and migration notes in [go-linting.md](go-linting.md).
 
 ## Quick Reference: Go Idioms
 

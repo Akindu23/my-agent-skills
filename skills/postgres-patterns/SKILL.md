@@ -33,14 +33,15 @@ Quick reference for PostgreSQL best practices. For deeper org-specific database 
 | `WHERE a = x AND b > y` | Composite | `CREATE INDEX idx ON t (a, b)` |
 | `WHERE jsonb @> '{}'` | GIN | `CREATE INDEX idx ON t USING gin (col)` |
 | `WHERE tsv @@ query` | GIN | `CREATE INDEX idx ON t USING gin (col)` |
-| Time-series ranges | BRIN | `CREATE INDEX idx ON t USING brin (col)` |
+| Time-series ranges (correlated insert order) | BRIN | `CREATE INDEX idx ON t USING brin (col)` |
 
 ### Data Type Quick Reference
 
 | Use Case | Correct Type | Avoid |
 |----------|-------------|-------|
-| IDs | `bigint` | `int`, random UUID |
-| Strings | `text` | `varchar(255)` |
+| Sequential IDs | `bigint` (or `bigint generated … as identity`) | `int` when range may overflow |
+| Distributed IDs | `uuid` with **UUIDv7** (`uuidv7()` on PG 18+) | random **UUIDv4** as PK (index churn) |
+| Strings | `text` | arbitrary `varchar(255)` |
 | Timestamps | `timestamptz` | `timestamp` |
 | Money | `numeric(10,2)` | `float` |
 | Flags | `boolean` | `varchar`, `int` |
@@ -68,9 +69,17 @@ CREATE INDEX idx ON users (email) WHERE deleted_at IS NULL;
 
 **RLS Policy (Optimized):**
 ```sql
-CREATE POLICY policy ON orders
-  USING ((SELECT auth.uid()) = user_id);  -- Wrap in SELECT!
+-- Wrap auth helpers in SELECT; scope role; index the policy column
+CREATE INDEX idx_orders_user_id ON orders (user_id);
+
+CREATE POLICY orders_owner ON orders
+  FOR ALL
+  TO authenticated
+  USING ((SELECT auth.uid()) = user_id)
+  WITH CHECK ((SELECT auth.uid()) = user_id);
 ```
+
+Also filter on the client (e.g. `.eq('user_id', …)`) so the planner can use the index before RLS.
 
 **UPSERT:**
 ```sql
@@ -83,7 +92,7 @@ DO UPDATE SET value = EXCLUDED.value;
 **Cursor Pagination:**
 ```sql
 SELECT * FROM products WHERE id > $last_id ORDER BY id LIMIT 20;
--- O(1) vs OFFSET which is O(n)
+-- Keyset / cursor beats OFFSET for large pages; needs a stable indexed sort key
 ```
 
 **Queue Processing:**
@@ -122,7 +131,11 @@ WHERE n_dead_tup > 1000
 ORDER BY n_dead_tup DESC;
 ```
 
-### Configuration Template
+### Configuration Template (self-hosted)
+
+Illustrative **self-managed** knobs — adjust for RAM/workload. On **Supabase managed**
+Postgres you typically lack superuser/`ALTER SYSTEM`; use the dashboard, CLI, or
+Management API instead. PG 15+ already revokes `CREATE` on `public` for new DBs.
 
 ```sql
 -- Connection limits (adjust for RAM)
@@ -133,11 +146,11 @@ ALTER SYSTEM SET work_mem = '8MB';
 ALTER SYSTEM SET idle_in_transaction_session_timeout = '30s';
 ALTER SYSTEM SET statement_timeout = '30s';
 
--- Monitoring
+-- Monitoring (also requires shared_preload_libraries=pg_stat_statements on self-hosted)
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 
--- Security defaults
-REVOKE ALL ON SCHEMA public FROM public;
+-- Security: revoke CREATE only (not USAGE) if hardening an older DB
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 
 SELECT pg_reload_conf();
 ```

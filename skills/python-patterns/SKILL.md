@@ -15,6 +15,7 @@ paths:
 # Python development patterns
 
 Idiomatic Python guidance for readability, correctness, tooling, and performance.
+Examples target **Python 3.12+** (minimum baseline **3.10+**).
 
 ## When to activate
 
@@ -26,7 +27,7 @@ Idiomatic Python guidance for readability, correctness, tooling, and performance
 
 - **Readability** — obvious names and flow over cleverness; see [patterns-misc](references/patterns-misc.md#core-principles).
 - **Explicit over implicit** — clear configuration and imports; minimize hidden side effects.
-- **EAFP** — prefer `try` / specific exceptions over excessive pre-checking; patterns and pitfalls in [patterns-misc](references/patterns-misc.md#core-principles).
+- **EAFP** — prefer `try` / specific exceptions when failure is exceptional; use `dict.get` for expected missing keys — see [patterns-misc](references/patterns-misc.md#core-principles).
 
 ## Reference index
 

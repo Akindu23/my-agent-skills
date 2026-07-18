@@ -38,19 +38,25 @@ some_module.setup()  # What does this do?
 
 ### 3. EAFP - Easier to Ask Forgiveness Than Permission
 
-Python prefers exception handling over checking conditions.
+Prefer exceptions when failure is exceptional. When absence is expected (optional
+dict keys), prefer `dict.get` over `try/except KeyError`.
 
 ```python
 from typing import Any
 
-# Good: EAFP style
+# Good: expected absence — use get
 def get_value(dictionary: dict[str, Any], key: str, default: Any = None) -> Any:
-    try:
-        return dictionary[key]
-    except KeyError:
-        return default
+    return dictionary.get(key, default)
 
-# Bad: LBYL (Look Before You Leap) style
+# Good: EAFP when the operation can fail for real (I/O, parse, race)
+def load_config(path: str) -> Config:
+    try:
+        with open(path) as f:
+            return Config.from_json(f.read())
+    except FileNotFoundError as e:
+        raise ConfigError(f"missing config: {path}") from e
+
+# Avoid: LBYL that races or duplicates work the operation already does
 def get_value_lbyl(dictionary: dict[str, Any], key: str, default: Any = None) -> Any:
     if key in dictionary:
         return dictionary[key]
