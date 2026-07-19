@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
@@ -35,6 +35,7 @@
     "skills/recursive-decomposition",
     "skills/research",
     "skills/setup-work",
+    "skills/svg-diagrams",
     "skills/tdd",
     "skills/teach",
     "skills/to-plan",

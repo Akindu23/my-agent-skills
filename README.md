@@ -107,7 +107,7 @@ Cursor marketplace plugins that pair well with these skills:
 
 ## Skill catalog
 
-**40** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
+**41** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
 
 
 | Folder                                                                   | `name`                          | One-line intent                                                                                                                                                                    |
@@ -144,6 +144,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [recursive-decomposition](./skills/recursive-decomposition/)             | `recursive-decomposition`       | Handle oversized tasks via programmatic decomposition and recursive sub-inquiry (RLM-inspired; large docs, many files, huge token spans).                                          |
 | [research](./skills/research/)                                           | `research`                      | Investigate a question against primary sources via a background Task; write cited findings to a Markdown file in the repo.                                                         |
 | [setup-work](./skills/setup-work/)                                           | `setup-work`                    | Optional bootstrap of `docs/agents/issue-tracker.md` and `docs/agents/domain.md` when defaults (local `work/`, single-context domain) are wrong. |
+| [svg-diagrams](./skills/svg-diagrams/)                                   | `svg-diagrams`                  | Author static SVG (architecture, sequence, freeform) plus HTML embed snippets; required validate script; not for Mermaid source.                                              |
 | [tdd](./skills/tdd/)                                                     | `tdd`                           | Test-driven development (red → green); pre-agreed seams, behavior tests, tautology/horizontal-slice anti-patterns; refactor deferred to `/code-review`.                           |
 | [teach](./skills/teach/)                                                 | `teach`                         | User-invoked multi-session tutoring with `docs/learning/<topic-slug>/` artifacts, Exa-verified resources, and HTML lessons.                                                        |
 | [to-plan](./skills/to-plan/)                                             | `to-plan`                       | Publish a one-session plan for `/implement-plan`: escape hatch when the build fits one context window.                                                                            |
