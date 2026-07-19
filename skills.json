@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
@@ -9,6 +9,7 @@
     "skills/codebase-design",
     "skills/codebase-onboarding",
     "skills/council",
+    "skills/deep-research",
     "skills/diagnosing-bugs",
     "skills/docker-patterns",
     "skills/document",
@@ -47,13 +48,16 @@
     "best-practices-research": [
       "council"
     ],
-    "domain-modeling": [
-      "architecture-decision-records"
-    ],
     "code-review": [
       "council",
       "yagni",
       "best-practices-research"
+    ],
+    "deep-research": [
+      "council"
+    ],
+    "domain-modeling": [
+      "architecture-decision-records"
     ],
     "grilling": [
       "council"

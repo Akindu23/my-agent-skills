@@ -107,7 +107,7 @@ Cursor marketplace plugins that pair well with these skills:
 
 ## Skill catalog
 
-**39** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
+**40** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
 
 
 | Folder                                                                   | `name`                          | One-line intent                                                                                                                                                                    |
@@ -118,6 +118,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [codebase-design](./skills/codebase-design/)                             | `codebase-design`               | Shared vocabulary for designing deep modules (interface, seam, depth, leverage, locality) and deepening or design-it-twice patterns.                                             |
 | [codebase-onboarding](./skills/codebase-onboarding/)                     | `codebase-onboarding`           | Analyze an unfamiliar codebase and produce a structured onboarding guide, architecture map, conventions, and starter `AGENTS.md` for Cursor.                                       |
 | [council](./skills/council/)                                             | `council`                       | Explore a codebase area, spawn **Task** subagents for parallel deep dives, then synthesize results (e.g. multi-area review, reconnaissance before planning).                       |
+| [deep-research](./skills/deep-research/)                                 | `deep-research`                 | User-invoked multi-phase deep dive (product/market lens by default) that writes a navigable multi-page HTML report pack under `docs/research/<topic-slug>/`.                        |
 | [diagnosing-bugs](./skills/diagnosing-bugs/)                             | `diagnosing-bugs`               | Disciplined diagnosis loop: build a tight red-capable feedback loop, reproduce, minimise, hypothesise, instrument, fix, regression-test.                                           |
 | [docker-patterns](./skills/docker-patterns/)                             | `docker-patterns`               | Apply Dockerfile, Docker Compose, BuildKit, and container security patterns for local dev and hardened deployable images.                                                          |
 | [document](./skills/document/)                                           | `document`                      | Create or update durable repo docs (README, API, runbooks) verified against code; prune stale docs in the touched area.                                                            |
