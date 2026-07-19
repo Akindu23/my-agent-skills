@@ -55,7 +55,8 @@
       "best-practices-research"
     ],
     "deep-research": [
-      "council"
+      "council",
+      "svg-diagrams"
     ],
     "domain-modeling": [
       "architecture-decision-records"
@@ -94,6 +95,9 @@
     ],
     "research": [
       "council"
+    ],
+    "teach": [
+      "svg-diagrams"
     ],
     "to-spec": [
       "council",

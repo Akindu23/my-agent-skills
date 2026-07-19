@@ -14,10 +14,11 @@ docs/research/<topic-slug>/
   sources.html
   assets/
     pack.css                # shared nav + typography + print
-    pack-init.mjs           # only if any page has Mermaid
+    diagrams/               # static SVG only (when diagrams earn their keep)
+      <diagram-slug>.svg
 ```
 
-Stable filenames; overwrite on re-render. HTML mirrors SSOT sections only — no inventing content absent from markdown.
+Stable filenames; overwrite on re-render. HTML mirrors SSOT sections only — no inventing content absent from markdown (diagrams may visualize relationships already stated in the SSOT).
 
 ## Page roles
 
@@ -41,8 +42,6 @@ Every page:
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{topic}} — {{page}}</title>
   <link rel="stylesheet" href="./assets/pack.css" />
-  <!-- only when this page has Mermaid: -->
-  <script type="module" src="./assets/pack-init.mjs"></script>
 </head>
 <body>
   <nav class="pack-nav" aria-label="Report">
@@ -65,6 +64,7 @@ Mark the current page link with `aria-current="page"`. Relative links only (`./�
 - Consistent nav + max-width content column
 - System UI font stack is fine (utilitarian pack)
 - `.uncertain` styling for `[uncertain]` claims
+- `figure.diagram img` — full-width, readable on mobile
 - `@media print` — hide `.pack-nav`; avoid breaks inside articles
 
 Shared CSS in `assets/` is required for this multi-page pack (do not put per-page-only styles and skip `pack.css`).
@@ -80,46 +80,41 @@ Shared CSS in `assets/` is required for this multi-page pack (do not put per-pag
 
 From body pages always use `./sources.html#src-N` (flat pack — not `../sources.html`).
 
-## Optional Mermaid
+## Diagrams (static SVG — preferred)
 
-Include only when a diagram earns its keep (not mandatory).
+Include a diagram only when it earns its keep (not mandatory). When you do, follow `/svg-diagrams` (`deep-research` preset): craft, checklist, and `scripts/validate.py` before shipping.
+
+1. Write a self-contained SVG under `assets/diagrams/<diagram-slug>.svg`.
+2. Embed it in HTML as an image (no runtime JS):
 
 ```html
 <figure class="diagram">
   <figcaption class="sr-only">…</figcaption>
-  <pre class="mermaid">flowchart LR …</pre>
+  <img src="./assets/diagrams/{{diagram-slug}}.svg" alt="…" loading="lazy" />
 </figure>
 ```
 
-### `assets/pack-init.mjs`
+### SVG rules
 
-Pin Mermaid **≥11.10.0** (CVE-2025-54881). Example:
+- Inline-safe: no external fonts/CDN; use `system-ui, sans-serif` (or omit font-family and inherit).
+- Include `<title>` (and `role="img"` + `aria-labelledby` when helpful).
+- Prefer simple flow/box diagrams; match pack colors via CSS variables only if inlined — for `<img>` SVGs, hard-code a small palette consistent with `pack.css`.
+- Stable filenames; overwrite on re-render.
 
-```javascript
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.10.0/dist/mermaid.esm.min.mjs";
+### Authoring from markdown
 
-mermaid.initialize({
-  startOnLoad: false,
-  theme: "neutral",
-  securityLevel: "strict",
-});
+- Findings/`gaps.md` may sketch structure in prose, a list, or a fenced ` ```mermaid ` block as an **authoring draft**.
+- At HTML render, **do not** ship `pre.mermaid`, Mermaid CDN/ESM, or `pack-init.mjs`. Convert any diagram worth keeping into `assets/diagrams/*.svg` and embed with `<img>`.
+- If a Mermaid draft is too costly to convert and the diagram is not essential, drop it and keep the prose.
 
-try {
-  await mermaid.run({ querySelector: ".mermaid" });
-} catch (err) {
-  console.error(err);
-  document.querySelectorAll("pre.mermaid").forEach((el) => {
-    el.classList.add("mermaid-error");
-    el.setAttribute("title", String(err));
-  });
-}
-```
+### Why not client-side Mermaid
 
-Load `pack-init.mjs` only on pages that contain `.mermaid` blocks.
+Preview environments (Cursor Simple Browser, restricted webviews, `file://`, blocked CDN) often leave raw Mermaid source on screen. HTML escaping of `-->` and label `:` characters also breaks parse. Static SVG avoids all of that.
 
 ## Anti-patterns
 
-- `file://` preview when using ESM/CDN
+- Client-side Mermaid (`pre.mermaid`, CDN/ESM `pack-init.mjs`, vendored `mermaid.min.js` for runtime render)
+- `file://` as the primary preview path when anything still expects a server (prefer `python3 -m http.server` for the pack root)
 - Per-page duplicated shell / inline-only CSS with no shared `assets/pack.css`
 - Monolithic single-file report
 - Timestamped HTML filenames

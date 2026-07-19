@@ -106,9 +106,9 @@ Fire when any of: any opportunity/gap marked `[uncertain]`; Contradictions & ope
 
 ### 7. HTML render (AFK)
 
-Render markdown SSOT into the flat pack per [references/PACK-HTML.md](references/PACK-HTML.md). Shared `assets/` shell; `#src-N` cites; optional Mermaid only when useful. Overwrite stable filenames on re-render.
+Render markdown SSOT into the flat pack per [references/PACK-HTML.md](references/PACK-HTML.md). Shared `assets/` shell; `#src-N` cites; diagrams as **static SVG** under `assets/diagrams/` (no client-side Mermaid). Overwrite stable filenames on re-render.
 
-**Done when:** `index.html`, `plan.html`, `area-*.html`, `gaps.html`, `sources.html`, and `assets/pack.css` exist and navigate via relative links.
+**Done when:** `index.html`, `plan.html`, `area-*.html`, `gaps.html`, `sources.html`, and `assets/pack.css` exist and navigate via relative links; any diagrams are SVG `<img>` embeds (no `pre.mermaid` / Mermaid runtime).
 
 ### 8. Hand off (AFK)
 

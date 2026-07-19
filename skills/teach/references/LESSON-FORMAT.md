@@ -47,6 +47,10 @@ http://127.0.0.1:8765/lessons/0003-generic-constraints.html
 
 Serve from the topic root so `lessons/` and `assets/` are both reachable. Serving from a local origin is more reliable than `file://` when a lesson loads fonts, CSS, or scripts from a CDN. First load may require network access for those external assets.
 
+## Diagrams (static SVG)
+
+When a lesson needs a diagram, follow `/svg-diagrams` (`teach` preset): file under `../assets/diagrams/<slug>.svg` + `<img>` by default; inline only when an inline trigger applies. Run that skill’s craft checklist and `scripts/validate.py` before shipping.
+
 ## Code Blocks
 
 When lessons include code, use explicit language classes so syntax highlighting is reliable:
