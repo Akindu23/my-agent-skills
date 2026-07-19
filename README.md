@@ -41,7 +41,7 @@ Flags like `-p`, `-y`, and `--json` are for scripts and CI only. Full CLI docs: 
 
 
 
-## Optimal dev flow
+## Recommended Dev Workflow
 
 Defaults: local markdown under `work/`, single-context `CONTEXT.md` / `docs/adr/`. Optional [`/setup-work`](./skills/setup-work/) only when you need GitHub/GitLab/custom tracker or multi-context domain layout recorded under `docs/agents/`.
 
@@ -78,10 +78,19 @@ flowchart TD
 | Stage | Skills | Notes |
 | ----- | ------ | ----- |
 | Sharpen | `/grill-with-docs` | Default entry with an idea. May offer `/wayfinder` when destination is nameable and fog appears. |
-| Decide in fog | `/wayfinder` | Decision tickets, not build slices. Enter directly when already foggy, or continue from a grill fog offer. |
+| Decide in fog | `/wayfinder` | Decision tickets, not build slices. Enter directly when already foggy, or continue from a grill fog offer. See [Working a wayfinder map](#working-a-wayfinder-map). |
 | Spec path (default) | `/to-spec` → `/to-tickets` → `/implement` | Multi-session / dumb-zone risk. One ticket per session; prefer `/tdd` at agreed seams. |
 | Plan path (escape hatch) | `/to-plan` → `/implement-plan` | Only when the whole build fits one context window. |
 | Review | `/code-review` | After implementation. Needs the [Thermos](https://cursor.com/marketplace/cursor/thermos) plugin. Report only. |
+
+### Working a wayfinder map
+
+Two complementary ways to burn down decision tickets — do **not** merge unblocked tickets into one resolve pass (each ticket stays one decision, one pass).
+
+- **Serial (same agent):** `/wayfinder` Work through the map to resolve one ticket, then you will be prompted to **Continue next** / **Handoff** (`/handoff` → fresh session on the map) / **Stop**. Soft context bias prefers Handoff around ~60% / ~120k. Continue takes the next unclaimed frontier ticket in order.
+- **Parallel (multiple agents):** when several tickets are on the frontier (open, unblocked, unclaimed), open a new agent per ticket, tag that issue, and run `/wayfinder` on it. Claiming (assignee) keeps sessions from colliding. This stays manual since you spawn the agents. The map’s blocking edges show what’s takeable. Most frontier tickets are HITL grilling, so start only as many parallel sessions as you can actually answer without overloading yourself. Width is optional throughput, not a requirement.
+
+Charting may still fire multiple AFK `/research` Tasks in parallel; that exception is for facts, not HITL grilling.
 
 **Optional orient:** `/setup-work` when defaults (local `work/`, single-context domain) are wrong. **Also sharpening:** `/grill-me` when you want grilling without domain-modeling. **Bugs:** `/diagnosing-bugs`. **Architecture debt:** `/improve-codebase-architecture`.
 
@@ -150,7 +159,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [to-plan](./skills/to-plan/)                                             | `to-plan`                       | Publish a one-session plan for `/implement-plan`: escape hatch when the build fits one context window.                                                                            |
 | [to-spec](./skills/to-spec/)                                             | `to-spec`                       | Turn the current conversation context into a spec and publish it to the project issue tracker.                                                                                     |
 | [to-tickets](./skills/to-tickets/)                                       | `to-tickets`                    | Break a plan, spec, or conversation into tracer-bullet tickets with blocking edges on the project tracker.                                                                         |
-| [wayfinder](./skills/wayfinder/)                                         | `wayfinder`                     | Chart oversized work as a shared decision-ticket map; resolve one frontier ticket per session; on close, may promote answers to ADRs when ADR-POLICY criteria hold.                |
+| [wayfinder](./skills/wayfinder/)                                         | `wayfinder`                     | Chart oversized work as a shared decision-ticket map; resolve one frontier ticket per pass (Continue / Handoff / Stop); parallel agents optional on unclaimed frontier tickets. On close, may promote answers to ADRs when ADR-POLICY criteria hold. |
 | [web-design-guidelines](./skills/web-design-guidelines/)                 | `web-design-guidelines`         | Review UI code for **Web Interface Guidelines** compliance (accessibility, UX, best-practice audits).                                                                              |
 | [yagni](./skills/yagni/)                                                 | `yagni`                         | Forces the laziest working solution: YAGNI, stdlib-first, shortest diff; full (default) flags speculative scope but ships, ultra may skip it on greenfield.                        |
 

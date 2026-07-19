@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way is clear. On ticket close, may offer ADRs (promotion into docs/adr/) when ADR-POLICY criteria hold.
+description: Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets on your issue tracker, and resolve them one pass at a time until the way is clear. After each ticket close in Work through the map, AskQuestion may Continue / Handoff / Stop (soft context bias). On ticket close, may offer ADRs (promotion into docs/adr/) when ADR-POLICY criteria hold.
 disable-model-invocation: true
 ---
 
@@ -114,7 +114,7 @@ Ruling something out of scope is a scoping act, not a step on the route. When a 
 
 ## Invocation
 
-Two modes. Either way, **never resolve more than one ticket per session** — with the exception of research tickets.
+Two modes. **Chart the map** stops after creating the map (and firing any parallel research). **Work through the map** resolves **one ticket per pass**, then may chain another pass in the same session only via the post-resolve AskQuestion (see step 7) — never silently. Charting's parallel `/research` Tasks remain the exception for batching research without that prompt.
 
 ### Chart the map
 
@@ -148,15 +148,30 @@ User invokes with a map (URL or number). A ticket is **optional** — without on
 4. Record the resolution: post the answer as a **resolution comment**, **close** the issue, and **append a context pointer** to the map's Decisions-so-far (ticket link + one-line gist). Do **not** delete the ticket.
 5. **Offer an ADR when criteria hold** — After the answer is recorded, apply the three [ADR-POLICY](../architecture-decision-records/references/ADR-POLICY.md) criteria (any ticket type; research/task answers usually fail the bar). If all three are true, **offer** to record an ADR. On acceptance, follow `/architecture-decision-records` with **`Captured via: wayfinder`**, then **dual-link** the ADR on that Decisions-so-far line (keep the ticket link; add the ADR path). If the user declines, move on — no park, no re-offer for that ticket unless they ask later.
 6. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
+7. **Continue, handoff, or stop** — Only after steps 4–6 are done (frontier is current). Use **AskQuestion** (or plain chat if unavailable). This applies to every ticket type closed in work-through, including research.
+
+   **Soft context bias** (heuristic, not a meter — agents have no live context-% API; ~120k tokens / ~60% of a large window is the empirical dumb-zone):
+   - **Under 45%** → recommend **Continue next**
+   - **45–60%** → slight lean to **Continue next**
+   - **≥60% / ~120k** → recommend **Handoff to new session**
+
+   **Frontier still has takeable tickets** — options (always all three; only the recommendation flips):
+   - **Continue next** — claim the next unclaimed frontier ticket and start immediately (back to step 2). If that ticket is already claimed by another session, skip it with a one-line note and take the next unclaimed; if none remain, treat as map-clear below.
+   - **Handoff to new session** — run `/handoff` → `docs/handoffs/CURRENT.md`. **For next session** must say: open as **`/wayfinder` Work through the map** on this map (link it); ticket optional — take the next frontier. Then stop this session.
+   - **Stop** — end here; user re-invokes later.
+
+   **Map clear** (no open decision tickets left) — do **not** offer Continue. Use the [When the map is clear](#when-the-map-is-clear) options instead, and still include **Handoff to new session** when the soft bias is ≥60% / ~120k (same `/handoff` wording, pointing at the clear map / next build skill).
 
 The user may run unblocked tickets in parallel, so expect other sessions to be editing the tracker concurrently.
 
-**Done when**: exactly one non-research ticket was claimed, resolved, and closed (or ruled out of scope), any ADR offer for that answer was handled (accepted → written and dual-linked, declined → discarded, or criteria not met → no offer), the map's Decisions-so-far / fog / out-of-scope sections reflect that outcome, and any newly graduated tickets are created and wired — or, for research-only parallel work, every research ticket this session fired has a findings-file context pointer (and the same ADR offer step applies if a research answer somehow meets ADR-POLICY).
+**Done when (one pass):** exactly one ticket was claimed, resolved, and closed (or ruled out of scope), any ADR offer for that answer was handled (accepted → written and dual-linked, declined → discarded, or criteria not met → no offer), the map's Decisions-so-far / fog / out-of-scope sections reflect that outcome, any newly graduated tickets are created and wired, and the step-7 AskQuestion was answered — Continue starts another pass in this session; Handoff or Stop ends the session.
 
 ## When the map is clear
 
-Wayfinder **decides**; it does not ship the build. When no open decision tickets remain and the destination is a change to implement, **recommend** (user confirms) using the same context-risk gate as the no-fog exit:
+Wayfinder **decides**; it does not ship the build. When no open decision tickets remain and the destination is a change to implement, offer via **AskQuestion** (from work-through step 7, or whenever the map is found clear) using the same context-risk gate as the no-fog exit:
 
 - **Multi-session / dumb-zone risk** → `/to-spec` → `/to-tickets` → `/implement` (one ticket per session, clear context between)
 - **Fits one session** → `/to-plan` → `/implement-plan`
 - **Unsure** → `/to-spec`, then choose tickets vs `/to-plan`
+- **Stop** — end here
+- **Handoff to new session** — include when soft bias is ≥60% / ~120k (or the thread already feels lossy); `/handoff` with next session opening the chosen build path from a fresh chat
