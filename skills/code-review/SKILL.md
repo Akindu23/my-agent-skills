@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Diff/PR review: council → thermos/yagni → delta BPR → Sol merge. Report only.
+description: "Diff/PR review: council → thermos/yagni → delta BPR → Sol merge. Report only."
 disable-model-invocation: true
 ---
 
