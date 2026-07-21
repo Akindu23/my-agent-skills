@@ -11,6 +11,7 @@ import {
   upsertSkill,
   writeLockfile,
 } from '../../src/lib/lockfile.js';
+import { resolveEffectiveTargets } from '../../src/lib/install-targets.js';
 
 const dirs: string[] = [];
 
@@ -129,6 +130,57 @@ describe('lockfile', () => {
       }),
     );
 
+    await expect(readLockfile(lockPath)).rejects.toThrow(CliError);
+  });
+
+  it('treats omitted targets as Cursor-only and lazy-omits on write', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'lock-targets-'));
+    dirs.push(dir);
+    const lockPath = path.join(dir, 'cursor-skills-lock.json');
+
+    const lock = emptyLockfile({
+      source: DEFAULT_GITHUB_SOURCE,
+      commit: 'a'.repeat(40),
+      package: { name: 'my-agent-skills', version: '0.1.0' },
+    });
+    expect(resolveEffectiveTargets(lock)).toEqual(['cursor']);
+    lock.targets = ['cursor'];
+    await writeLockfile(lockPath, lock);
+    const raw = JSON.parse(await readFile(lockPath, 'utf8'));
+    expect(raw.targets).toBeUndefined();
+
+    const loaded = await readLockfile(lockPath);
+    expect(loaded?.targets).toBeUndefined();
+    expect(resolveEffectiveTargets(loaded)).toEqual(['cursor']);
+  });
+
+  it('persists sorted multi-target and rejects invalid targets', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'lock-targets-multi-'));
+    dirs.push(dir);
+    const lockPath = path.join(dir, 'cursor-skills-lock.json');
+
+    const lock = emptyLockfile({
+      source: DEFAULT_GITHUB_SOURCE,
+      commit: 'a'.repeat(40),
+      package: { name: 'my-agent-skills', version: '0.1.0' },
+    });
+    lock.targets = ['cursor', 'claude'];
+    await writeLockfile(lockPath, lock);
+    const raw = JSON.parse(await readFile(lockPath, 'utf8'));
+    expect(raw.targets).toEqual(['claude', 'cursor']);
+
+    await writeFile(
+      lockPath,
+      JSON.stringify({
+        version: LOCK_VERSION,
+        source: DEFAULT_GITHUB_SOURCE,
+        sourceType: 'github',
+        commit: 'a'.repeat(40),
+        package: { name: 'x', version: '0.1.0' },
+        targets: ['both'],
+        skills: {},
+      }),
+    );
     await expect(readLockfile(lockPath)).rejects.toThrow(CliError);
   });
 });

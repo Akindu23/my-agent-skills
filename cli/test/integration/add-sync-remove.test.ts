@@ -94,7 +94,7 @@ describe('integration', () => {
     const result = await runCli(['help']);
 
     expect(result.exitCode, result.stderr).toBe(0);
-    expect(result.stdout).toContain('Usage: cursor-agent-skills');
+    expect(result.stdout).toContain('Usage: my-agent-skills');
   });
 
   it('bare invoke without subcommand exits 1 in non-TTY', async () => {
@@ -102,6 +102,120 @@ describe('integration', () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain('Subcommand required');
-    expect(result.stderr).toContain('cursor-agent-skills add');
+    expect(result.stderr).toContain('my-agent-skills add');
+  });
+
+  it('add --target both materializes Cursor and Claude trees and records targets', async () => {
+    const project = await emptyProject();
+    const env = { CURSOR_AGENT_SKILLS_ROOT: bundleMini };
+
+    let result = await runCli(
+      ['add', '--skill', 'alpha', '-p', '--target', 'both', '-y', '--json'],
+      { cwd: project, env },
+    );
+    expect(result.exitCode, result.stderr).toBe(0);
+    const payload = JSON.parse(result.stdout);
+    expect(payload.targets).toEqual(['claude', 'cursor']);
+
+    expect((await lstat(path.join(project, '.agents/skills/alpha'))).isSymbolicLink()).toBe(true);
+    expect((await lstat(path.join(project, '.claude/skills/alpha'))).isSymbolicLink()).toBe(true);
+
+    const lock = JSON.parse(
+      await readFile(path.join(project, '.agents/cursor-skills-lock.json'), 'utf8'),
+    );
+    expect(lock.targets).toEqual(['claude', 'cursor']);
+
+    await rm(path.join(project, '.claude/skills/alpha'), { force: true });
+    result = await runCli(['sync', '-p', '--json'], { cwd: project, env });
+    expect(result.exitCode, result.stderr).toBe(0);
+    expect((await lstat(path.join(project, '.claude/skills/alpha'))).isSymbolicLink()).toBe(true);
+
+    result = await runCli(['check', '-p', '--json'], { cwd: project, env });
+    expect(result.exitCode, result.stderr).toBe(0);
+    const checkPayload = JSON.parse(result.stdout);
+    expect(checkPayload.targets.cursor.healthy).toBe(true);
+    expect(checkPayload.targets.claude.healthy).toBe(true);
+
+    result = await runCli(
+      ['remove', '--skill', 'alpha', '-p', '--target', 'claude', '-y', '--json'],
+      { cwd: project, env },
+    );
+    expect(result.exitCode, result.stderr).toBe(0);
+    const removePayload = JSON.parse(result.stdout);
+    expect(removePayload.narrowed).toContain('alpha');
+    expect(removePayload.targets).toEqual(['cursor']);
+    expect(await lstat(path.join(project, '.agents/skills/alpha')).then(() => true).catch(() => false)).toBe(true);
+
+    const lockAfter = JSON.parse(
+      await readFile(path.join(project, '.agents/cursor-skills-lock.json'), 'utf8'),
+    );
+    expect(lockAfter.targets).toBeUndefined();
+    expect(lockAfter.skills.alpha).toBeDefined();
+  });
+
+  it('add --target claude creates lock without Cursor skills tree', async () => {
+    const project = await emptyProject();
+    const env = { CURSOR_AGENT_SKILLS_ROOT: bundleMini };
+
+    const result = await runCli(
+      ['add', '--skill', 'alpha', '-p', '--target', 'claude', '-y', '--json'],
+      { cwd: project, env },
+    );
+    expect(result.exitCode, result.stderr).toBe(0);
+
+    expect((await lstat(path.join(project, '.claude/skills/alpha'))).isSymbolicLink()).toBe(true);
+    const cursorSkills = path.join(project, '.agents/skills');
+    await expect(lstat(cursorSkills)).rejects.toMatchObject({ code: 'ENOENT' });
+
+    const lock = JSON.parse(
+      await readFile(path.join(project, '.agents/cursor-skills-lock.json'), 'utf8'),
+    );
+    expect(lock.targets).toEqual(['claude']);
+  });
+
+  it('add --target unions with existing lock targets; remove keeps target when other skills remain', async () => {
+    const project = await emptyProject();
+    const env = { CURSOR_AGENT_SKILLS_ROOT: bundleMini };
+
+    let result = await runCli(
+      ['add', '--skill', 'alpha', '-p', '--target', 'both', '-y', '--json'],
+      { cwd: project, env },
+    );
+    expect(result.exitCode, result.stderr).toBe(0);
+
+    result = await runCli(
+      ['add', '--skill', 'beta', '-p', '--target', 'claude', '-y', '--json'],
+      { cwd: project, env },
+    );
+    expect(result.exitCode, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout).targets).toEqual(['claude']);
+
+    let lock = JSON.parse(
+      await readFile(path.join(project, '.agents/cursor-skills-lock.json'), 'utf8'),
+    );
+    expect(lock.targets).toEqual(['claude', 'cursor']);
+    expect((await lstat(path.join(project, '.agents/skills/alpha'))).isSymbolicLink()).toBe(true);
+
+    result = await runCli(['list', '-p', '--json'], { cwd: project, env });
+    expect(result.exitCode, result.stderr).toBe(0);
+    const listPayload = JSON.parse(result.stdout);
+    expect(listPayload.installTargets).toEqual(['claude', 'cursor']);
+    expect(listPayload.skills.find((s: { name: string }) => s.name === 'alpha')?.targets.claude).toBeDefined();
+
+    result = await runCli(
+      ['remove', '--skill', 'alpha', '-p', '--target', 'claude', '-y', '--json'],
+      { cwd: project, env },
+    );
+    expect(result.exitCode, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout).targets).toEqual(['claude', 'cursor']);
+
+    lock = JSON.parse(
+      await readFile(path.join(project, '.agents/cursor-skills-lock.json'), 'utf8'),
+    );
+    expect(lock.targets).toEqual(['claude', 'cursor']);
+    expect((await lstat(path.join(project, '.claude/skills/beta'))).isSymbolicLink()).toBe(true);
+
+    result = await runCli(['sync', '-p', '-y', '--json'], { cwd: project, env });
+    expect(result.exitCode, result.stderr).toBe(0);
   });
 });

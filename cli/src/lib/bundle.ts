@@ -5,6 +5,7 @@ import { DEFAULT_GITHUB_SOURCE } from './constants.js';
 import { CliError } from './errors.js';
 import {
   ensurePackAtCommit,
+  readPackCommit,
   resolveLatestPackCommit,
   type PackCacheResult,
 } from './remote-pack.js';
@@ -125,10 +126,32 @@ async function resolveBundleRoot(opts: {
   const localRoot = await resolveLocalBundleRoot(opts);
   if (localRoot) {
     const cacheRoot = path.dirname(localRoot);
+    const githubSource = opts.githubSource ?? DEFAULT_GITHUB_SOURCE;
+
+    // Explicit override may persist commit "local". Monorepo auto-detect must not.
+    if (isLocalOverride(opts)) {
+      return {
+        root: localRoot,
+        githubSource,
+        commit: opts.commit ?? 'local',
+        cacheRoot,
+      };
+    }
+
+    let commit = opts.commit;
+    if (!commit) {
+      try {
+        const manifestRaw = await readFile(path.join(cacheRoot, 'skills.json'), 'utf8');
+        commit = readPackCommit(JSON.parse(manifestRaw) as { packCommit?: unknown });
+      } catch {
+        commit = await resolveLatestPackCommit(githubSource);
+      }
+    }
+
     return {
       root: localRoot,
-      githubSource: opts.githubSource ?? DEFAULT_GITHUB_SOURCE,
-      commit: opts.commit ?? 'local',
+      githubSource,
+      commit,
       cacheRoot,
     };
   }

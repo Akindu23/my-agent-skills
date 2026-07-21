@@ -19,27 +19,29 @@ import { runUpdate } from './commands/update.js';
 const program = new Command();
 
 program
-  .name('cursor-agent-skills')
+  .name('my-agent-skills')
   .description('Install and sync Cursor agent skills from the remote my-agent-skills GitHub pack')
   .version(cliVersion)
   .addHelpText('after', `
 
 Examples:
-  $ cursor-agent-skills
+  $ my-agent-skills
       (TTY: pick one action, then exit; use --menu to stay in the hub)
-  $ cursor-agent-skills --menu
+  $ my-agent-skills --menu
       (TTY: hub menu until Quit)
-  $ cursor-agent-skills add --skill pitstop -p -y
-  $ cursor-agent-skills --skill pitstop -p -y --json
-  $ cursor-agent-skills check -p --json
-  $ cursor-agent-skills update -p -y
+  $ my-agent-skills add --skill pitstop -p -y
+  $ my-agent-skills add --skill pitstop -p --target both -y
+  $ my-agent-skills --skill pitstop -p -y --json
+  $ my-agent-skills check -p --json
+  $ my-agent-skills update -p -y
 `);
 
 program
   .command('add')
-  .description('Install skills into project or global .agents/skills')
-  .option('-g, --global', 'Install to ~/.agents/skills')
-  .option('-p, --project', 'Install to .agents/skills in current directory')
+  .description('Install skills into Cursor and/or Claude Code skills directories')
+  .option('-g, --global', 'Install to global scope (~/.agents + ~/.claude)')
+  .option('-p, --project', 'Install to project scope (.agents + .claude in cwd)')
+  .option('--target <target>', 'Install target: cursor, claude, or both')
   .option('--skill <name>', 'Skill to install (repeatable)', (v, acc: string[]) => {
     acc.push(v);
     return acc;
@@ -54,6 +56,7 @@ program
     await runAdd({
       global: opts.global,
       project: opts.project,
+      target: opts.target,
       skill: opts.skill,
       all: opts.all,
       yes: opts.yes,
@@ -83,16 +86,18 @@ program
   .description('Remove skills from scope and lockfile')
   .option('-g, --global', 'Global scope')
   .option('-p, --project', 'Project scope')
+  .option('--target <target>', 'Limit removal to cursor, claude, or both')
   .option('--skill <name>', 'Skill to remove (repeatable)', (v, acc: string[]) => {
     acc.push(v);
     return acc;
   }, [])
-  .option('-y, --yes', 'Non-interactive scope when -p/-g omitted')
+  .option('-y, --yes', 'Skip dependent-skill confirmation in TTY')
   .option('--json', 'Machine-readable output')
   .action(async (opts) => {
     await runRemove({
       global: opts.global,
       project: opts.project,
+      target: opts.target,
       skill: opts.skill,
       yes: opts.yes,
       json: opts.json,
@@ -104,6 +109,7 @@ program
   .description('Restore missing or broken skill links from the lockfile')
   .option('-g, --global', 'Global scope')
   .option('-p, --project', 'Project scope')
+  .option('-y, --yes', 'Accepted for script compatibility; sync has no confirmation prompt')
   .option('--copy', 'Copy skill folders instead of symlinks')
   .option('--source <path>', 'Override skills bundle directory')
   .option('--json', 'Machine-readable output')
@@ -111,6 +117,7 @@ program
     await runSync({
       global: opts.global,
       project: opts.project,
+      yes: opts.yes,
       copy: opts.copy,
       source: opts.source,
       json: opts.json,

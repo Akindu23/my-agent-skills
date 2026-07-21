@@ -43,6 +43,7 @@ export function resolveScope(
   };
 }
 
+/** Ensure lock parent + Cursor skills tree (legacy Cursor-only callers). */
 export async function ensureAgentsDir(paths: ScopePaths): Promise<void> {
   await mkdir(paths.agentsDir, { recursive: true });
   await mkdir(paths.skillsDir, { recursive: true });

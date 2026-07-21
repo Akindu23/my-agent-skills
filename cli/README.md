@@ -1,31 +1,31 @@
-# cursor-agent-skills
+# my-agent-skills
 
-Install and sync [Cursor Agent Skills](https://cursor.com/docs/skills) from the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) GitHub pack into `.agents/skills/` (project or global). The npm package ships the **installer only**—not the skill trees.
+Install and sync [Cursor Agent Skills](https://cursor.com/docs/skills) from the [my-agent-skills](https://github.com/Akindu23/my-agent-skills) GitHub pack into Cursor (`.agents/skills/`) and/or Claude Code (`.claude/skills/`), project or global. The npm package ships the **installer only**—not the skill trees.
 
-[npm version](https://www.npmjs.com/package/cursor-agent-skills)
+[npm version](https://www.npmjs.com/package/my-agent-skills)
 [license](https://github.com/Akindu23/my-agent-skills/blob/main/LICENSE)
 
-**Requires Node ≥ 20.** Binary: `**cursor-agent-skills`**.
+**Requires Node ≥ 20.** Binary: `**my-agent-skills`**.
 
 ---
 
 ## Quick start
 
 ```bash
-npx cursor-agent-skills@latest
+npx my-agent-skills@latest
 ```
 
-Interactive hub: add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope. Use `**--menu**` to stay in the hub between actions.
+Interactive hub: add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope, then (on `add`) install target. Use `**--menu**` to stay in the hub between actions.
 
-**After clone** (lockfile in git, `.agents/skills/` gitignored): run again and choose **Sync/Restore Skills from Lockfile**, or use `sync` in scripts—see [Examples](#examples).
+**After clone** (lockfile in git, skill trees gitignored): run again and choose **Sync/Restore Skills from Lockfile**, or use `sync` in scripts—see [Examples](#examples).
 
 ---
 
 ## Install (optional)
 
 ```bash
-npm install -g cursor-agent-skills
-cursor-agent-skills
+npm install -g my-agent-skills
+my-agent-skills
 ```
 
 ---
@@ -45,7 +45,7 @@ cursor-agent-skills
 
 Interactive `update` prompts to remove orphaned skills with a pre-selected multiselect; `update -y` prunes all orphans automatically.
 
-Full flags: `**cursor-agent-skills --help**` and `**cursor-agent-skills <command> --help**`.
+Full flags: `**my-agent-skills --help**` and `**my-agent-skills <command> --help**`.
 
 ---
 
@@ -54,11 +54,14 @@ Full flags: `**cursor-agent-skills --help**` and `**cursor-agent-skills <command
 Pass **exactly one** of `**-p` / `--project`** or `**-g` / `--global**` in scripts and CI. In an interactive terminal, the CLI can prompt if you omit both.
 
 
-| Scope              | Skills directory        | Lockfile                                |
-| ------------------ | ----------------------- | --------------------------------------- |
-| **Project** (`-p`) | `<cwd>/.agents/skills/` | `<cwd>/.agents/cursor-skills-lock.json` |
-| **Global** (`-g`)  | `~/.agents/skills/`     | `~/.agents/cursor-skills-lock.json`     |
+| Scope              | Cursor skills           | Claude Code skills     | Lockfile                                |
+| ------------------ | ----------------------- | ---------------------- | --------------------------------------- |
+| **Project** (`-p`) | `<cwd>/.agents/skills/` | `<cwd>/.claude/skills/` | `<cwd>/.agents/cursor-skills-lock.json` |
+| **Global** (`-g`)  | `~/.agents/skills/`     | `~/.claude/skills/`    | `~/.agents/cursor-skills-lock.json`     |
 
+## Install target
+
+Use `**--target cursor|claude|both**` on `add` / `remove` (scripts). Interactive `add` asks after scope. `sync` / `update` / `check` use recorded lock `targets` (omit ⇒ Cursor only). One lock under `.agents/` covers all targets.
 
 ---
 
@@ -67,25 +70,31 @@ Pass **exactly one** of `**-p` / `--project`** or `**-g` / `--global**` in scrip
 **Interactive (default)**
 
 ```bash
-npx cursor-agent-skills@latest
+npx my-agent-skills@latest
 ```
 
 **After clone** (repair links from committed lockfile)
 
 ```bash
-cursor-agent-skills sync -p -y
+my-agent-skills sync -p -y
 ```
 
 **CI** (no TTY—scope and flags required; `check` exits 1 when the pack moved)
 
 ```bash
-cursor-agent-skills sync -p -y && cursor-agent-skills check -p --json
+my-agent-skills sync -p -y && my-agent-skills check -p --json
 ```
 
 **Add one skill non-interactively**
 
 ```bash
-cursor-agent-skills add --skill wayfinder -p -y
+my-agent-skills add --skill wayfinder -p -y
+```
+
+**Add to Cursor and Claude Code**
+
+```bash
+my-agent-skills add --skill wayfinder -p --target both -y
 ```
 
 ---
@@ -93,9 +102,9 @@ cursor-agent-skills add --skill wayfinder -p -y
 ## Team workflow
 
 1. **Commit** `.agents/cursor-skills-lock.json` to git.
-2. **Gitignore** `.agents/skills/` (materialized skill trees).
-3. After clone: `**cursor-agent-skills sync -p -y`**.
-4. When `**check**` reports the pack moved on GitHub: `**cursor-agent-skills update -p -y**`.
+2. **Gitignore** `.agents/skills/` and `.claude/skills/` (materialized skill trees).
+3. After clone: `**my-agent-skills sync -p -y`** (repairs all recorded targets).
+4. When `**check**` reports the pack moved on GitHub: `**my-agent-skills update -p -y**`.
 
 Selecting a skill may auto-install `dependsOn` entries from the pack [skills.json](https://github.com/Akindu23/my-agent-skills/blob/main/skills.json) (for example `grill-with-docs` pulls in `grilling` and `domain-modeling`).
 
@@ -110,7 +119,7 @@ Browse skills and descriptions on GitHub: **[Skill catalog](https://github.com/A
 ## More detail
 
 - Terminology and glossary: [CONTEXT.md](https://github.com/Akindu23/my-agent-skills/blob/main/CONTEXT.md)
-- Full CLI flags: `cursor-agent-skills --help`
+- Full CLI flags: `my-agent-skills --help`
 
 ---
 

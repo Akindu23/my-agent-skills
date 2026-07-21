@@ -28,6 +28,7 @@ vi.mock('../../src/lib/run-scoped-command.js', () => ({
 vi.mock('../../src/lib/drift-plan.js', () => ({
   createDriftPlan: mocks.createDriftPlan,
   buildDriftReport: mocks.buildDriftReport,
+  assessTargetHealth: vi.fn(async () => ({})),
 }));
 
 vi.mock('../../src/lib/drift-summary.js', () => ({
@@ -59,7 +60,9 @@ describe('runCheck update offer', () => {
     mocks.createDriftPlan.mockResolvedValue({ entries: [] });
     mocks.buildDriftReport.mockReturnValue({
       hasDrift: true,
-      jsonPayload: {},
+      hasContentDrift: true,
+      hasUnhealthyTargets: false,
+      jsonPayload: { targets: {} },
     });
     mocks.runUpdate.mockResolvedValue(undefined);
   });

@@ -1,15 +1,21 @@
 import { note, outro } from '@clack/prompts';
 import { applyInstallPlan } from '../lib/apply-install-plan.js';
+import { resolveBundle } from '../lib/bundle.js';
 import { createInstallPlan } from '../lib/install-plan.js';
 import { renderInstallCompletion } from '../lib/install-outro.js';
 import { renderInstallSummary } from '../lib/install-summary.js';
+import {
+  resolveTargetSkillsDir,
+  type InstallTarget,
+} from '../lib/install-targets.js';
+import { readLockfile } from '../lib/lockfile.js';
 import { printJson } from '../lib/output.js';
 import {
   confirmInstallPlan,
   promptLinkType,
   promptSkillSelection,
+  resolveAddTargets,
 } from '../lib/prompts.js';
-import { resolveBundle } from '../lib/bundle.js';
 import { runScopedCommand } from '../lib/run-scoped-command.js';
 
 export interface AddOptions {
@@ -23,11 +29,13 @@ export interface AddOptions {
   source?: string;
   json?: boolean;
   skipIntro?: boolean;
+  target?: string;
 }
 
 export async function runAdd(opts: AddOptions): Promise<void> {
   let selected: string[] = [];
   let linkType: 'symlink' | 'copy' | undefined;
+  let targets: InstallTarget[] = ['cursor'];
 
   const { isInteractive, scope } = await runScopedCommand({
     global: opts.global,
@@ -36,6 +44,13 @@ export async function runAdd(opts: AddOptions): Promise<void> {
     json: opts.json,
     skipIntro: opts.skipIntro,
     afterIntro: async (ctx) => {
+      const existingLock = await readLockfile(ctx.scope.lockPath);
+      targets = await resolveAddTargets({
+        isInteractive: ctx.isInteractive,
+        targetFlag: opts.target,
+        lock: existingLock,
+      });
+
       const bundle = await resolveBundle({ source: opts.source });
       if (ctx.isInteractive) {
         note(`Found ${bundle.manifest.skills.length} skills`, 'Remote pack');
@@ -45,8 +60,12 @@ export async function runAdd(opts: AddOptions): Promise<void> {
         all: opts.all,
       });
       if (ctx.isInteractive && !opts.copy && !opts.symlink) {
+        const destHint =
+          targets.length > 1
+            ? 'each selected target skills directory'
+            : resolveTargetSkillsDir(ctx.scope, targets[0]!);
         note(
-          'Symlinks point at the pack cache (recommended). Copies are standalone folders under .agents/skills.',
+          `Symlinks point at the pack cache (recommended). Copies are standalone folders under ${destHint}.`,
           'Install mode',
         );
       }
@@ -72,6 +91,7 @@ export async function runAdd(opts: AddOptions): Promise<void> {
     scope,
     copy: opts.copy,
     linkType,
+    targets,
   });
 
   if (isInteractive) {
@@ -95,23 +115,28 @@ export async function runAdd(opts: AddOptions): Promise<void> {
       !isInteractive &&
       entry.action !== 'confirm'
     ) {
-      console.log(`  also installed ${entry.name} (dependency of ${entry.dependencyOf})`);
+      console.log(
+        `  also installed ${entry.name} → ${entry.target} (dependency of ${entry.dependencyOf})`,
+      );
     }
   }
 
   if (!opts.json && !isInteractive) {
     for (const entry of plan.entries) {
       if (entry.action === 'skip') {
-        console.log(`  skipped ${entry.name} (already up to date)`);
+        console.log(`  skipped ${entry.name} → ${entry.target} (already up to date)`);
       } else if (entry.action === 'confirm') {
-        console.log(`  reinstalled ${entry.name} (bundle hash drift)`);
+        console.log(`  reinstalled ${entry.name} → ${entry.target} (bundle hash drift)`);
       }
     }
   }
 
+  const destinations = plan.targets.map((t) => resolveTargetSkillsDir(scope, t));
+
   if (opts.json) {
     printJson({
       scope: scope.scope,
+      targets: plan.targets,
       installed,
       reinstalled,
       skipped,
@@ -125,7 +150,7 @@ export async function runAdd(opts: AddOptions): Promise<void> {
       renderInstallCompletion({
         installed: installedEntries,
         skipped: skippedEntries,
-        skillsDir: scope.skillsDir,
+        skillsDirs: destinations,
       }),
       'Complete',
     );
@@ -145,6 +170,8 @@ export async function runAdd(opts: AddOptions): Promise<void> {
   }
   const summary = parts.length > 0 ? parts.join(', ') : 'no changes';
 
-  console.log(`${summary.charAt(0).toUpperCase() + summary.slice(1)} in ${scope.skillsDir} (${scope.scope})`);
+  console.log(
+    `${summary.charAt(0).toUpperCase() + summary.slice(1)} in ${destinations.join(', ')} (${scope.scope})`,
+  );
   console.log(`Lockfile: ${scope.lockPath}`);
 }

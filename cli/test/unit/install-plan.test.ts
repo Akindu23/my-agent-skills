@@ -43,10 +43,30 @@ describe('createInstallPlan', () => {
     expect(plan.ordered).toEqual(['alpha', 'beta']);
     expect(plan.dependencyCount).toBe(1);
     expect(plan.linkType).toBe('symlink');
-    expect(plan.entries.map((entry) => [entry.name, entry.action, entry.dependencyOf])).toEqual([
-      ['alpha', 'new', 'beta'],
-      ['beta', 'new', undefined],
+    expect(plan.targets).toEqual(['cursor']);
+    expect(plan.entries.map((entry) => [entry.name, entry.target, entry.action, entry.dependencyOf])).toEqual([
+      ['alpha', 'cursor', 'new', 'beta'],
+      ['beta', 'cursor', 'new', undefined],
     ]);
+  });
+
+  it('expands plan entries per install target', async () => {
+    const scope = await tempScope();
+    const bundle = await resolveBundle({ source: bundleMini });
+
+    const plan = await createInstallPlan({
+      bundle,
+      selected: ['alpha'],
+      scope,
+      targets: ['claude', 'cursor'],
+    });
+
+    expect(plan.entries.map((entry) => [entry.name, entry.target, entry.action])).toEqual([
+      ['alpha', 'claude', 'new'],
+      ['alpha', 'cursor', 'new'],
+    ]);
+    expect(plan.entries[0]!.destDir).toContain(`${path.sep}.claude${path.sep}skills${path.sep}alpha`);
+    expect(plan.entries[1]!.destDir).toContain(`${path.sep}.agents${path.sep}skills${path.sep}alpha`);
   });
 
   it('classifies matching locked installs as skip', async () => {

@@ -8,7 +8,7 @@ function pastTense(linkType: InstallPlanEntry['linkType']): string {
 export function renderInstallCompletion(opts: {
   installed: InstallPlanEntry[];
   skipped: InstallPlanEntry[];
-  skillsDir: string;
+  skillsDirs: string[];
 }): string {
   const lines: string[] = [];
   lines.push(success(`Installed ${opts.installed.length} skill(s)`));
@@ -28,7 +28,11 @@ export function renderInstallCompletion(opts: {
   }
 
   lines.push('');
-  lines.push(`Skills directory: ${opts.skillsDir}`);
+  lines.push(
+    opts.skillsDirs.length === 1
+      ? `Skills directory: ${opts.skillsDirs[0]}`
+      : `Skills directories: ${opts.skillsDirs.join(', ')}`,
+  );
   lines.push("Warning: installed skills run with the agent's full permissions.");
   lines.push('Done!');
   return lines.join('\n');

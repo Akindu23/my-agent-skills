@@ -6,6 +6,10 @@ import {
 } from '../lib/apply-drift-plan.js';
 import { createDriftPlan } from '../lib/drift-plan.js';
 import { renderDriftSummary } from '../lib/drift-summary.js';
+import {
+  resolveEffectiveTargets,
+  resolveTargetSkillsDir,
+} from '../lib/install-targets.js';
 import { printJson } from '../lib/output.js';
 import { confirmProceed, promptOrphanRemoval } from '../lib/prompts.js';
 import { runScopedCommand } from '../lib/run-scoped-command.js';
@@ -142,12 +146,15 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
 
   if (result.updated.length > 0) {
     const changed = result.contentChanged.length;
+    const dests = resolveEffectiveTargets(plan.lock)
+      .map((t) => resolveTargetSkillsDir(scope, t))
+      .join(', ');
     if (plan.commitDrift && changed > 0) {
       console.log(
         `Relinked ${result.updated.length} skill(s); ${changed} changed on remote (${scope.scope})`,
       );
     } else {
-      console.log(`Updated ${result.updated.length} skill(s) in ${scope.skillsDir} (${scope.scope})`);
+      console.log(`Updated ${result.updated.length} skill(s) in ${dests} (${scope.scope})`);
     }
   } else if (plan.commitDrift || plan.manifestDrift) {
     console.log(`Synced lock with remote pack (${scope.scope})`);

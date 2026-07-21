@@ -6,6 +6,11 @@ import {
   type BundleContext,
 } from './bundle.js';
 import { computeSkillFolderHash } from './hash.js';
+import { assessMaterializationHealth } from './install-health.js';
+import {
+  resolveEffectiveTargets,
+  resolveTargetSkillsDir,
+} from './install-targets.js';
 import { readLockfile, type Lockfile } from './lockfile.js';
 import { resolveLatestPackCommit } from './remote-pack.js';
 import { resolveSkillDestDir } from './skill-paths.js';
@@ -163,7 +168,7 @@ export async function createDriftPlan(opts: {
   if (!lock || Object.keys(lock.skills).length === 0) {
     const { CliError } = await import('./errors.js');
     throw new CliError(
-      `No lockfile or empty skills at ${opts.scope.lockPath}. Run add first.\n\nExample:\n  cursor-agent-skills add --skill pitstop -p -y`,
+      `No lockfile or empty skills at ${opts.scope.lockPath}. Run add first.\n\nExample:\n  my-agent-skills add --skill pitstop -p -y`,
     );
   }
 
@@ -203,6 +208,17 @@ export async function createDriftPlan(opts: {
   });
 }
 
+export interface TargetHealthSkill {
+  name: string;
+  status: 'ok' | 'missing' | 'broken' | 'linkTypeMismatch';
+  destDir: string;
+}
+
+export interface TargetHealthReport {
+  healthy: boolean;
+  skills: TargetHealthSkill[];
+}
+
 export interface DriftReport {
   jsonPayload: {
     inSync: boolean;
@@ -227,15 +243,59 @@ export interface DriftReport {
       linkType?: 'symlink' | 'copy';
       remote: { changed: boolean | null };
     }>;
+    targets: Record<string, TargetHealthReport>;
+    hasContentDrift: boolean;
+    hasUnhealthyTargets: boolean;
   };
+  /** Pack/content/manifest drift or unhealthy targets (any problem). */
   hasDrift: boolean;
+  /** Pack pin, skill hash, orphan, or manifest drift (excludes materialization health). */
+  hasContentDrift: boolean;
+  hasUnhealthyTargets: boolean;
 }
 
-export function buildDriftReport(plan: DriftPlan): DriftReport {
+export async function assessTargetHealth(
+  plan: DriftPlan,
+): Promise<Record<string, TargetHealthReport>> {
+  const targets = resolveEffectiveTargets(plan.lock);
+  const result: Record<string, TargetHealthReport> = {};
+
+  for (const target of targets) {
+    const skills: TargetHealthSkill[] = [];
+    for (const entry of plan.entries) {
+      if (entry.status === 'orphan') continue;
+      const lockEntry = plan.lock.skills[entry.name];
+      if (!lockEntry) continue;
+      const destDir = resolveSkillDestDir(
+        resolveTargetSkillsDir(plan.scope, target),
+        entry.name,
+      );
+      const health = await assessMaterializationHealth(destDir, lockEntry.linkType);
+      skills.push({
+        name: entry.name,
+        status: health.status,
+        destDir,
+      });
+    }
+    result[target] = {
+      healthy: skills.every((s) => s.status === 'ok'),
+      skills,
+    };
+  }
+
+  return result;
+}
+
+export function buildDriftReport(
+  plan: DriftPlan,
+  targetHealth: Record<string, TargetHealthReport> = {},
+): DriftReport {
   const hasSkillDrift = plan.entries.some(
     (e) => e.status === 'hashDrift' || e.status === 'orphan' || e.remoteChanged === true,
   );
-  const hasDrift = hasSkillDrift || plan.commitDrift || plan.manifestDrift;
+  const hasUnhealthyTargets = Object.values(targetHealth).some((t) => !t.healthy);
+  const hasContentDrift = hasSkillDrift || plan.commitDrift || plan.manifestDrift;
+  const hasDrift = hasContentDrift || hasUnhealthyTargets;
   const summary = classifyDriftSummary(plan);
 
   return {
@@ -264,7 +324,12 @@ export function buildDriftReport(plan: DriftPlan): DriftReport {
           changed: plan.commitDrift ? (e.remoteChanged ?? null) : null,
         },
       })),
+      targets: targetHealth,
+      hasContentDrift,
+      hasUnhealthyTargets,
     },
     hasDrift,
+    hasContentDrift,
+    hasUnhealthyTargets,
   };
 }

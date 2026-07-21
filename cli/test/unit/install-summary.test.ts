@@ -33,6 +33,7 @@ function minimalPlan(
     ordered,
     dependencyCount: overrides?.dependencyCount ?? 0,
     linkType: 'symlink',
+    targets: ['cursor'],
     lock: {
       version: 1,
       package: { name: 'test', version: '1.0.0' },
@@ -49,6 +50,7 @@ describe('renderInstallSummary', () => {
         minimalPlan([
           {
             name: 'alpha',
+            target: 'cursor',
             sourceDir: '/src/alpha',
             destDir: '/dest/alpha',
             computedHash: 'hash',
@@ -66,6 +68,7 @@ describe('renderInstallSummary', () => {
   it('lists each skill when at detail threshold', () => {
     const entries = ['a', 'b'].map((name) => ({
       name,
+      target: 'cursor' as const,
       sourceDir: `/src/${name}`,
       destDir: `/dest/${name}`,
       computedHash: 'hash',
@@ -86,6 +89,7 @@ describe('renderInstallSummary', () => {
     const names = Array.from({ length: 6 }, (_, i) => `skill-${i}`);
     const entries = names.map((name) => ({
       name,
+      target: 'cursor' as const,
       sourceDir: `/src/${name}`,
       destDir: `/dest/${name}`,
       computedHash: 'hash',

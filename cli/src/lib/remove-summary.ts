@@ -9,10 +9,11 @@ function truncateName(name: string, max: number): string {
 export function renderRemoveSummary(opts: {
   scope: ScopePaths;
   removed: string[];
+  destinations?: string[];
 }): string {
   const header = renderSummaryHeader({
     scope: opts.scope.scope,
-    destination: opts.scope.skillsDir,
+    destination: (opts.destinations ?? [opts.scope.skillsDir]).join(', '),
     lockPath: opts.scope.lockPath,
   });
 

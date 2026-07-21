@@ -118,12 +118,12 @@ describe('runHub', () => {
     expect(mocks.selectMock).toHaveBeenCalledTimes(1);
   });
 
-  it('continues after CliError in menu mode', async () => {
+  it('continues after CliError in menu mode and exits non-zero on quit', async () => {
     mocks.runAddMock.mockRejectedValueOnce(new CliError('install failed'));
     const menuChoices = ['add', 'list'];
     mocks.selectMock.mockImplementation(async () => menuChoices.shift() ?? 'quit');
 
-    await runHub({ menu: true });
+    await expect(runHub({ menu: true })).rejects.toThrow('One or more hub actions failed.');
 
     expect(mocks.runAddMock).toHaveBeenCalledTimes(1);
     expect(mocks.runListMock).toHaveBeenCalledWith({ skipIntro: true });

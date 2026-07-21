@@ -86,7 +86,7 @@ describe('applyDriftPlan commit advance', () => {
       remoteCommit: remoteBundle.commit,
     });
 
-    const pruneSpy = vi.spyOn(remotePack, 'pruneRepoCache').mockResolvedValue(undefined);
+    const pruneSpy = vi.spyOn(remotePack, 'pruneCommitCache').mockResolvedValue(undefined);
 
     const result = await applyDriftPlan(plan, {
       orphansToRemove: new Set(),
@@ -99,7 +99,67 @@ describe('applyDriftPlan commit advance', () => {
     expect(after?.commit).toBe(remoteBundle.commit);
     const alphaRemoteHash = await computeSkillFolderHash(path.join(bundleMiniV2, 'alpha'));
     expect(after?.skills.alpha?.computedHash).toBe(alphaRemoteHash);
-    expect(pruneSpy).toHaveBeenCalledWith(DEFAULT_GITHUB_SOURCE, remoteBundle.commit);
+    expect(pruneSpy).toHaveBeenCalledWith(DEFAULT_GITHUB_SOURCE, 'pin-old-sha');
+  });
+
+  it('does not write lock or prune when a second target fails', async () => {
+    const scope = await tempScope();
+    const pinBundle = await resolveBundle({ source: bundleMini });
+    const remoteBundle = await resolveBundle({ source: bundleMiniV2 });
+    const alphaPinHash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
+
+    await mkdir(path.join(scope.cwd, '.claude', 'skills'), { recursive: true });
+    await symlink(path.join(bundleMini, 'alpha'), path.join(scope.skillsDir, 'alpha'), 'dir');
+    await symlink(
+      path.join(bundleMini, 'alpha'),
+      path.join(scope.cwd, '.claude', 'skills', 'alpha'),
+      'dir',
+    );
+
+    const lockBody = {
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: 'pin-old-sha',
+      defaultLinkType: 'symlink',
+      targets: ['claude', 'cursor'],
+      package: { name: 'bundle-mini', version: '0.0.0' },
+      skills: {
+        alpha: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: alphaPinHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    };
+    await writeFile(scope.lockPath, JSON.stringify(lockBody));
+    const lockBefore = await readFile(scope.lockPath, 'utf8');
+
+    const lock = (await readLockfile(scope.lockPath))!;
+    const plan = await planDriftFromBundles({
+      scope,
+      lock,
+      bundle: pinBundle,
+      remoteBundle,
+      commitDrift: true,
+      remoteCommit: remoteBundle.commit,
+    });
+
+    const install = await import('../../src/lib/install.js');
+    vi.spyOn(install, 'materializeFromLockEntry')
+      .mockResolvedValueOnce('symlink')
+      .mockRejectedValueOnce(new Error('second target fail'));
+    const pruneSpy = vi.spyOn(remotePack, 'pruneCommitCache').mockResolvedValue(undefined);
+
+    await expect(
+      applyDriftPlan(plan, { orphansToRemove: new Set() }),
+    ).rejects.toThrow('Update failed');
+
+    expect(await readFile(scope.lockPath, 'utf8')).toBe(lockBefore);
+    expect(pruneSpy).not.toHaveBeenCalled();
   });
 });
 

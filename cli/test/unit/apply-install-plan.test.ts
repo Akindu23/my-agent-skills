@@ -43,6 +43,7 @@ function minimalPlan(scopeDir: string): InstallPlan {
     ordered: ['alpha', 'beta'],
     dependencyCount: 0,
     linkType: 'copy',
+    targets: ['cursor'],
     lock: emptyLockfile({
       source: 'Akindu23/my-agent-skills',
       commit: 'local',
@@ -51,6 +52,7 @@ function minimalPlan(scopeDir: string): InstallPlan {
     entries: [
       {
         name: 'alpha',
+        target: 'cursor',
         sourceDir: '/bundle/alpha',
         destDir: path.join(skillsDir, 'alpha'),
         computedHash: 'a'.repeat(64),
@@ -59,6 +61,7 @@ function minimalPlan(scopeDir: string): InstallPlan {
       },
       {
         name: 'beta',
+        target: 'cursor',
         sourceDir: '/bundle/beta',
         destDir: path.join(skillsDir, 'beta'),
         computedHash: 'b'.repeat(64),
@@ -88,5 +91,42 @@ describe('applyInstallPlan', () => {
     });
     expect(raw).toBeNull();
     expect(plan.lock.skills.alpha).toBeUndefined();
+  });
+
+  it('unions plan targets with existing lock targets on write', async () => {
+    const scopeDir = await mkdtemp(path.join(os.tmpdir(), 'cas-apply-'));
+    tmpDirs.push(scopeDir);
+    const plan = minimalPlan(scopeDir);
+    plan.lock.targets = ['claude', 'cursor'];
+    plan.lock.skills.alpha = {
+      source: 'Akindu23/my-agent-skills',
+      sourceType: 'github',
+      computedHash: 'a'.repeat(64),
+      linkType: 'copy',
+      installedAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+    plan.targets = ['claude'];
+    plan.selected = ['beta'];
+    plan.ordered = ['beta'];
+    plan.entries = [
+      {
+        name: 'beta',
+        target: 'claude',
+        sourceDir: '/bundle/beta',
+        destDir: path.join(scopeDir, '.claude/skills/beta'),
+        computedHash: 'b'.repeat(64),
+        action: 'new',
+        linkType: 'copy',
+      },
+    ];
+
+    const install = await import('../../src/lib/install.js');
+    vi.spyOn(install, 'materializeSkill').mockResolvedValue('copy');
+
+    await applyInstallPlan(plan, { copy: true });
+
+    const after = JSON.parse(await readFile(plan.scope.lockPath, 'utf8'));
+    expect(after.targets).toEqual(['claude', 'cursor']);
   });
 });

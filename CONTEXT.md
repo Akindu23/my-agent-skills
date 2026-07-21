@@ -13,13 +13,21 @@ Vercel’s `npx skills` / [vercel-labs/skills](https://github.com/vercel-labs/sk
 _Avoid_: the skills command (unclear which tool).
 
 **Install scope**:
-Where a skill tree is written on disk: **project** (`.agents/skills/` in the repo) or **global** (`~/.agents/skills/` in the user home).
+Where a skill tree is written on disk for a given agent layout: **project** (repo-local) or **global** (user home). Scope is independent of which agent(s) receive the trees.
 The interactive scope picker label is **Select scope** (UI copy); domain docs and errors still say “scope” without the “Install” prefix.
 _Avoid_: local/global (ambiguous with git), user/project (conflicts with “project” as skill pack).
 
+**Install target**:
+Which agent discovery tree(s) the skill installer materializes into for one operation: **Cursor** (`.agents/skills/`), **Claude Code** (`.claude/skills/` project or `~/.claude/skills/` global), or **both**. Same locked skill set; separate on-disk trees per target.
+_Avoid_: scope (project vs global), harness (runtime spawn routing inside skill content).
+
 **Agents skills directory**:
-The folder Cursor (and other agents in the universal set) load skills from — `.agents/skills/` at project root or `~/.agents/skills/` for global installs.
+Cursor’s discovery folder — `.agents/skills/` at project root or `~/.agents/skills/` for global installs. One **install target**, not the only possible destination.
 _Avoid_: skills folder (which agent?), `.cursor/skills` (not the chosen layout for this installer).
+
+**Claude Code skills directory**:
+Claude Code’s discovery folder — `.claude/skills/` at project root or `~/.claude/skills/` for personal/global installs (per Claude Code docs). Parallel **install target** to the agents skills directory.
+_Avoid_: calling this `.agents/skills`, treating plugin/enterprise skill roots as this installer’s default targets.
 
 **Skill dependency**:
 Another installable skill (or skill pack) that must be present alongside the dependent skill; installed as its own directory under the same install scope, not merged into the dependent’s tree.
@@ -30,12 +38,16 @@ Machine-readable record of which skills (and dependency skills) are installed fo
 _Avoid_: lock (ambiguous with git), manifest (use for the package’s declarative `skills.json` only), `cursor-skills.lock` (retired basename).
 
 **cursor-skills-lock.json**:
-The lockfile path: **`.agents/cursor-skills-lock.json`** (project) or **`~/.agents/cursor-skills-lock.json`** (global). Schema mirrors Vercel’s project lock shape (`version` + `skills` map with `computedHash`, `source`, `sourceType`, timestamps) adapted for **remote** installs (`sourceType: github`, pack `source` like `owner/repo`, **pinned commit** on the lock root). Lock skill keys are validated on read (kebab-case identifiers only); writes are atomic (temp + rename). **`check`** compares installed content to the resolved remote tree at the pinned commit — copy-mode on-disk edits without remote changes are not detected as drift.
-_Avoid_: skills-lock.json (Vercel project lock), skill-lock.json (Vercel global lock), cursor-skills.lock (retired basename).
+The lockfile path: **`.agents/cursor-skills-lock.json`** (project) or **`~/.agents/cursor-skills-lock.json`** (global). Single SSOT for a scope even when skills are also materialized under a **Claude Code skills directory**. Schema mirrors Vercel’s project lock shape (`version` + `skills` map with `computedHash`, `source`, `sourceType`, timestamps) adapted for **remote** installs (`sourceType: github`, pack `source` like `owner/repo`, **pinned commit** on the lock root). Optional lock-root **`targets`**: a sorted unique JSON array of **`cursor`** and/or **`claude`** (never a stored `"both"` token; CLI `--target both` expands on write). Omitted `targets` means effective `["cursor"]` on read and is left omitted until a write that changes targets (lazy). Invalid `targets` fail the lock read. Lock skill keys are validated on read (kebab-case identifiers only); writes are atomic (temp + rename). **`check`** compares installed content to the resolved remote tree at the pinned commit — copy-mode on-disk edits without remote changes are not detected as drift.
+_Avoid_: skills-lock.json (Vercel project lock), skill-lock.json (Vercel global lock), cursor-skills.lock (retired basename); a second lock under `.claude/`; storing `"both"` in the lock.
+
+**Cache-direct materialization**:
+Each skill directory under an **install target**’s skills tree is a symlink (default) or copy of that skill folder inside the **pack fetch cache** for the lock’s pinned commit — including Claude Code trees. No chaining a Claude path through the agents skills directory.
+_Avoid_: symlinking `.claude/skills/<name>` → `.agents/skills/<name>`; bundle-direct or npx-temp targets.
 
 **Project lock commit policy**:
-Teams commit **`.agents/cursor-skills-lock.json`** to git and **gitignore** `.agents/skills/` (installed trees) plus the **pack fetch cache**; after clone, run `cursor-agent-skills sync` to repair links, then **`update`** when **`check`** reports the default branch has moved ahead of the pinned commit.
-_Avoid_: vendoring skills in git (optional pattern, not the default).
+Teams commit **`.agents/cursor-skills-lock.json`** to git and **gitignore** materialized trees under **`.agents/skills/`** and **`.claude/skills/`** (plus the **pack fetch cache**); after clone, run `my-agent-skills sync` to repair links for **all recorded install targets**, then **`update`** when **`check`** reports the default branch has moved ahead of the pinned commit. Claude-only projects still commit the `.agents` lock.
+_Avoid_: vendoring skills in git (optional pattern, not the default); a second lock under `.claude/`.
 
 **Package manifest**:
 Root `skills.json` in this repository declaring the skill pack name, version, exported skill paths, and optional dependency entries (git URL + ref).
@@ -50,7 +62,7 @@ Default install mode: `.agents/skills/<name>` is a symlink to `<skill>/` inside 
 _Avoid_: bundle-direct symlink (v1 npm-bundled layout), symlinking into npx temp.
 
 **Remote skill pack**:
-The skill collection served from the public GitHub repository (`skills/` tree + root `skills.json`); the npm **`cursor-agent-skills`** package ships the CLI only and fetches pack content at install/update time.
+The skill collection served from the public GitHub repository (`skills/` tree + root `skills.json`); the npm **`my-agent-skills`** package ships the CLI only and fetches pack content at install/update time.
 _Avoid_: bundled pack (v1 npm mirror), live pull without a pinned commit (unreproducible locks).
 
 **Pinned commit**:
@@ -78,20 +90,20 @@ When `packCommit` is missing from `skills.json`, resolve `HEAD` with **`git ls-r
 _Avoid_: silent installs with a floating branch pin and no full SHA in the lock.
 
 **CLI package directory**:
-The Node/TypeScript implementation lives in repo-root **`cli/`** (`package.json`, `src/`), publishing as npm package **`cursor-agent-skills`**; skill content remains in repo-root **`skills/`**.
+The Node/TypeScript implementation lives in repo-root **`cli/`** (`package.json`, `src/`), publishing as npm package **`my-agent-skills`**; skill content remains in repo-root **`skills/`**.
 _Avoid_: packages/ (not chosen), embedding skills only inside cli/ (duplicates root tree).
 
 **Manifest generator**:
 A CLI-maintained script scans repo-root `skills/` and regenerates the `skills` list in `skills.json`; the **`dependsOn`** map is hand-edited and validated against known skill names.
 _Avoid_: fully manual skills list (error-prone at 33+ skills).
 
-**cursor-agent-skills**:
-The npm CLI binary users invoke as `npx cursor-agent-skills …` to install and manage this skill collection.
-_Avoid_: skills, my-skills (collides with Vercel’s package name).
+**my-agent-skills**:
+The npm CLI binary users invoke as `npx my-agent-skills …` to install and manage this skill collection (matches the GitHub pack).
+_Avoid_: skills, my-skills (collides with Vercel’s package name); agent-skills (taken on npm).
 
 **Interactive hub**:
-TTY launcher when `cursor-agent-skills` runs with no subcommand: a Clack `select` menu (↑↓ and Enter; hint shown under the prompt). **Default:** one action per launch, then the CLI exits on success. **`--menu`:** returns to the menu after each action until Quit. On command failure, the hub menu is shown again for recovery. **Check** from the hub may offer “Update drifted skills now?” when drift is found, then exit (no hub loop). Scripts use explicit subcommands or flag-only `add`.
-_Avoid_: default `add` command (removed; bare non-TTY exits with a hint instead); treating bare TTY as an infinite admin REPL without `--menu`.
+TTY launcher when `my-agent-skills` runs with no subcommand: a Clack `select` menu (↑↓ and Enter; hint shown under the prompt). **Default:** one action per launch, then the CLI exits on success. **`--menu`:** returns to the menu after each action until Quit. On command failure, the hub menu is shown again for recovery. **Check** from the hub may offer “Update drifted skills now?” when drift is found, then exit (no hub loop). Scripts use explicit subcommands or flag-only `add`. Interactive **`add`** picks **install scope** then **install target** (or, on an existing Cursor-only lock, may offer to add Claude Code and materialize immediately). Interactive **`sync`** / **`update`** do not re-ask target — they use recorded/effective lock **`targets`**.
+_Avoid_: default `add` command (removed; bare non-TTY exits with a hint instead); treating bare TTY as an infinite admin REPL without `--menu`; prompting “for both?” on sync/update.
 
 **Local dev source override**:
 When developing the CLI from a git clone, **`CURSOR_AGENT_SKILLS_ROOT`** or **`--source`** may point at repo-root `skills/` instead of fetching GitHub (monorepo auto-detect). Production installs use **remote skill pack** fetch unless overridden.
@@ -106,7 +118,7 @@ Directory tree the CLI reads skill folders from when hashing or materializing: t
 _Avoid_: install path (destination under `.agents/skills/`), confusing with **GitHub pack source** (remote identity, not a directory).
 
 **Monorepo dev auto-detect**:
-When the `cursor-agent-skills` package directory is `cli/` inside a clone whose parent has both `skills/` and `skills.json`, the CLI may resolve **skills source root** to that parent’s `skills/` for local development. Explicit `CURSOR_AGENT_SKILLS_ROOT` or `--source` wins over auto-detect and over remote fetch.
+When the `my-agent-skills` package directory is `cli/` inside a clone whose parent has both `skills/` and `skills.json`, the CLI may resolve **skills source root** to that parent’s `skills/` for local development. Explicit `CURSOR_AGENT_SKILLS_ROOT` or `--source` wins over auto-detect and over remote fetch.
 _Avoid_: `cli/skills/` as the edit surface (publish mirror removed when remote-first ships).
 
 **Add reinstall policy**:
@@ -134,8 +146,8 @@ Fetches the remote pack at the latest default-branch commit (or reapplies the cu
 _Avoid_: `sync` as a substitute for upstream refresh, `npx skills update` (upstream Vercel CLI).
 
 **Check command**:
-Read-only drift report for a scope: **pack commit drift**, per-skill **changed / unchanged / pin drift / orphan**, and manifest version drift. Exits non-zero when anything is out of date; no lock or install writes.
-_Avoid_: `update --dry-run` as the only surface (**`check`** remains the dedicated read-only command).
+Read-only drift report for a scope: **pack commit drift**, per-skill **changed / unchanged / pin drift / orphan**, and manifest version drift, plus **per-target** materialization health for each recorded/effective **install target**. Exits non-zero when pack drift exists or **any** target is unhealthy; no lock or install writes.
+_Avoid_: `update --dry-run` as the only surface (**`check`** remains the dedicated read-only command); treating one healthy target as overall success when another is broken.
 
 **Orphan lock entry**:
 A skill recorded in **cursor-skills-lock.json** that no longer exists in the remote pack manifest at the resolved commit. During **update**, orphans are detected when the lock pin is behind the default branch (or when comparing against the resolved remote manifest). Interactive **update** shows a **multiselect** (same Clack control as **remove**) listing orphans **pre-selected**; the user deselects any to keep, then confirms. Non-interactive **`update -y`** removes **all** orphans automatically. Orphan cleanup runs **before** the main “Proceed with update?” step. The hub **check → update** path uses the same flow. **Check** remains read-only.

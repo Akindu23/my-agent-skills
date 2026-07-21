@@ -1,4 +1,5 @@
 import type { InstallPlan } from './install-plan.js';
+import { resolveTargetSkillsDir } from './install-targets.js';
 import { renderSummaryHeader } from './summary-header.js';
 import { brand, muted } from './theme.js';
 
@@ -26,16 +27,26 @@ function formatSelectedLines(plan: InstallPlan): string[] {
 
 export function renderInstallSummary(plan: InstallPlan): string {
   const confirmCount = plan.entries.filter((e) => e.action === 'confirm').length;
+  const multiTarget = plan.targets.length > 1;
   const rows = plan.entries.map((entry) => {
     const dep = entry.dependencyOf ? muted(` (dependency of ${entry.dependencyOf})`) : '';
-    return `  ${installActionLabel(entry.action).padEnd(8)} ${entry.name}${dep}`;
+    const target = multiTarget ? muted(` [${entry.target}]`) : '';
+    return `  ${installActionLabel(entry.action).padEnd(8)} ${entry.name}${target}${dep}`;
   });
+
+  const destinations = plan.targets
+    .map((t) => resolveTargetSkillsDir(plan.scope, t))
+    .join(', ');
 
   const header = renderSummaryHeader({
     pack: `${plan.bundle.manifest.name} v${plan.bundle.packageVersion}`,
     scope: plan.scope.scope,
-    destination: plan.scope.skillsDir,
-    extraLines: [`${brand('Mode')}: ${plan.linkType}`, ...formatSelectedLines(plan)],
+    destination: destinations,
+    extraLines: [
+      `${brand('Mode')}: ${plan.linkType}`,
+      ...(multiTarget ? [`${brand('Targets')}: ${plan.targets.join(', ')}`] : []),
+      ...formatSelectedLines(plan),
+    ],
   });
 
   const footer =

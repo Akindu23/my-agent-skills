@@ -1,5 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { access, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { homedir, tmpdir } from 'node:os';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -260,27 +260,17 @@ export async function resolveLatestPackCommit(
   }
 }
 
-/** Remove older SHA extract dirs for owner/repo; keep only keepCommit (best-effort). */
-export async function pruneRepoCache(source: string, keepCommit: string): Promise<void> {
-  const { owner, repo } = parseGitHubSource(source);
-  const repoDir = path.join(resolvePackCacheBase(), owner, repo);
-  let entries: string[];
+/** Remove one SHA extract dir for owner/repo (best-effort). Leaves sibling SHAs alone. */
+export async function pruneCommitCache(source: string, commitToRemove: string): Promise<void> {
+  if (!commitToRemove || commitToRemove === 'local') return;
+  const target = cacheDirFor(source, commitToRemove);
   try {
-    entries = await readdir(repoDir);
-  } catch {
-    return;
-  }
-
-  for (const entry of entries) {
-    if (entry === keepCommit) continue;
-    const target = path.join(repoDir, entry);
-    try {
-      await rm(target, { recursive: true, force: true });
-    } catch (err) {
-      console.warn(
-        `Could not prune cache entry ${target}: ${err instanceof Error ? err.message : String(err)}`,
-      );
-    }
+    await rm(target, { recursive: true, force: true });
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return;
+    console.warn(
+      `Could not prune cache entry ${target}: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
 

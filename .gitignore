@@ -1,5 +1,6 @@
 .cursor/
 .agents/skills/
+.claude/skills/
 cli/node_modules/
 cli/dist/
 docs/

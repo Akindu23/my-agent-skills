@@ -56,6 +56,7 @@ async function runHubAction(choice: HubChoice): Promise<void> {
 
 export async function runHub(opts: HubOptions = {}): Promise<void> {
   let showIntro = true;
+  let hadFailure = false;
 
   for (;;) {
     if (showIntro) {
@@ -72,6 +73,9 @@ export async function runHub(opts: HubOptions = {}): Promise<void> {
 
     if (choice === 'quit') {
       outro('Goodbye.');
+      if (hadFailure) {
+        throw new CliError('One or more hub actions failed.');
+      }
       return;
     }
 
@@ -85,6 +89,7 @@ export async function runHub(opts: HubOptions = {}): Promise<void> {
         if (!opts.menu) {
           throw err;
         }
+        hadFailure = true;
         console.error(err.message);
         showIntro = false;
         continue;

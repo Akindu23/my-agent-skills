@@ -22,6 +22,7 @@ export function renderListSummary(opts: {
   scope: ScopePaths;
   bundle?: BundleContext;
   rows: ListSummaryRow[];
+  destinations?: string[];
 }): string {
   const packLine = opts.bundle
     ? `${opts.bundle.manifest.name} v${opts.bundle.packageVersion}`
@@ -30,7 +31,7 @@ export function renderListSummary(opts: {
   const header = renderSummaryHeader({
     pack: packLine,
     scope: opts.scope.scope,
-    destination: opts.scope.skillsDir,
+    destination: (opts.destinations ?? [opts.scope.skillsDir]).join(', '),
     lockPath: opts.scope.lockPath,
   });
 

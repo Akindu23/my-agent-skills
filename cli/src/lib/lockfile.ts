@@ -2,6 +2,11 @@ import { mkdir, open, readFile, rename, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { DEFAULT_GITHUB_SOURCE } from './constants.js';
+import {
+  normalizeTargetsForWrite,
+  validateLockTargets,
+  type InstallTarget,
+} from './install-targets.js';
 import { assertValidSkillName } from './skill-paths.js';
 import { CliError } from './errors.js';
 
@@ -25,6 +30,11 @@ export interface Lockfile {
   commit: string;
   /** Default materialization for new skills; per-skill linkType overrides. */
   defaultLinkType?: DefaultLinkType;
+  /**
+   * Install targets for materialization. Omit ⇒ effective `["cursor"]`.
+   * Never stores `"both"`; lazy-omitted when Cursor-only.
+   */
+  targets?: InstallTarget[];
   package: { name: string; version: string };
   skills: Record<string, LockSkillEntry>;
 }
@@ -82,7 +92,7 @@ function normalizeLock(data: Record<string, unknown>): Lockfile {
 
   if (version !== LOCK_VERSION) {
     throw new CliError(
-      `Invalid lockfile version: expected ${LOCK_VERSION}, got ${String(version)}. Run cursor-agent-skills update after upgrading the CLI.`,
+      `Invalid lockfile version: expected ${LOCK_VERSION}, got ${String(version)}. Run my-agent-skills update after upgrading the CLI.`,
     );
   }
 
@@ -92,6 +102,9 @@ function normalizeLock(data: Record<string, unknown>): Lockfile {
   }
   if (!lock.skills || typeof lock.skills !== 'object') {
     throw new CliError('Invalid lockfile: missing skills map.');
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'targets')) {
+    lock.targets = validateLockTargets(data.targets);
   }
   return lock;
 }
@@ -118,6 +131,12 @@ export async function writeLockfile(lockPath: string, lock: Lockfile): Promise<v
     sortedSkills[key] = lock.skills[key]!;
   }
   const out: Lockfile = { ...lock, skills: sortedSkills };
+  const normalizedTargets = normalizeTargetsForWrite(out.targets ?? ['cursor']);
+  if (normalizedTargets === undefined) {
+    delete out.targets;
+  } else {
+    out.targets = normalizedTargets;
+  }
   const content = `${JSON.stringify(out, null, 2)}\n`;
   const dir = path.dirname(lockPath);
   const tmp = path.join(

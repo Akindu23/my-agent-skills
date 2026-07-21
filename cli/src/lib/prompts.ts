@@ -2,7 +2,67 @@ import { confirm, multiselect, select, isCancel, cancel } from '@clack/prompts';
 import { skillNamesFromManifest, type BundleContext } from './bundle.js';
 import { CliCancel, CliError } from './errors.js';
 import type { InstallPlan } from './install-plan.js';
+import {
+  expandCliTarget,
+  parseCliTarget,
+  resolveEffectiveTargets,
+  type CliTargetFlag,
+  type InstallTarget,
+} from './install-targets.js';
+import type { Lockfile } from './lockfile.js';
 import { failNonInteractive } from './output.js';
+
+/**
+ * Resolve install targets for `add`. Interactive: picker or Cursor-only upgrade offer.
+ * Non-TTY / flagged: `--target` or lock effective (omit ⇒ cursor).
+ */
+export async function resolveAddTargets(opts: {
+  isInteractive: boolean;
+  targetFlag?: string;
+  lock: Lockfile | null;
+}): Promise<InstallTarget[]> {
+  if (opts.targetFlag !== undefined) {
+    return expandCliTarget(parseCliTarget(opts.targetFlag));
+  }
+
+  const effective = resolveEffectiveTargets(opts.lock);
+
+  if (!opts.isInteractive) {
+    return effective;
+  }
+
+  if (effective.length === 1 && effective[0] === 'cursor') {
+    if (opts.lock && Object.keys(opts.lock.skills).length > 0) {
+      const upgrade = await confirm({
+        message: 'Also install to Claude Code (.claude/skills)?',
+        initialValue: false,
+      });
+      if (isCancel(upgrade)) {
+        cancel('Cancelled.');
+        throw new CliCancel();
+      }
+      if (upgrade) return ['claude', 'cursor'];
+      return ['cursor'];
+    }
+
+    const choice = await select({
+      message: 'Select install target',
+      options: [
+        { value: 'cursor', label: 'Cursor (.agents/skills)' },
+        { value: 'claude', label: 'Claude Code (.claude/skills)' },
+        { value: 'both', label: 'Both Cursor and Claude Code' },
+      ],
+      initialValue: 'cursor',
+    });
+    if (isCancel(choice)) {
+      cancel('Cancelled.');
+      throw new CliCancel();
+    }
+    return expandCliTarget(choice as CliTargetFlag);
+  }
+
+  return effective;
+}
 
 export async function promptLinkType(
   isTty: boolean,
@@ -94,16 +154,19 @@ const CONFIRM_MESSAGES: Record<ConfirmAction, string> = {
 };
 
 export function planProceedMessage(plan: InstallPlan): string | null {
-  let installCount = 0;
-  let confirmCount = 0;
-
+  const byName = new Map<string, InstallPlan['entries'][number]['action'][]>();
   for (const entry of plan.entries) {
     if (entry.action === 'skip') continue;
-    if (entry.action === 'confirm') {
-      confirmCount += 1;
-    } else {
-      installCount += 1;
-    }
+    const list = byName.get(entry.name) ?? [];
+    list.push(entry.action);
+    byName.set(entry.name, list);
+  }
+
+  let installCount = 0;
+  let confirmCount = 0;
+  for (const actions of byName.values()) {
+    if (actions.some((a) => a === 'confirm')) confirmCount += 1;
+    else installCount += 1;
   }
 
   if (installCount === 0 && confirmCount === 0) {

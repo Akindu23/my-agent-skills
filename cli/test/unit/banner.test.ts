@@ -10,7 +10,7 @@ describe('renderBanner', () => {
     expect(plain).toContain('███████╗██╗  ██╗');
     expect(plain).toContain('Agent Skills for Cursor by Akindu Karunaratne');
     expect(plain).toContain('github.com/Akindu23/my-agent-skills');
-    expect(plain).not.toContain('npx cursor-agent-skills');
+    expect(plain).not.toContain('npx my-agent-skills');
     expect(plain).not.toContain('try:');
   });
 });

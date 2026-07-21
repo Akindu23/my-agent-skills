@@ -161,6 +161,7 @@ describe('buildDriftReport', () => {
     const report = buildDriftReport(plan);
 
     expect(report.hasDrift).toBe(false);
+    expect(report.hasContentDrift).toBe(false);
     expect(report.jsonPayload.inSync).toBe(true);
   });
 
@@ -172,7 +173,9 @@ describe('buildDriftReport', () => {
     const report = buildDriftReport(plan);
 
     expect(report.hasDrift).toBe(true);
+    expect(report.hasContentDrift).toBe(true);
     expect(report.jsonPayload.inSync).toBe(false);
+    expect(report.jsonPayload.hasContentDrift).toBe(true);
     expect(report.jsonPayload.skills[0]?.status).toBe('hashDrift');
   });
 });

@@ -1,9 +1,9 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { DEFAULT_GITHUB_SOURCE } from '../../src/lib/constants.js';
-import { cacheDirFor, pruneRepoCache, resolvePackCacheBase } from '../../src/lib/remote-pack.js';
+import { cacheDirFor, pruneCommitCache, resolvePackCacheBase } from '../../src/lib/remote-pack.js';
 
 const dirs: string[] = [];
 
@@ -15,25 +15,29 @@ afterEach(async () => {
   else process.env.CURSOR_AGENT_SKILLS_CACHE = prev;
 });
 
-describe('pruneRepoCache', () => {
-  it('removes sibling SHA dirs and keeps the pinned commit', async () => {
+describe('pruneCommitCache', () => {
+  it('removes only the replaced pin SHA and keeps unrelated siblings', async () => {
     const cacheRoot = await mkdtemp(path.join(os.tmpdir(), 'cas-cache-'));
     dirs.push(cacheRoot);
     process.env.CURSOR_AGENT_SKILLS_CACHE = cacheRoot;
 
     const keep = 'cccccccccccccccccccccccccccccccccccccccc';
-    const old = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const oldPin = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const unrelated = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
     const keepDir = cacheDirFor(DEFAULT_GITHUB_SOURCE, keep);
-    const oldDir = cacheDirFor(DEFAULT_GITHUB_SOURCE, old);
+    const oldDir = cacheDirFor(DEFAULT_GITHUB_SOURCE, oldPin);
+    const unrelatedDir = cacheDirFor(DEFAULT_GITHUB_SOURCE, unrelated);
     await mkdir(keepDir, { recursive: true });
     await mkdir(oldDir, { recursive: true });
+    await mkdir(unrelatedDir, { recursive: true });
     await writeFile(path.join(keepDir, '.extract-complete'), 'ok');
     await writeFile(path.join(oldDir, '.extract-complete'), 'ok');
+    await writeFile(path.join(unrelatedDir, '.extract-complete'), 'ok');
 
-    await pruneRepoCache(DEFAULT_GITHUB_SOURCE, keep);
+    await pruneCommitCache(DEFAULT_GITHUB_SOURCE, oldPin);
 
-    const { access } = await import('node:fs/promises');
     await expect(access(path.join(keepDir, '.extract-complete'))).resolves.toBeUndefined();
+    await expect(access(path.join(unrelatedDir, '.extract-complete'))).resolves.toBeUndefined();
     await expect(access(path.join(oldDir, '.extract-complete'))).rejects.toMatchObject({
       code: 'ENOENT',
     });

@@ -9,24 +9,24 @@ Personal [Cursor Agent Skills](https://cursor.com/docs/skills) tuned for day-to-
 **Requires Node ≥ 20.** From any directory, run:
 
 ```bash
-npx cursor-agent-skills@latest
+npx my-agent-skills@latest
 ```
 
 Confirm the `npx` install prompt if asked, then use the interactive menu:
 
-cursor-agent-skills hub menu: Add, Update, Remove, List, Sync/Restore, Check, Quit
+my-agent-skills hub menu: Add, Update, Remove, List, Sync/Restore, Check, Quit
 
-The CLI walks you through **project** (this repo’s `.agents/skills/`) vs **global** (`~/.agents/skills/`) and which skills to install.
+The CLI walks you through **project** vs **global** scope, then **install target** (Cursor `.agents/skills/`, Claude Code `.claude/skills/`, or both), and which skills to install.
 
-Skills land under `.agents/skills/`; what you installed is recorded in `.agents/cursor-skills-lock.json`. Some skills pull in `dependsOn` siblings automatically (see [skills.json](./skills.json)).
+Skills land under the selected target directories; what you installed is recorded in `.agents/cursor-skills-lock.json` (one lock for all targets). Some skills pull in `dependsOn` siblings automatically (see [skills.json](./skills.json)).
 
-**After cloning a team repo** that commits the lockfile: run the CLI again and choose **Sync/Restore Skills from Lockfile** (same project scope as before). Commit the lockfile to git; gitignore `.agents/skills/` (the installed trees).
+**After cloning a team repo** that commits the lockfile: run the CLI again and choose **Sync/Restore Skills from Lockfile** (same project scope as before). Commit the lockfile to git; gitignore `.agents/skills/` and `.claude/skills/` (the installed trees).
 
-Flags like `-p`, `-y`, and `--json` are for scripts and CI only. Full CLI docs: [npm](https://www.npmjs.com/package/cursor-agent-skills) · [source](./cli/README.md).
+Flags like `-p`, `-y`, `--target`, and `--json` are for scripts and CI only. Full CLI docs: [npm](https://www.npmjs.com/package/my-agent-skills) · [source](./cli/README.md).
 
 ### Other installer (optional)
 
-[Vercel’s open skills CLI](https://github.com/vercel-labs/skills) (`npx skills add …`) is a separate ecosystem with different lockfiles and paths. This collection uses `cursor-agent-skills` above.
+[Vercel’s open skills CLI](https://github.com/vercel-labs/skills) (`npx skills add …`) is a separate ecosystem with different lockfiles and paths. This collection uses `my-agent-skills` above.
 
 ---
 
@@ -177,7 +177,7 @@ Cursor marketplace plugins that pair well with these skills:
 | ---------------------------- | ----------------------------------------------------------------------------- |
 | [skills/](./skills/)         | Skill definitions (`SKILL.md`, optional `references/`, `scripts/`, `assets/`) |
 | [skills.json](./skills.json) | Pack manifest, skill list, `dependsOn`, pinned `packCommit`                   |
-| [cli/](./cli/)               | **cursor-agent-skills** npm package source                                    |
+| [cli/](./cli/)               | **my-agent-skills** npm package source                                    |
 | [CONTEXT.md](./CONTEXT.md)   | Terminology for the custom installer                                          |
 
 

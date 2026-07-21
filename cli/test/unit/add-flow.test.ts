@@ -14,9 +14,12 @@ vi.mock('@clack/prompts', () => ({
     calls.push('multiselect');
     return ['beta'];
   }),
-  select: vi.fn(async () => {
+  select: vi.fn(async (opts) => {
     calls.push('select');
-    return 'project';
+    const message = String((opts as { message?: string }).message ?? '');
+    if (message.includes('scope') || message.includes('Select scope')) return 'project';
+    if (message.includes('target')) return 'cursor';
+    return 'symlink';
   }),
   confirm: vi.fn(async () => {
     calls.push('confirm');
@@ -85,6 +88,7 @@ describe('runAdd interactive flow', () => {
     expect(calls).toEqual([
       'intro',
       'select',
+      'select',
       'note',
       'multiselect',
       'note',
@@ -141,7 +145,7 @@ describe('runAdd interactive flow', () => {
       return true;
     });
 
-    await runAdd({ source: bundleMini, skill: ['alpha'], project: true });
+    await runAdd({ source: bundleMini, skill: ['alpha'], project: true, target: 'cursor' });
 
     expect(confirmMessages[0]).toContain('Overwrite 1 skill(s) with bundle content?');
     const lock = JSON.parse(
@@ -180,7 +184,7 @@ describe('runAdd interactive flow', () => {
       return false;
     });
 
-    await runAdd({ source: bundleMini, skill: ['alpha'], project: true });
+    await runAdd({ source: bundleMini, skill: ['alpha'], project: true, target: 'cursor' });
 
     const lockAfter = JSON.parse(await readFile(lockPath, 'utf8'));
     expect(lockAfter.skills.alpha.computedHash).toBe('stale-hash');
@@ -190,7 +194,7 @@ describe('runAdd interactive flow', () => {
     const project = await tempProject();
     process.chdir(project);
 
-    await runAdd({ source: bundleMini, yes: true });
+    await runAdd({ source: bundleMini, yes: true, target: 'cursor' });
 
     expect(calls).toContain('multiselect');
     expect(calls).toContain('select');

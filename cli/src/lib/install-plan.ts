@@ -1,4 +1,5 @@
 import {
+  isLocalOverride,
   resolveBundle,
   readSkillFrontmatterName,
   skillSourcePath,
@@ -8,6 +9,12 @@ import { expandDependencies } from './deps.js';
 import { CliError } from './errors.js';
 import { computeSkillFolderHash } from './hash.js';
 import { resolvePlannedInstallAction } from './install-policy.js';
+import {
+  resolveEffectiveTargets,
+  resolveTargetSkillsDir,
+  sortUniqueTargets,
+  type InstallTarget,
+} from './install-targets.js';
 import { resolveSkillDestDir } from './skill-paths.js';
 import {
   emptyLockfile,
@@ -24,6 +31,7 @@ export type PlannedLinkType = 'symlink' | 'copy';
 
 export interface InstallPlanEntry {
   name: string;
+  target: InstallTarget;
   sourceDir: string;
   destDir: string;
   computedHash: string;
@@ -39,6 +47,7 @@ export interface InstallPlan {
   ordered: string[];
   dependencyCount: number;
   linkType: PlannedLinkType;
+  targets: InstallTarget[];
   lock: Lockfile;
   entries: InstallPlanEntry[];
 }
@@ -50,9 +59,20 @@ export async function createInstallPlan(opts: {
   scope: ScopePaths;
   copy?: boolean;
   linkType?: DefaultLinkType;
+  /** Explicit targets for this install; defaults to lock effective targets. */
+  targets?: readonly InstallTarget[];
 }): Promise<InstallPlan> {
   const existingLock = await readLockfile(opts.scope.lockPath);
-  const bundle = opts.bundle ?? (await resolveBundle({ source: opts.source }));
+  const bundle =
+    opts.bundle ??
+    (await resolveBundle({
+      source: opts.source,
+      githubSource: existingLock?.source,
+      // Pass pin unless explicit local override (which may intentionally use "local").
+      ...(isLocalOverride({ source: opts.source })
+        ? {}
+        : { commit: existingLock?.commit || undefined }),
+    }));
   const resolvedLinkType: PlannedLinkType =
     opts.linkType ?? (opts.copy ? 'copy' : existingLock ? resolveDefaultLinkType(existingLock) : 'symlink');
 
@@ -71,6 +91,10 @@ export async function createInstallPlan(opts: {
   }
   syncLockRootFromBundle(lock, bundle);
 
+  const targets = sortUniqueTargets(
+    opts.targets ?? resolveEffectiveTargets(existingLock),
+  );
+
   const { ordered, addedBy } = expandDependencies(bundle.manifest, opts.selected);
   const linkType: PlannedLinkType = resolvedLinkType;
   const entries: InstallPlanEntry[] = [];
@@ -84,24 +108,29 @@ export async function createInstallPlan(opts: {
       );
     }
 
-    const destDir = resolveSkillDestDir(opts.scope.skillsDir, name);
     const computedHash = await computeSkillFolderHash(sourceDir);
-    const action = await resolvePlannedInstallAction({
-      destDir,
-      bundleHash: computedHash,
-      lockEntry: lock.skills[name],
-      plannedLinkType: linkType,
-    });
+    const dependencyOf = addedBy.get(name);
 
-    entries.push({
-      name,
-      sourceDir,
-      destDir,
-      computedHash,
-      action,
-      linkType,
-      dependencyOf: addedBy.get(name),
-    });
+    for (const target of targets) {
+      const destDir = resolveSkillDestDir(resolveTargetSkillsDir(opts.scope, target), name);
+      const action = await resolvePlannedInstallAction({
+        destDir,
+        bundleHash: computedHash,
+        lockEntry: lock.skills[name],
+        plannedLinkType: linkType,
+      });
+
+      entries.push({
+        name,
+        target,
+        sourceDir,
+        destDir,
+        computedHash,
+        action,
+        linkType,
+        dependencyOf,
+      });
+    }
   }
 
   return {
@@ -111,6 +140,7 @@ export async function createInstallPlan(opts: {
     ordered,
     dependencyCount: ordered.length - opts.selected.length,
     linkType,
+    targets,
     lock,
     entries,
   };

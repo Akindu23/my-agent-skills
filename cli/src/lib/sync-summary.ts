@@ -18,6 +18,7 @@ export function renderSyncSummary(opts: {
   scope: ScopePaths;
   bundle?: BundleContext;
   rows: SyncSummaryRow[];
+  destinations?: string[];
 }): string {
   const synced = opts.rows.filter((r) => r.status === 'synced').length;
   const ok = opts.rows.filter((r) => r.status === 'ok').length;
@@ -29,7 +30,7 @@ export function renderSyncSummary(opts: {
   const header = renderSummaryHeader({
     pack: packLine,
     scope: opts.scope.scope,
-    destination: opts.scope.skillsDir,
+    destination: (opts.destinations ?? [opts.scope.skillsDir]).join(', '),
   });
 
   const tableRows = opts.rows.map((row) => {

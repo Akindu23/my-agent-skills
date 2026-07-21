@@ -2,11 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { planProceedMessage } from '../../src/lib/prompts.js';
 import type { InstallPlan } from '../../src/lib/install-plan.js';
 
-function entry(action: InstallPlan['entries'][number]['action']): InstallPlan['entries'][number] {
+function entry(
+  name: string,
+  action: InstallPlan['entries'][number]['action'],
+): InstallPlan['entries'][number] {
   return {
-    name: 'alpha',
-    sourceDir: '/src/alpha',
-    destDir: '/dest/alpha',
+    name,
+    target: 'cursor',
+    sourceDir: `/src/${name}`,
+    destDir: `/dest/${name}`,
     computedHash: 'hash',
     action,
     linkType: 'symlink',
@@ -34,16 +38,17 @@ function planWithActions(...actions: InstallPlan['entries'][number]['action'][])
       skillsDir: '/tmp/.agents/skills',
       lockPath: '/tmp/.agents/cursor-skills-lock.json',
     },
-    selected: ['alpha'],
-    ordered: ['alpha'],
+    selected: actions.map((_, i) => `skill-${i}`),
+    ordered: actions.map((_, i) => `skill-${i}`),
     dependencyCount: 0,
     linkType: 'symlink',
+    targets: ['cursor'],
     lock: {
       version: 1,
       package: { name: 'test', version: '1.0.0' },
       skills: {},
     },
-    entries: actions.map(entry),
+    entries: actions.map((action, i) => entry(`skill-${i}`, action)),
   };
 }
 

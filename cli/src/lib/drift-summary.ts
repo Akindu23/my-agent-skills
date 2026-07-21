@@ -3,6 +3,10 @@ import {
   type DriftPlan,
   type DriftSkillEntry,
 } from './drift-plan.js';
+import {
+  resolveEffectiveTargets,
+  resolveTargetSkillsDir,
+} from './install-targets.js';
 import { renderSummaryHeader } from './summary-header.js';
 import { brand } from './theme.js';
 
@@ -43,10 +47,14 @@ export function renderDriftSummary(plan: DriftPlan, opts: { mode: DriftSummaryMo
       : `${brand('Manifest')}: version drift (will sync lock)`
     : `${brand('Manifest')}: in sync`;
 
+  const destinations = resolveEffectiveTargets(plan.lock)
+    .map((t) => resolveTargetSkillsDir(plan.scope, t))
+    .join(', ');
+
   const header = renderSummaryHeader({
     pack: `${plan.bundle.manifest.name} v${plan.bundle.packageVersion}`,
     scope: plan.scope.scope,
-    destination: plan.scope.skillsDir,
+    destination: destinations,
     lockPath: plan.scope.lockPath,
     extraLines: [remoteLine, manifestLine],
   });

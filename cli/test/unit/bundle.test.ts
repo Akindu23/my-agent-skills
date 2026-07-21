@@ -25,6 +25,9 @@ describe('resolveBundle', () => {
     try {
       const bundle = await resolveBundle({});
       expect(bundle.root).toBe(path.join(repoRoot, 'skills'));
+      // Monorepo auto-detect must not poison pins with commit "local".
+      expect(bundle.commit).not.toBe('local');
+      expect(bundle.commit).toMatch(/^[0-9a-f]{40}$/i);
     } finally {
       if (prev !== undefined) {
         process.env.CURSOR_AGENT_SKILLS_ROOT = prev;
@@ -41,6 +44,24 @@ describe('resolveBundle', () => {
     try {
       const bundle = await resolveBundle({});
       expect(bundle.root).toBe(path.resolve(mini));
+      expect(bundle.commit).toBe('local');
+    } finally {
+      if (prev !== undefined) {
+        process.env.CURSOR_AGENT_SKILLS_ROOT = prev;
+      } else {
+        delete process.env.CURSOR_AGENT_SKILLS_ROOT;
+      }
+    }
+  });
+
+  it('keeps an explicit commit pin when resolving from monorepo layout', async () => {
+    const prev = process.env.CURSOR_AGENT_SKILLS_ROOT;
+    delete process.env.CURSOR_AGENT_SKILLS_ROOT;
+    const pin = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    try {
+      const bundle = await resolveBundle({ commit: pin });
+      expect(bundle.root).toBe(path.join(repoRoot, 'skills'));
+      expect(bundle.commit).toBe(pin);
     } finally {
       if (prev !== undefined) {
         process.env.CURSOR_AGENT_SKILLS_ROOT = prev;
