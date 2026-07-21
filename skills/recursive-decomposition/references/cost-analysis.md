@@ -1,5 +1,7 @@
 # Cost-Performance Analysis for Recursive Decomposition
 
+Sub-delegate routing (roles, `model`, parallelism): [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md).
+
 This reference provides guidance on when recursive decomposition is cost-effective versus direct processing.
 
 ## Decision Framework
@@ -70,7 +72,7 @@ Serial: T = t1 + t2 + t3 + ... + tn
 Parallel: T = max(t1, t2, t3, ..., tn) + synthesis
 ```
 
-In Cursor, launching several **Task** subagents in one user message (when the work is parallelizable) approximates the parallel case; synthesis is still a separate merge step.
+Launching several Task/Agent subagents in one user message (when the work is parallelizable) approximates the parallel case; synthesis is still a separate merge step.
 
 ## Variance considerations
 
@@ -130,7 +132,7 @@ For repeated questions over the same tree: reuse prior chunk summaries; invalida
 | Find a symbol / string | **Grep** |
 | Understand one module | **Read** + follow imports |
 | Analyze 5 related files | **Read** in batch with a plan |
-| Pattern across codebase | **Grep** first; then **Task** with `subagent_type: explore` for broad passes |
+| Pattern across codebase | **Grep** first; then Task/Agent with portable role `explore` for broad passes |
 | Aggregate 50+ files | **Task** with partitions + synthesis |
 | Multi-hop reasoning | Map-reduce with verification **Read** slices |
 

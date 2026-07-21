@@ -20,9 +20,9 @@ Identify 1-3 domains the task touches (a stack, library, or framework). For each
 
 One domain → one subagent with all its questions. 2-3 clearly unrelated domains → one subagent per domain, dispatched together in a single message (parallel `Task` calls).
 
-Before dispatch, probe the Task tool's `model` enum and set `model` per [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md) (do not copy priority tables here).
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT).
 
-Use `subagent_type: generalPurpose`, run in the foreground since you need the findings before writing code. Do **not** set `readonly: true`: readonly mode disables MCP and internet access, which these subagents need to search at all.
+Use portable role **`general-purpose`**, write-capable, foreground (you need findings before writing code; read-only mode strips MCP/internet access these subagents need).
 
 Prompt each subagent with:
 

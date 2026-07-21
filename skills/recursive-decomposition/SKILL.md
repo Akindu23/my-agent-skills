@@ -18,7 +18,7 @@ Consult these resources as needed:
 - ./references/cost-analysis.md — When to apply recursive vs. direct approaches
 - ./references/codebase-analysis.md — Full walkthrough of codebase-wide analysis
 - ./references/document-aggregation.md — Multi-document information extraction
-- ../council/references/cursor-task-workflow.md — Task `model` routing, enum probe, parallelism (SSOT)
+- ../council/references/task-workflow.md — sub-delegate routing, enum probe, parallelism (SSOT)
 
 ## Core Principles
 
@@ -70,15 +70,14 @@ Most tasks fail when context is overloaded. Instead of loading entire contexts i
 - **Shell** for `wc -l` / `ls -lh` before reading unknown large files; prefer **Grep** / **Glob** for search over reading everything.
 - For searching code or log content, prefer **Grep** over reading entire files.
 
-## Sub-agents: **Task** in Cursor
+## Sub-agents
 
-Use the **Task** tool for independent segments (read-only sweeps, parallel batches, or work that should stay isolated).
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT). Use Task/Agent for independent segments (read-only sweeps, parallel batches, or work that should stay isolated).
 
-- Set **`subagent_type`** explicitly: e.g. `explore` for read-only codebase survey passes; `generalPurpose` when edits or multi-step work is needed; other subagent types (e.g. `shell`, `code-reviewer`) when they match the job.
-- Use **`readonly: true`** when the subagent must not write files; omit or set `false` when it should implement changes.
+- Portable roles: `explore` for read-only codebase survey; `general-purpose` when edits or multi-step work is needed; `shell` / `bash` or a specialized type when they match the job and appear in the enum.
+- Prefer read-only when the subagent must not write files; write-capable when it should implement changes.
 - Prefer **depth limits** and **non-overlapping partitions** to avoid redundant sub-calls.
-- **Parallel work**: when launching multiple subagents, use **one message with several Task calls** (the usual pattern) so independent partitions run together when appropriate; then synthesize results.
-- **Task `model`**: probe enum → pick per [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md).
+- **Parallel work**: when launching multiple subagents, use **one message with several Task/Agent calls** so independent partitions run together when appropriate; then synthesize results.
 
 ## Empowering Agentic Behavior
 
@@ -176,7 +175,7 @@ Mitigate context degradation by checking answers on smaller windows:
 1. Glob for relevant file types (`*.ts`, `*.py`, etc.).
 2. Grep for error-related keywords (`catch`, `except`, `Error`, `throw`).
 3. Partition matching files into batches of 5–10.
-4. Launch parallel **Task** subagents with `subagent_type: explore` and `readonly: true` per batch.
+4. Launch parallel Task/Agent subagents with portable role `explore` (read-only) per batch.
 5. Aggregate into a categorized summary; spot-check a few files.
 
 ## Pattern B: Multi-document QA

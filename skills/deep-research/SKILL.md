@@ -55,14 +55,14 @@ Pick a short lowercase hyphenated ASCII slug from the topic, or ask when ambiguo
 
 Claim-local `[N]` bound to `SOURCES.md` / `#src-N`. Mark weak claims `[uncertain]` in place. Never invent sources.
 
-## Task routing
+## Task / Agent routing
 
-Before dispatch, probe the Task tool's `model` enum and set `model` per [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md) (do not copy priority tables here).
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT).
 
-| Role | Override |
-|------|----------|
-| Area Tasks (waves) | Composer lane; `generalPurpose`; `readonly: false`; **foreground**; ≤2–3 parallel; writes findings only |
-| Synthesis Task | Serial; Grok lane when available; `generalPurpose`; `readonly: false` (writes `gaps.md` — overrides council’s generic synthesis-readonly default) |
+| Role | Skill-local override |
+|------|----------------------|
+| Area waves | portable role `general-purpose`; write-capable; **foreground**; ≤2–3 parallel; writes findings only |
+| Synthesis | Serial; portable role `general-purpose`; write-capable; writes `gaps.md` only (overrides council’s generic synthesis-readonly default); include `[heavy]` in description |
 
 Pass **path pointers** (pack root, `plan.md`, `SOURCES.md`, write path, slug/title) — not inlined file bodies. Load full prompt text from `references/`.
 

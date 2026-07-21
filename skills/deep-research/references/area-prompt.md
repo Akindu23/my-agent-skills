@@ -1,18 +1,19 @@
-# Area Task prompt template
+# Area Task / Agent prompt template
 
-Parent fills placeholders, then dispatches one Task per research area. The Task writes **only** `findings/<slug>.md`. It does **not** append `SOURCES.md`.
+Parent fills placeholders, then dispatches one Task or Agent per research area. The worker writes **only** `findings/<slug>.md`. It does **not** append `SOURCES.md`.
 
 ## Dispatch parameters
 
-- `subagent_type: generalPurpose`
-- `readonly: false` (required for MCP/web + file write)
+Probe Task/Agent enums; route per [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md) (SSOT).
+
+- Portable role: `general-purpose`
+- Write-capable (required for MCP/web + file write)
 - Foreground (`run_in_background` unset/false)
-- Model: Composer lane per [`../../council/references/cursor-task-workflow.md`](../../council/references/cursor-task-workflow.md) — probe enum; do not hard-code stale slugs
-- Parallelism: ≤2–3 area Tasks in one parent message
+- Parallelism: ≤2–3 area workers in one parent message
 
 ## Prompt body (fill and send)
 
-Use a fenced block when pasting into Task `prompt`. Avoid nested fences inside the prompt text — describe frontmatter as a bullet list.
+Use a fenced block when pasting into the Task/Agent `prompt`. Avoid nested fences inside the prompt text — describe frontmatter as a bullet list.
 
 ~~~~
 You are researching one area of a deep-research pack.

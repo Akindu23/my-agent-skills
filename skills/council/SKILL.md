@@ -1,14 +1,14 @@
 ---
 name: council
-description: "Explores the codebase in a given area, spawns parallel Task subagents on Cursor first-party models for deep dives including off-angle coverage, then synthesizes results for the user's request or plan."
+description: "Explores the codebase in a given area, spawns parallel Task/Agent subagents for deep dives including off-angle coverage, then synthesizes results for the user's request or plan."
 disable-model-invocation: true
 ---
 
 Based on the given area of interest, please:
 
 1. Dig around the codebase in terms of that given area of interest, gather general information such as keywords and architecture overview.
-2. Spawn **n={as much as needed by the main agent}** (unless specified otherwise) subagents with the **Task** tool. Before fan-out, **probe** the Task tool's **`model`** enum and set **`model`** per [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md) (Composer default; Grok for presumed-heavy roles or `[heavy]`; `[light]`/`[standard]` force Composer; parallel partition workers stay Composer). Omit `model` only when no first-party slug is listed.
-3. Choose **`subagent_type`** and **`readonly`** per delegate role and risk. Do not make the whole council read-only by default:
+2. Spawn **n={as much as needed by the main agent}** (unless specified otherwise) subagents with **Task** or **Agent**. Probe Task/Agent enums; route per [`references/task-workflow.md`](references/task-workflow.md) (SSOT).
+3. Choose portable role → **`subagent_type`** and read-only vs write-capable per delegate role and risk (Cursor `readonly` / Claude harness-equivalent — see SSOT). Do not make the whole council read-only by default:
    - Use read-only delegates for exploration, review, judging, and synthesis.
    - Use write-capable delegates when the requested outcome requires edits, shell work, MCP/web access, or other state-changing actions.
 4. Diversify prompts: some subagents should be "on brief", others slightly off-angle for coverage.
@@ -20,13 +20,12 @@ If the user is in plan mode, use the information to create the plan.
 
 | Rule | Detail |
 |------|--------|
-| **Probe** | Read the Task tool **`model`** / **`subagent_type`** enums before fan-out; follow [`references/cursor-task-workflow.md`](references/cursor-task-workflow.md) (SSOT) |
-| **Lanes** | Composer default; Grok for presumed-heavy / `[heavy]`; `[light]`/`[standard]` force Composer; parallel partition workers stay Composer |
-| **Role vs model** | `subagent_type` and `readonly` follow job/risk; independent of model lane |
+| **Probe / lanes / types** | Follow [`references/task-workflow.md`](references/task-workflow.md) (SSOT) |
+| **Role vs model** | Portable role → `subagent_type` and read-only vs write-capable follow job/risk; independent of model lane |
 
-**Done when**: every launched Task has an explicit `model` when a first-party slug matched, or omitted only after probe found none.
+**Done when**: every launched Task/Agent has an explicit `model` when a lane slug matched, or omitted only after probe found none.
 
 ## Parallel council runs (n ≥ 6)
 
-- Fan out independent partitions in **one message** with multiple **Task** calls; workers use the Composer lane from the workflow reference.
-- After results return, if synthesis is noisy, contradictory, or shallow: **merge in the parent** or run **one** follow-up Task (presumed-heavy → Grok lane when available) for dedupe and conflict resolution. Do not re-run the whole fan-out unless partitions were wrong.
+- Fan out independent partitions in **one message** with multiple Task/Agent calls; lane and type rules from the SSOT.
+- After results return, if synthesis is noisy, contradictory, or shallow: **merge in the parent** or run **one** follow-up Task/Agent (presumed-heavy / `[heavy]` per SSOT) for dedupe and conflict resolution. Do not re-run the whole fan-out unless partitions were wrong.

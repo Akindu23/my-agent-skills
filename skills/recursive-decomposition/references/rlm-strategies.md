@@ -1,5 +1,7 @@
 # RLM Decomposition Strategies - Detailed Reference
 
+Sub-delegate routing (roles, `model`, parallelism): [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md).
+
 This reference contains detailed strategies derived from the Recursive Language Models paper (Zhang, Kraska, Khattab, 2025).
 
 ## The Context Rot Problem
@@ -70,7 +72,7 @@ Process each category with a focused sub-task
 
 ```text
 Main agent
-├── Subtask 1 (Chunk A) — e.g. Task(explore)
+├── Subtask 1 (Chunk A) — e.g. Task/Agent (portable role: explore)
 ├── Subtask 2 (Chunk B)
 └── Subtask 3 (Chunk C)
     └── Synthesize results
@@ -86,7 +88,7 @@ Main agent
 └── Synthesize hierarchically
 ```
 
-(Use the **Task** tool with an explicit `subagent_type` and, when only reading, `readonly: true` — and cap recursion depth.)
+(Use **Task** or **Agent** with a portable role from the SSOT above; when only reading, use read-only semantics — and cap recursion depth.)
 
 ### 4. Verification Through Re-Query
 

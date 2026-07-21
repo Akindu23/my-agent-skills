@@ -1,5 +1,7 @@
 # Example: Multi-Document Feature Aggregation
 
+Sub-delegate routing (roles, `model`, parallelism): [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md).
+
 This example shows recursive decomposition for extracting and aggregating information across many documents.
 
 ## Task
@@ -38,9 +40,9 @@ Per document, extract: product area, features, priority, status, quarter, depend
 Partition by time bucket, product line, or folder so chunks are independent.
 
 For each batch:
-Task(
-  subagent_type="explore",
-  readonly=true,
+Task(  # or Agent — per SSOT
+  role="explore",
+  readonly=true,  # Claude: Explore / Plan / permissionMode plan
   prompt="Read these files [list]. Extract to schema: … Return JSON per doc."
 )
 ```

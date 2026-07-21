@@ -21,9 +21,9 @@ Pin the question the agent must answer. Prefer one sharp question (or a tight cl
 
 Spin up one **Task** with `run_in_background: true` so research continues while the parent proceeds.
 
-Before dispatch, probe the Task tool's `model` enum and set `model` per [`../council/references/cursor-task-workflow.md`](../council/references/cursor-task-workflow.md) (do not copy priority tables here).
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT).
 
-Use `subagent_type: generalPurpose`. Do **not** set `readonly: true`: readonly mode disables MCP and internet access, which research needs.
+Use portable role **`general-purpose`**, write-capable (read-only mode strips MCP/internet access research needs).
 
 Prompt the subagent with:
 

@@ -1,5 +1,7 @@
 # Example: Codebase-Wide Error Handling Analysis
 
+Sub-delegate routing (roles, `model`, parallelism): [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md).
+
 This example shows recursive decomposition for analyzing error handling patterns across a large codebase.
 
 ## Task
@@ -33,18 +35,18 @@ By module, for example:
 - other → Batch E
 ```
 
-### Phase 3: Launch parallel **Task** subagents
+### Phase 3: Launch parallel Task/Agent subagents
 
 ```text
-Task(
-  subagent_type="explore",
-  readonly=true,
+Task(  # or Agent — per SSOT
+  role="explore",
+  readonly=true,  # Claude: Explore / Plan / permissionMode plan
   prompt="Analyze error handling under src/api/* ... return structured findings."
 )
-# Repeat for B–E; issue Task calls in parallel in one user message when the runner supports it.
+# Repeat for B–E; issue Task/Agent calls in parallel in one user message when the runner supports it.
 ```
 
-Use `subagent_type: explore` and `readonly: true` for read-only surveys; use `generalPurpose` if a subagent must edit or run multi-step local automation.
+Use portable role `explore` (read-only) for surveys; use `general-purpose` if a subagent must edit or run multi-step local automation.
 
 ### Phase 4: Aggregate results
 

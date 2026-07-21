@@ -1,14 +1,15 @@
-# Synthesis Task prompt template
+# Synthesis Task / Agent prompt template
 
-Parent fills placeholders, then dispatches **one serial** Task after gather (and after any pre-synthesis gate). The Task writes **only** `gaps.md`. It does **not** edit findings, `SOURCES.md`, or HTML.
+Parent fills placeholders, then dispatches **one serial** Task or Agent after gather (and after any pre-synthesis gate). The worker writes **only** `gaps.md`. It does **not** edit findings, `SOURCES.md`, or HTML.
 
 ## Dispatch parameters
 
-- `subagent_type: generalPurpose`
-- `readonly: false` (writes `gaps.md`)
+Probe Task/Agent enums; route per [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md) (SSOT).
+
+- Portable role: `general-purpose`
+- Write-capable (writes `gaps.md`)
 - Foreground; serial (not parallel with other writers)
-- Model: Grok lane when available, else Composer — probe enum per [`../../council/references/cursor-task-workflow.md`](../../council/references/cursor-task-workflow.md); do not hard-code stale slugs
-- Description token: include `[heavy]` so routing stays on the Grok lane when present
+- Description token: include `[heavy]`
 
 ## Prompt body (fill and send)
 
