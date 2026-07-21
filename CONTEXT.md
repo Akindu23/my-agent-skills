@@ -21,6 +21,10 @@ _Avoid_: local/global (ambiguous with git), user/project (conflicts with “proj
 Which agent discovery tree(s) the skill installer materializes into for one operation: **Cursor** (`.agents/skills/`), **Claude Code** (`.claude/skills/` project or `~/.claude/skills/` global), or **both**. Same locked skill set; separate on-disk trees per target.
 _Avoid_: scope (project vs global), harness (runtime spawn routing inside skill content).
 
+**Discovery overlap**:
+When one agent loads skills from more than one **install target** tree for the same skill name (e.g. Cursor reading both the agents skills directory and the Claude Code skills directory). A runtime/agent concern, distinct from the installer’s per-target plan rows.
+_Avoid_: double listing (CLI UI), duplicate install (two lock entries).
+
 **Agents skills directory**:
 Cursor’s discovery folder — `.agents/skills/` at project root or `~/.agents/skills/` for global installs. One **install target**, not the only possible destination.
 _Avoid_: skills folder (which agent?), `.cursor/skills` (not the chosen layout for this installer).
