@@ -1,4 +1,4 @@
-import { access, mkdir } from 'node:fs/promises';
+import { access } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { CliError } from './errors.js';
@@ -41,12 +41,6 @@ export function resolveScope(
     lockPath: path.join(agentsDir, 'cursor-skills-lock.json'),
     cwd,
   };
-}
-
-/** Ensure lock parent + Cursor skills tree (legacy Cursor-only callers). */
-export async function ensureAgentsDir(paths: ScopePaths): Promise<void> {
-  await mkdir(paths.agentsDir, { recursive: true });
-  await mkdir(paths.skillsDir, { recursive: true });
 }
 
 export async function prefersProjectScope(cwd: string): Promise<boolean> {

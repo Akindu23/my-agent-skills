@@ -90,6 +90,7 @@ describe('applyDriftPlan commit advance', () => {
 
     const result = await applyDriftPlan(plan, {
       orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(),
     });
 
     expect(result.updated).toEqual(['alpha', 'beta']);
@@ -155,7 +156,7 @@ describe('applyDriftPlan commit advance', () => {
     const pruneSpy = vi.spyOn(remotePack, 'pruneCommitCache').mockResolvedValue(undefined);
 
     await expect(
-      applyDriftPlan(plan, { orphansToRemove: new Set() }),
+      applyDriftPlan(plan, { orphansToRemove: new Set(), dependenciesToInstall: new Set() }),
     ).rejects.toThrow('Update failed');
 
     expect(await readFile(scope.lockPath, 'utf8')).toBe(lockBefore);
@@ -209,6 +210,7 @@ describe('applyDriftPlan orphan handling', () => {
 
     const result = await applyDriftPlan(plan, {
       orphansToRemove: new Set(['ghost']),
+      dependenciesToInstall: new Set(),
     });
 
     expect(result.orphansRemoved).toEqual(['ghost']);
@@ -260,11 +262,126 @@ describe('applyDriftPlan orphan handling', () => {
 
     const result = await applyDriftPlan(plan, {
       orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(),
     });
 
     expect(result.orphansRemoved).toEqual([]);
     expect(result.orphansSkipped).toEqual(['ghost']);
     const after = JSON.parse(await readFile(scope.lockPath, 'utf8'));
     expect(after.skills.ghost).toBeDefined();
+  });
+});
+
+describe('applyDriftPlan missing dependency handling', () => {
+  // bundle-mini's manifest declares dependsOn.beta = ["alpha"].
+  async function planWithMissingAlpha(scope: ScopePaths) {
+    const bundle = await resolveBundle({ source: bundleMini });
+    const betaHash = await computeSkillFolderHash(path.join(bundleMini, 'beta'));
+    await symlink(path.join(bundleMini, 'beta'), path.join(scope.skillsDir, 'beta'), 'dir');
+    await writeFile(scope.lockPath, JSON.stringify({
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: bundle.commit,
+      defaultLinkType: 'symlink',
+      package: { name: 'bundle-mini', version: bundle.packageVersion },
+      skills: {
+        beta: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: betaHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }));
+    const lock = (await readLockfile(scope.lockPath))!;
+    const plan = await planDriftFromBundles({ scope, lock, bundle, commitDrift: false });
+    return plan;
+  }
+
+  it('materializes an accepted missing dependency and adds it to the lock', async () => {
+    const scope = await tempScope();
+    const plan = await planWithMissingAlpha(scope);
+
+    const result = await applyDriftPlan(plan, {
+      orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(['alpha']),
+    });
+
+    expect(result.dependenciesAdded).toEqual(['alpha']);
+    expect(result.dependenciesSkipped).toEqual([]);
+    const after = await readLockfile(scope.lockPath);
+    expect(after?.skills.alpha).toBeDefined();
+    const target = await readFile(path.join(scope.skillsDir, 'alpha', 'SKILL.md'), 'utf8').catch(
+      () => null,
+    );
+    expect(target).not.toBeNull();
+  });
+
+  it('skips a declined missing dependency without writing it to the lock', async () => {
+    const scope = await tempScope();
+    const plan = await planWithMissingAlpha(scope);
+
+    const result = await applyDriftPlan(plan, {
+      orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(),
+    });
+
+    expect(result.dependenciesAdded).toEqual([]);
+    expect(result.dependenciesSkipped).toEqual(['alpha']);
+    const after = await readLockfile(scope.lockPath);
+    expect(after?.skills.alpha).toBeUndefined();
+  });
+
+  it('advances the commit and adds a missing dependency without crashing', async () => {
+    const scope = await tempScope();
+    const pinBundle = await resolveBundle({ source: bundleMini });
+    const remoteBundle = await resolveBundle({ source: bundleMiniV2 });
+    const betaHash = await computeSkillFolderHash(path.join(bundleMini, 'beta'));
+    await symlink(path.join(bundleMini, 'beta'), path.join(scope.skillsDir, 'beta'), 'dir');
+    await writeFile(scope.lockPath, JSON.stringify({
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: 'pin-old-sha',
+      defaultLinkType: 'symlink',
+      package: { name: 'bundle-mini', version: pinBundle.packageVersion },
+      skills: {
+        beta: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: betaHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }));
+
+    const lock = (await readLockfile(scope.lockPath))!;
+    const plan = await planDriftFromBundles({
+      scope,
+      lock,
+      bundle: pinBundle,
+      remoteBundle,
+      commitDrift: true,
+      remoteCommit: remoteBundle.commit,
+    });
+
+    const pruneSpy = vi.spyOn(remotePack, 'pruneCommitCache').mockResolvedValue(undefined);
+
+    const result = await applyDriftPlan(plan, {
+      orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(['alpha']),
+    });
+
+    expect(result.updated).toEqual(['beta']);
+    expect(result.dependenciesAdded).toEqual(['alpha']);
+    const after = await readLockfile(scope.lockPath);
+    expect(after?.commit).toBe(remoteBundle.commit);
+    expect(after?.skills.alpha).toBeDefined();
+    expect(pruneSpy).toHaveBeenCalledWith(DEFAULT_GITHUB_SOURCE, 'pin-old-sha');
   });
 });

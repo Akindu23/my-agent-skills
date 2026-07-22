@@ -61,7 +61,7 @@ describe('renderInstallSummary', () => {
       ),
     );
 
-    expect(summary).toContain('reinstall alpha');
+    expect(summary).toContain('reinstall    alpha');
     expect(summary).toContain('Bundle content changed for 1 skill(s)');
   });
 
@@ -81,7 +81,7 @@ describe('renderInstallSummary', () => {
       ),
     );
 
-    expect(summary).toContain('new      a');
+    expect(summary).toContain('new          a');
     expect(summary).toContain('Selected: a, b');
   });
 
@@ -105,7 +105,7 @@ describe('renderInstallSummary', () => {
     expect(summary).toContain('Selected (6):');
     expect(summary).toContain('  skill-0');
     expect(summary).toContain('  skill-5');
-    expect(summary).toContain('new      skill-0');
+    expect(summary).toContain('new          skill-0');
     expect(summary).not.toMatch(/Selected: skill-0, skill-1/);
   });
 });

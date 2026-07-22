@@ -18,6 +18,7 @@ function shortSha(sha: string): string {
 
 function driftRowLabel(entry: DriftSkillEntry, plan: DriftPlan, mode: DriftSummaryMode): string {
   if (entry.status === 'orphan') return 'orphan';
+  if (entry.status === 'missingDependency') return mode === 'check' ? 'missing' : 'new';
   if (plan.commitDrift) {
     if (entry.status === 'hashDrift') return 'pin drift';
     if (entry.remoteChanged) return mode === 'check' ? 'changed' : 'update';
@@ -32,7 +33,8 @@ export function renderDriftSummary(plan: DriftPlan, opts: { mode: DriftSummaryMo
 
   const rows = plan.entries.map((entry) => {
     const label = driftRowLabel(entry, plan, opts.mode).padEnd(10);
-    return `  ${label} ${entry.name}`;
+    const dep = entry.dependencyOf ? ` (required by ${entry.dependencyOf})` : '';
+    return `  ${label} ${entry.name}${dep}`;
   });
 
   const remoteLine = plan.commitDrift
@@ -59,13 +61,15 @@ export function renderDriftSummary(plan: DriftPlan, opts: { mode: DriftSummaryMo
     extraLines: [remoteLine, manifestLine],
   });
 
+  const newDepsSuffix = counts.newDependencies > 0 ? `  New deps: ${counts.newDependencies}` : '';
+
   const countsLine = plan.commitDrift
     ? opts.mode === 'check'
-      ? `Skills: changed ${counts.changedOnRemote}  unchanged ${counts.unchangedOnRemote}  pin drift ${counts.pinDrift}  orphans ${counts.orphans}`
-      : `Changed on remote: ${counts.changedOnRemote}   Unchanged: ${counts.unchangedOnRemote}   Pin drift: ${counts.pinDrift}\nWill relink: ${counts.willRelink} skills to new pack commit   Orphans: ${counts.orphans}`
+      ? `Skills: changed ${counts.changedOnRemote}  unchanged ${counts.unchangedOnRemote}  pin drift ${counts.pinDrift}  orphans ${counts.orphans}${newDepsSuffix}`
+      : `Changed on remote: ${counts.changedOnRemote}   Unchanged: ${counts.unchangedOnRemote}   Pin drift: ${counts.pinDrift}\nWill relink: ${counts.willRelink} skills to new pack commit   Orphans: ${counts.orphans}${newDepsSuffix}`
     : opts.mode === 'check'
-      ? `In sync: ${counts.unchangedOnRemote}  Drift: ${counts.changedOnRemote}  Orphans: ${counts.orphans}`
-      : `To refresh: ${counts.changedOnRemote}  Up to date: ${counts.unchangedOnRemote}  Orphans: ${counts.orphans}`;
+      ? `In sync: ${counts.unchangedOnRemote}  Drift: ${counts.changedOnRemote}  Orphans: ${counts.orphans}${newDepsSuffix}`
+      : `To refresh: ${counts.changedOnRemote}  Up to date: ${counts.unchangedOnRemote}  Orphans: ${counts.orphans}${newDepsSuffix}`;
 
   return [
     ...header,

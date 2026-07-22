@@ -11,7 +11,7 @@ import {
   resolveTargetSkillsDir,
 } from '../lib/install-targets.js';
 import { printJson } from '../lib/output.js';
-import { confirmProceed, promptOrphanRemoval } from '../lib/prompts.js';
+import { confirmProceed, promptDependencyInstall, promptOrphanRemoval } from '../lib/prompts.js';
 import { runScopedCommand } from '../lib/run-scoped-command.js';
 
 export interface UpdateOptions {
@@ -31,11 +31,13 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
 
   const drifted = plan.entries.filter((e) => e.status === 'hashDrift');
   const orphans = plan.entries.filter((e) => e.status === 'orphan');
+  const missingDeps = plan.entries.filter((e) => e.status === 'missingDependency');
   const emptyPlan =
     drifted.length === 0 &&
     !plan.commitDrift &&
     !plan.manifestDrift &&
-    orphans.length === 0;
+    orphans.length === 0 &&
+    missingDeps.length === 0;
 
   if (emptyPlan) {
     if (opts.json) {
@@ -76,11 +78,32 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     orphansToRemove = new Set();
   }
 
+  let dependenciesToInstall: ReadonlySet<string>;
+  if (missingDeps.length === 0) {
+    dependenciesToInstall = new Set();
+  } else if (opts.yes === true) {
+    dependenciesToInstall = new Set(missingDeps.map((e) => e.name));
+  } else if (isInteractive) {
+    dependenciesToInstall = new Set(
+      await promptDependencyInstall(
+        missingDeps.map((e) => ({ name: e.name, dependencyOf: e.dependencyOf })),
+      ),
+    );
+  } else {
+    for (const dep of missingDeps) {
+      console.warn(
+        `Skipping new dependency "${dep.name}" (required by ${dep.dependencyOf ?? 'installed skill'}); run add to install.`,
+      );
+    }
+    dependenciesToInstall = new Set();
+  }
+
   const hasApplyWork =
     plan.commitDrift ||
     plan.manifestDrift ||
     drifted.length > 0 ||
-    orphansToRemove.size > 0;
+    orphansToRemove.size > 0 ||
+    dependenciesToInstall.size > 0;
 
   if (isInteractive && hasApplyWork) {
     const proceed = await confirmProceed({
@@ -96,6 +119,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
 
   const result = await applyDriftPlan(plan, {
     orphansToRemove,
+    dependenciesToInstall,
   });
 
   if (!planHasWork(plan, result)) {
@@ -106,6 +130,8 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
         contentChanged: [],
         orphansRemoved: result.orphansRemoved,
         orphansSkipped: result.orphansSkipped,
+        dependenciesAdded: result.dependenciesAdded,
+        dependenciesSkipped: result.dependenciesSkipped,
         lockPath: scope.lockPath,
       });
       return;
@@ -123,6 +149,8 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
       contentChanged: result.contentChanged,
       orphansRemoved: result.orphansRemoved,
       orphansSkipped: result.orphansSkipped,
+      dependenciesAdded: result.dependenciesAdded,
+      dependenciesSkipped: result.dependenciesSkipped,
       lockPath: scope.lockPath,
     });
     return;
@@ -136,6 +164,8 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
       } else if (result.updated.length > 0) {
         outro(`Updated ${result.updated.length} skill(s).`);
       }
+    } else if (result.dependenciesAdded.length > 0) {
+      outro(`Added ${result.dependenciesAdded.length} new dependency skill(s).`);
     } else if (result.orphansRemoved.length > 0) {
       outro(`Removed ${result.orphansRemoved.length} orphan(s).`);
     } else {
@@ -158,6 +188,9 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     }
   } else if (plan.commitDrift || plan.manifestDrift) {
     console.log(`Synced lock with remote pack (${scope.scope})`);
+  }
+  if (result.dependenciesAdded.length > 0) {
+    console.log(`Added new dependency skill(s): ${result.dependenciesAdded.join(', ')}`);
   }
   console.log(`Lockfile: ${scope.lockPath}`);
 }

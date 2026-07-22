@@ -5,6 +5,7 @@ import {
   skillSourcePath,
   type BundleContext,
 } from './bundle.js';
+import { expandDependencies } from './deps.js';
 import { computeSkillFolderHash } from './hash.js';
 import { assessMaterializationHealth } from './install-health.js';
 import {
@@ -16,7 +17,7 @@ import { resolveLatestPackCommit } from './remote-pack.js';
 import { resolveSkillDestDir } from './skill-paths.js';
 import type { ScopePaths } from './scope.js';
 
-export type DriftStatus = 'ok' | 'hashDrift' | 'orphan';
+export type DriftStatus = 'ok' | 'hashDrift' | 'orphan' | 'missingDependency';
 
 export interface DriftSkillEntry {
   name: string;
@@ -31,6 +32,8 @@ export interface DriftSkillEntry {
   linkType?: 'symlink' | 'copy';
   sourceDir?: string;
   destDir?: string;
+  /** For `missingDependency`: the already-locked skill whose dependsOn now requires this one. */
+  dependencyOf?: string;
 }
 
 export interface DriftPlan {
@@ -50,11 +53,15 @@ export interface DriftSummaryCounts {
   pinDrift: number;
   orphans: number;
   willRelink: number;
+  newDependencies: number;
 }
 
 export function classifyDriftSummary(plan: DriftPlan): DriftSummaryCounts {
   const orphans = plan.entries.filter((e) => e.status === 'orphan').length;
-  const nonOrphans = plan.entries.filter((e) => e.status !== 'orphan');
+  const newDependencies = plan.entries.filter((e) => e.status === 'missingDependency').length;
+  const nonOrphans = plan.entries.filter(
+    (e) => e.status !== 'orphan' && e.status !== 'missingDependency',
+  );
   const pinDrift = plan.entries.filter((e) => e.status === 'hashDrift').length;
 
   if (plan.commitDrift) {
@@ -70,6 +77,7 @@ export function classifyDriftSummary(plan: DriftPlan): DriftSummaryCounts {
       pinDrift,
       orphans,
       willRelink: nonOrphans.length,
+      newDependencies,
     };
   }
 
@@ -81,6 +89,7 @@ export function classifyDriftSummary(plan: DriftPlan): DriftSummaryCounts {
     pinDrift: drifted,
     orphans,
     willRelink: drifted,
+    newDependencies,
   };
 }
 
@@ -140,6 +149,23 @@ export async function planDriftFromBundles(opts: {
       linkType: lockEntry.linkType,
       sourceDir: pinSourceDir,
       destDir,
+    });
+  }
+
+  const lockedNames = Object.keys(opts.lock.skills).filter((name) => manifestNames.has(name));
+  const { ordered, addedBy } = expandDependencies(manifestBundle.manifest, lockedNames);
+  for (const name of ordered) {
+    if (opts.lock.skills[name]) continue;
+    const dependencyOf = addedBy.get(name);
+    const sourceDir = skillSourcePath(manifestBundle, name);
+    const bundleHash = await computeSkillFolderHash(sourceDir);
+    entries.push({
+      name,
+      status: 'missingDependency',
+      bundleHash,
+      sourceDir,
+      destDir: resolveSkillDestDir(opts.scope.skillsDir, name),
+      dependencyOf,
     });
   }
 
@@ -291,7 +317,11 @@ export function buildDriftReport(
   targetHealth: Record<string, TargetHealthReport> = {},
 ): DriftReport {
   const hasSkillDrift = plan.entries.some(
-    (e) => e.status === 'hashDrift' || e.status === 'orphan' || e.remoteChanged === true,
+    (e) =>
+      e.status === 'hashDrift' ||
+      e.status === 'orphan' ||
+      e.status === 'missingDependency' ||
+      e.remoteChanged === true,
   );
   const hasUnhealthyTargets = Object.values(targetHealth).some((t) => !t.healthy);
   const hasContentDrift = hasSkillDrift || plan.commitDrift || plan.manifestDrift;

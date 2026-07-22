@@ -14,6 +14,7 @@ import {
 } from './install-targets.js';
 import {
   removeSkill,
+  resolveDefaultLinkType,
   syncLockRootFromBundle,
   upsertSkill,
   writeLockfile,
@@ -27,6 +28,8 @@ export interface ApplyDriftResult {
   contentChanged: string[];
   orphansRemoved: string[];
   orphansSkipped: string[];
+  dependenciesAdded: string[];
+  dependenciesSkipped: string[];
 }
 
 export function planHasWork(plan: DriftPlan, result: ApplyDriftResult): boolean {
@@ -37,7 +40,8 @@ export function planHasWork(plan: DriftPlan, result: ApplyDriftResult): boolean 
   return (
     needsRefresh ||
     plan.manifestDrift ||
-    result.orphansRemoved.length > 0
+    result.orphansRemoved.length > 0 ||
+    result.dependenciesAdded.length > 0
   );
 }
 
@@ -45,6 +49,7 @@ export async function applyDriftPlan(
   plan: DriftPlan,
   opts: {
     orphansToRemove: ReadonlySet<string>;
+    dependenciesToInstall: ReadonlySet<string>;
   },
 ): Promise<ApplyDriftResult> {
   const targets = resolveEffectiveTargets(plan.lock);
@@ -57,11 +62,20 @@ export async function applyDriftPlan(
     }
   }
 
+  const missingDeps = plan.entries.filter((e) => e.status === 'missingDependency');
+  const dependenciesSkipped: string[] = [];
+  const depsToInstallList = missingDeps.filter((d) => opts.dependenciesToInstall.has(d.name));
+  for (const dep of missingDeps) {
+    if (!opts.dependenciesToInstall.has(dep.name)) {
+      dependenciesSkipped.push(dep.name);
+    }
+  }
+
   const bundle = plan.remoteBundle ?? plan.bundle;
   const previousCommit = plan.lock.commit;
 
   const toRefresh = plan.commitDrift
-    ? plan.entries.filter((e) => e.status !== 'orphan')
+    ? plan.entries.filter((e) => e.status !== 'orphan' && e.status !== 'missingDependency')
     : plan.entries.filter((e) => e.status === 'hashDrift');
 
   const failed: Array<{ name: string; target: string; error: string }> = [];
@@ -71,7 +85,7 @@ export async function applyDriftPlan(
     linkType: 'symlink' | 'copy';
   }> = [];
 
-  if (toRefresh.length > 0 || orphansToRemoveList.length > 0) {
+  if (toRefresh.length > 0 || orphansToRemoveList.length > 0 || depsToInstallList.length > 0) {
     await ensureTargetSkillsDirs(plan.scope, targets);
   }
 
@@ -109,6 +123,43 @@ export async function applyDriftPlan(
     }
   }
 
+  const defaultLinkType = resolveDefaultLinkType(plan.lock);
+  const pendingNewUpserts: Array<{
+    name: string;
+    computedHash: string;
+    linkType: 'symlink' | 'copy';
+  }> = [];
+
+  for (const dep of depsToInstallList) {
+    const sourceDir = skillSourcePath(bundle, dep.name);
+    const bundleHash = await computeSkillFolderHash(sourceDir);
+    let lastLinkType: 'symlink' | 'copy' = defaultLinkType;
+    let skillFailed = false;
+
+    for (const target of targets) {
+      const destDir = resolveSkillDestDir(resolveTargetSkillsDir(plan.scope, target), dep.name);
+      try {
+        lastLinkType = await materializeFromLockEntry({
+          sourceDir,
+          destDir,
+          linkType: defaultLinkType,
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        failed.push({ name: dep.name, target, error: message });
+        skillFailed = true;
+      }
+    }
+
+    if (!skillFailed) {
+      pendingNewUpserts.push({
+        name: dep.name,
+        computedHash: bundleHash,
+        linkType: lastLinkType,
+      });
+    }
+  }
+
   // Fail closed: keep prior lock bytes and cache; do not prune. Partial dest
   // updates may remain on disk for sync to repair against the unchanged pin.
   if (failed.length > 0) {
@@ -139,17 +190,29 @@ export async function applyDriftPlan(
     updated.push(upsert.name);
   }
 
+  const dependenciesAdded: string[] = [];
+  for (const upsert of pendingNewUpserts) {
+    upsertSkill(plan.lock, upsert.name, {
+      source: plan.lock.source,
+      sourceType: 'github',
+      computedHash: upsert.computedHash,
+      linkType: upsert.linkType,
+    });
+    dependenciesAdded.push(upsert.name);
+  }
+
   const shouldSyncLockRoot =
     plan.commitDrift ||
     plan.manifestDrift ||
     updated.length > 0 ||
-    orphansRemoved.length > 0;
+    orphansRemoved.length > 0 ||
+    dependenciesAdded.length > 0;
 
   if (shouldSyncLockRoot) {
     syncLockRootFromBundle(plan.lock, bundle);
   }
 
-  if (updated.length > 0 || orphansRemoved.length > 0 || shouldSyncLockRoot) {
+  if (updated.length > 0 || orphansRemoved.length > 0 || dependenciesAdded.length > 0 || shouldSyncLockRoot) {
     await writeLockfile(plan.scope.lockPath, plan.lock);
     if (
       plan.commitDrift &&
@@ -167,6 +230,8 @@ export async function applyDriftPlan(
     contentChanged: contentChangedSkillNames(plan),
     orphansRemoved,
     orphansSkipped,
+    dependenciesAdded,
+    dependenciesSkipped,
   };
 }
 

@@ -146,6 +146,32 @@ export async function promptOrphanRemoval(orphanNames: string[]): Promise<string
   return selected as string[];
 }
 
+export async function promptDependencyInstall(
+  deps: Array<{ name: string; dependencyOf?: string }>,
+): Promise<string[]> {
+  if (deps.length === 0) {
+    return [];
+  }
+
+  const names = deps.map((d) => d.name);
+  const selected = await multiselect({
+    message: 'New dependencies required by your installed skills: (deselect to skip)',
+    options: deps.map((d) => ({
+      value: d.name,
+      label: d.dependencyOf ? `${d.name} (required by ${d.dependencyOf})` : d.name,
+    })),
+    initialValues: names,
+    required: false,
+  });
+
+  if (isCancel(selected)) {
+    cancel('Cancelled.');
+    throw new CliCancel();
+  }
+
+  return selected as string[];
+}
+
 export type ConfirmAction = 'install' | 'update';
 
 const CONFIRM_MESSAGES: Record<ConfirmAction, string> = {

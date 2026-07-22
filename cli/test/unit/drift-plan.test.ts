@@ -117,6 +117,23 @@ describe('createDriftPlan', () => {
       expect.objectContaining({ name: 'ghost', status: 'orphan' }),
     ]);
   });
+
+  it('reports missingDependency when a locked skill now requires an un-locked dependency', async () => {
+    // bundle-mini's manifest declares dependsOn.beta = ["alpha"]; lock only has beta.
+    const scope = await tempScope();
+    const betaHash = await computeSkillFolderHash(path.join(bundleMini, 'beta'));
+    await writeLock(scope, { beta: { computedHash: betaHash } });
+
+    const bundle = await resolveBundle({ source: bundleMini });
+    const plan = await createDriftPlan({ scope, bundle });
+
+    const alpha = plan.entries.find((e) => e.name === 'alpha');
+    expect(alpha).toEqual(
+      expect.objectContaining({ name: 'alpha', status: 'missingDependency', dependencyOf: 'beta' }),
+    );
+    const beta = plan.entries.find((e) => e.name === 'beta');
+    expect(beta?.status).toBe('ok');
+  });
 });
 
 describe('planDriftFromBundles commit drift', () => {

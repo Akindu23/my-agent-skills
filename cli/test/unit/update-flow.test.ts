@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   formatUpdateConfirmMessage: vi.fn(),
   confirmProceed: vi.fn(),
   promptOrphanRemoval: vi.fn(),
+  promptDependencyInstall: vi.fn(),
 }));
 
 vi.mock('@clack/prompts', () => ({
@@ -39,6 +40,7 @@ vi.mock('../../src/lib/apply-drift-plan.js', () => ({
 vi.mock('../../src/lib/prompts.js', () => ({
   confirmProceed: mocks.confirmProceed,
   promptOrphanRemoval: mocks.promptOrphanRemoval,
+  promptDependencyInstall: mocks.promptDependencyInstall,
 }));
 
 const { runUpdate } = await import('../../src/commands/update.js');
@@ -85,6 +87,8 @@ describe('runUpdate orphan flow', () => {
       contentChanged: ['alpha'],
       orphansRemoved: ['ghost'],
       orphansSkipped: [],
+      dependenciesAdded: [],
+      dependenciesSkipped: [],
     });
     mocks.planHasWork.mockReturnValue(true);
   });
