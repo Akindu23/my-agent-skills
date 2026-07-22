@@ -15,7 +15,7 @@ Install and sync [Cursor Agent Skills](https://cursor.com/docs/skills) from the 
 npx my-agent-skills@latest
 ```
 
-Interactive hub: add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope, then (on `add`) install target. Use `**--menu**` to stay in the hub between actions.
+Interactive hub: add, update, remove, list, sync, or check skills. The CLI prompts for project vs global scope, then (on `add`) install target. The hub loops back to the menu after each action — leave with **Quit** or **Esc** (clean exit), or **Ctrl+C** (exit 130).
 
 **After clone** (lockfile in git, skill trees gitignored): run again and choose **Sync/Restore Skills from Lockfile**, or use `sync` in scripts—see [Examples](#examples).
 

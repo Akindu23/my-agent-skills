@@ -129,6 +129,7 @@ export async function applyDriftPlan(
     computedHash: string;
     linkType: 'symlink' | 'copy';
   }> = [];
+  const newDepDests: string[] = [];
 
   for (const dep of depsToInstallList) {
     const sourceDir = skillSourcePath(bundle, dep.name);
@@ -144,6 +145,7 @@ export async function applyDriftPlan(
           destDir,
           linkType: defaultLinkType,
         });
+        newDepDests.push(destDir);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         failed.push({ name: dep.name, target, error: message });
@@ -160,9 +162,13 @@ export async function applyDriftPlan(
     }
   }
 
-  // Fail closed: keep prior lock bytes and cache; do not prune. Partial dest
-  // updates may remain on disk for sync to repair against the unchanged pin.
+  // Fail closed: keep prior lock bytes and cache; do not prune. Remove the dep
+  // dirs this apply created so agents never load unlocked skills the lock and
+  // check still treat as missing. Refresh partials stay for sync to repair.
   if (failed.length > 0) {
+    for (const destDir of newDepDests) {
+      await rm(destDir, { recursive: true, force: true }).catch(() => {});
+    }
     throw new CliError(`Update failed for ${failed.length} skill target(s).`);
   }
 

@@ -335,6 +335,66 @@ describe('applyDriftPlan missing dependency handling', () => {
     expect(after?.skills.alpha).toBeUndefined();
   });
 
+  it('rolls back a materialized dep and leaves the lock unchanged when a later target fails', async () => {
+    const scope = await tempScope();
+    await mkdir(path.join(scope.cwd, '.claude', 'skills'), { recursive: true });
+    const bundle = await resolveBundle({ source: bundleMini });
+    const betaHash = await computeSkillFolderHash(path.join(bundleMini, 'beta'));
+    await symlink(path.join(bundleMini, 'beta'), path.join(scope.skillsDir, 'beta'), 'dir');
+    await symlink(
+      path.join(bundleMini, 'beta'),
+      path.join(scope.cwd, '.claude', 'skills', 'beta'),
+      'dir',
+    );
+    await writeFile(scope.lockPath, JSON.stringify({
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: bundle.commit,
+      defaultLinkType: 'symlink',
+      targets: ['claude', 'cursor'],
+      package: { name: 'bundle-mini', version: bundle.packageVersion },
+      skills: {
+        beta: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: betaHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }));
+    const lockBefore = await readFile(scope.lockPath, 'utf8');
+
+    const lock = (await readLockfile(scope.lockPath))!;
+    const plan = await planDriftFromBundles({ scope, lock, bundle, commitDrift: false });
+
+    // First target for alpha materializes for real, second target fails mid-apply.
+    const install = await import('../../src/lib/install.js');
+    const realMaterialize = install.materializeFromLockEntry;
+    vi.spyOn(install, 'materializeFromLockEntry')
+      .mockImplementationOnce(realMaterialize)
+      .mockRejectedValueOnce(new Error('second target fail'));
+
+    await expect(
+      applyDriftPlan(plan, {
+        orphansToRemove: new Set(),
+        dependenciesToInstall: new Set(['alpha']),
+      }),
+    ).rejects.toThrow('Update failed');
+
+    // Lock is untouched: alpha never recorded.
+    expect(await readFile(scope.lockPath, 'utf8')).toBe(lockBefore);
+    const after = await readLockfile(scope.lockPath);
+    expect(after?.skills.alpha).toBeUndefined();
+
+    // The dep dir created before the failure is rolled back under each target.
+    for (const dir of [scope.skillsDir, path.join(scope.cwd, '.claude', 'skills')]) {
+      await expect(readFile(path.join(dir, 'alpha', 'SKILL.md'), 'utf8')).rejects.toThrow();
+    }
+  });
+
   it('advances the commit and adds a missing dependency without crashing', async () => {
     const scope = await tempScope();
     const pinBundle = await resolveBundle({ source: bundleMini });

@@ -17,7 +17,7 @@ export interface CheckOptions {
   json?: boolean;
   cwd?: string;
   skipIntro?: boolean;
-  /** Hub only: after drift summary, offer to run update then exit. */
+  /** Hub only: after drift summary, offer to run update, then return to the menu. */
   offerUpdateOnDrift?: boolean;
 }
 

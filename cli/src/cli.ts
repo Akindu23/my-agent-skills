@@ -26,9 +26,7 @@ program
 
 Examples:
   $ my-agent-skills
-      (TTY: pick one action, then exit; use --menu to stay in the hub)
-  $ my-agent-skills --menu
-      (TTY: hub menu until Quit)
+      (TTY: interactive hub menu; loops until Quit, Esc, or Ctrl+C)
   $ my-agent-skills add --skill pitstop -p -y
   $ my-agent-skills add --skill pitstop -p --target both -y
   $ my-agent-skills --skill pitstop -p -y --json
@@ -160,6 +158,8 @@ program
 
 const subcommands = new Set(['add', 'help', 'list', 'remove', 'sync', 'check', 'update']);
 
+// `--menu` is a deprecated no-op kept for backward compatibility (menu-loop is
+// now the default); strip it before argv reaches Commander.
 function argvWithoutHubFlags(argv: string[]): string[] {
   return argv.filter((arg) => arg !== '--menu');
 }
@@ -167,10 +167,6 @@ function argvWithoutHubFlags(argv: string[]): string[] {
 function isHubInvoke(argv: string[]): boolean {
   const rest = argvWithoutHubFlags(argv).slice(2);
   return rest.length === 0;
-}
-
-function hubMenuMode(argv: string[]): boolean {
-  return argv.includes('--menu');
 }
 
 function isHelpOrVersion(argv: string[]): boolean {
@@ -211,7 +207,7 @@ async function main(): Promise<void> {
       }
 
       if (resolveUiMode({}) === 'interactive') {
-        await runHub({ menu: hubMenuMode(argv) });
+        await runHub();
         return;
       }
 

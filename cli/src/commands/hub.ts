@@ -1,12 +1,8 @@
-import { cancel, isCancel, outro, select } from '@clack/prompts';
+import { isCancel, outro, select, text } from '@clack/prompts';
 import { showTTYIntro } from '../lib/banner.js';
 import { CliCancel, CliError } from '../lib/errors.js';
+import { installCtrlCGuard } from '../lib/keypress-guard.js';
 import { runCommand, type CommandId } from '../lib/run-command.js';
-
-export interface HubOptions {
-  /** Keep returning to the menu after each action until Quit. */
-  menu?: boolean;
-}
 
 type HubChoice = 'add' | 'update' | 'remove' | 'list' | 'sync' | 'check' | 'quit';
 
@@ -47,54 +43,70 @@ const hubCommandOpts: Record<Exclude<HubChoice, 'quit'>, Record<string, unknown>
   check: { ...skipIntro, offerUpdateOnDrift: true },
 };
 
-async function runHubAction(choice: HubChoice): Promise<void> {
-  if (choice === 'quit') {
-    return;
-  }
+async function runHubAction(choice: Exclude<HubChoice, 'quit'>): Promise<void> {
   await runCommand(choice as CommandId, hubCommandOpts[choice]);
 }
 
-export async function runHub(opts: HubOptions = {}): Promise<void> {
+/** Pause so the just-completed action is readable before the menu re-prints. */
+async function pauseForMenu(): Promise<void> {
+  // Esc/Ctrl+C here just returns to the menu (Ctrl+C is caught by the guard).
+  await text({
+    message: 'Press Enter to return to the menu.',
+    placeholder: '',
+    defaultValue: '',
+  });
+}
+
+/**
+ * Interactive bare-TTY hub. Menu-loop is the default: run the chosen action,
+ * pause, then re-display the menu below prior output, indefinitely. The banner
+ * shows once; the default highlight is always Add Skill(s).
+ *
+ * Key contract (see ADR-0004): the Ctrl+C guard hard-quits (exit 130) anywhere;
+ * Esc inside an action surfaces as `CliCancel`, reinterpreted here as "return
+ * all the way to the menu"; Esc at the menu shares the Quit item's clean-exit
+ * path (exit 0, or non-zero when any action failed this session).
+ */
+export async function runHub(): Promise<void> {
   let showIntro = true;
   let hadFailure = false;
 
-  for (;;) {
-    if (showIntro) {
-      showTTYIntro();
-      showIntro = false;
-    }
-
-    const choice = await pickHubAction();
-
-    if (choice === 'cancel') {
-      cancel('Cancelled.');
-      throw new CliCancel();
-    }
-
-    if (choice === 'quit') {
-      outro('Goodbye.');
-      if (hadFailure) {
-        throw new CliError('One or more hub actions failed.');
+  const removeGuard = installCtrlCGuard();
+  try {
+    for (;;) {
+      if (showIntro) {
+        showTTYIntro();
+        showIntro = false;
       }
-      return;
-    }
 
-    try {
-      await runHubAction(choice);
-      if (!opts.menu) {
+      const choice = await pickHubAction();
+
+      if (choice === 'cancel' || choice === 'quit') {
+        outro('Goodbye.');
+        if (hadFailure) {
+          throw new CliError('One or more hub actions failed.');
+        }
         return;
       }
-    } catch (err) {
-      if (err instanceof CliError) {
-        if (!opts.menu) {
+
+      try {
+        await runHubAction(choice);
+      } catch (err) {
+        if (err instanceof CliCancel) {
+          // Esc inside an action: abandon it and return to the menu.
+          continue;
+        }
+        if (err instanceof CliError) {
+          hadFailure = true;
+          console.error(err.message);
+        } else {
           throw err;
         }
-        hadFailure = true;
-        console.error(err.message);
-        showIntro = false;
-        continue;
       }
-      throw err;
+
+      await pauseForMenu();
     }
+  } finally {
+    removeGuard();
   }
 }
