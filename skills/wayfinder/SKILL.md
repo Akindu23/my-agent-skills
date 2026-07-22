@@ -1,7 +1,6 @@
 ---
 name: wayfinder
 description: Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets on your issue tracker, and resolve them one pass at a time until the way is clear. After each ticket close in Work through the map, AskQuestion may Continue / Handoff / Stop (soft context bias). On ticket close, may offer ADRs (promotion into docs/adr/) when ADR-POLICY criteria hold.
-disable-model-invocation: true
 ---
 
 A loose idea has arrived — too big for one agent session, and wrapped in fog: the way from here to the **destination** isn't visible yet. Wayfinding is about finding that way, not charging at the destination. This skill charts the way as a **shared map** on the repo's issue tracker, then works its **decision tickets** — questions whose resolution is a decision, not slices of a build to execute — one at a time until the route is clear.

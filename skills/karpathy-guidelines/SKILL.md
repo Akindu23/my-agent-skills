@@ -2,7 +2,6 @@
 name: karpathy-guidelines
 description: Strict coding discipline — think before coding, simplify, surgical changes only, verifiable success criteria.
 license: MIT
-disable-model-invocation: true
 ---
 
 # Karpathy Guidelines

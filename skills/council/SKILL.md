@@ -1,7 +1,6 @@
 ---
 name: council
 description: "Explores the codebase in a given area, spawns parallel Task/Agent subagents for deep dives including off-angle coverage, then synthesizes results for the user's request or plan."
-disable-model-invocation: true
 ---
 
 Based on the given area of interest, please:
