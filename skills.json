@@ -18,7 +18,6 @@
     "skills/frontend-design",
     "skills/frontend-slides",
     "skills/golang",
-    "skills/gpt-taste",
     "skills/grill-me",
     "skills/grill-with-docs",
     "skills/grilling",
@@ -27,8 +26,6 @@
     "skills/implement-plan",
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
-    "skills/mermaid",
-    "skills/pitstop",
     "skills/postgres-patterns",
     "skills/prototype",
     "skills/python-patterns",
@@ -42,7 +39,6 @@
     "skills/to-spec",
     "skills/to-tickets",
     "skills/wayfinder",
-    "skills/web-design-guidelines",
     "skills/yagni"
   ],
   "dependsOn": {
