@@ -3,7 +3,7 @@ name: writing-for-agents
 description: Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md or CLAUDE.md.
 ---
 
-Reference for writing any document an agent consumes: a skill, an `AGENTS.md` / `CLAUDE.md`, a doc reached by a pointer. The packaging differs; the writing does not: the same levers make each one predictable, since the agent takes the same _process_ every run rather than producing the same output.
+Reference for writing any document an agent consumes: a skill, an `AGENTS.md` / `CLAUDE.md`, a doc reached by a pointer. The packaging differs; the writing does not: the same levers make each one predictable, since the agent takes the same _process_ every run rather than producing the same output. A brainstorming document should _predictably_ diverge: its tokens vary, its behaviour doesn't.
 
 When the document you're writing is a skill, read [`references/SKILL-MECHANICS.md`](references/SKILL-MECHANICS.md) for frontmatter, invocation choice, and router skills.
 
@@ -49,6 +49,8 @@ Every step ends on a **completion criterion**, the condition that tells the agen
 - **Clarity**: can the agent tell done from not-done? A vague bound ("understanding reached") invites **premature completion**: ending the step before it is genuinely done, attention slipping to _being done_. The visible steps still ahead (the **post-completion steps**) supply the pull; the criterion's clarity is the resistance. Defend in order: **sharpen the bound first** (local and cheap); only if it is irreducibly fuzzy _and_ you observe the rush, hide the later steps by splitting the sequence. Hiding only works across a real context boundary (a hand-off or a subagent dispatch; an inline call leaves the later steps in context and clears nothing).
 - **Demand**: how much it requires. "Every modified model accounted for" forces thorough work where "produce a change list" does not. Demand drives **legwork** (the digging the agent does within the work, latent in the wording rather than written as its own step), and it is not step-bound: "every rule applied" binds a body of flat reference just as "every step done" binds a sequence, which is how an all-reference document still carries an exhaustiveness bar.
 
+Premature completion is between steps: it needs steps to occur. A document with no steps that quits early is thin legwork under unmet demand — raise the demand; splitting the sequence cannot help.
+
 The strongest criteria are both checkable and exhaustive.
 
 ## When to split
@@ -72,6 +74,8 @@ Hunt for opportunities to refactor with leading words. A triad spelled out at th
 You win twice: fewer tokens, and a sharper hook for the agent to hang its thinking on. Assume every document is carrying restatements that leading words retire. Go find them.
 
 **Negation** is the failure mode beside this lever: steering by prohibition drags the forbidden behaviour into context and makes it _more_ available, not less. _Don't think of an elephant_, and the elephant is all there is; the negation is a weak modifier the strongly-activated concept overruns, so the ban half-reads as an instruction to do the thing. Prompt the **positive**: state the target behaviour ("write one-line comments") so the banned one is never spoken. A prohibition earns its place only as a hard guardrail you cannot phrase positively; even then, pair it with the positive target so attention lands on what to do.
+
+**Negative space** is the other failure: what you leave _out_ is delegated to the agent's priors, not left open. Say nothing about comment length and you have not left length open, you have handed it to the default. Distinct from negation, which _names_ the wrong thing; negative space names nothing and lets the priors choose. Read a draft for the decisions it is silent on, then fill the space with an explicit target where the default is wrong, and leave it open (a real branch) only where any reasonable default will do.
 
 ## Pruning
 
