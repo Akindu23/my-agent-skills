@@ -119,7 +119,7 @@ Cursor marketplace plugins that pair well with these skills:
 
 ## Skill catalog
 
-**39** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
+**40** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
 
 
 | Folder                                                                   | `name`                          | One-line intent                                                                                                                                                                    |
@@ -129,6 +129,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [code-review](./skills/code-review/)                                     | `code-review`                   | User-invoked diff/PR review: council → thermos/`yagni` → delta BPR → Sol merge. Report only. Reads `CODING_STANDARDS.md`; nominates rules (write on accept). Requires Thermos plugin. |
 | [codebase-design](./skills/codebase-design/)                             | `codebase-design`               | Shared vocabulary for designing deep modules (interface, seam, depth, leverage, locality) and deepening or design-it-twice patterns.                                             |
 | [codebase-onboarding](./skills/codebase-onboarding/)                     | `codebase-onboarding`           | Analyze an unfamiliar codebase and produce a structured onboarding guide, architecture map, conventions, and starter `AGENTS.md` for Cursor.                                       |
+| [commit-msg](./skills/commit-msg/)                                       | `commit-msg`                    | User-invoked: draft one-liner commit messages from staged changes matching this repo's history; the picked line is the commit. No attributions.                                  |
 | [council](./skills/council/)                                             | `council`                       | Explore a codebase area, spawn **Task** subagents for parallel deep dives, then synthesize results (e.g. multi-area review, reconnaissance before planning).                       |
 | [deep-research](./skills/deep-research/)                                 | `deep-research`                 | User-invoked multi-phase deep dive (product/market lens by default) that writes a navigable multi-page HTML report pack under `docs/research/<topic-slug>/`.                        |
 | [diagnosing-bugs](./skills/diagnosing-bugs/)                             | `diagnosing-bugs`               | Disciplined diagnosis loop: build a tight red-capable feedback loop, reproduce, minimise, hypothesise, instrument, fix, regression-test.                                           |
