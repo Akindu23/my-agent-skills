@@ -27,6 +27,18 @@ Put **free-form** frontier items (open-ended design explanations, pasted logs, c
 
 Do not start the next round until both the AskQuestion answers and the free-form replies for this frontier are in.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the whole frontier (discrete and free-form) as a numbered chat list with recommended answers.
+If **`AskQuestion`** is unavailable in the current environment, ask the whole frontier (discrete and free-form) as a numbered chat list with recommended answers. Format the round like so:
+
+```
+❓ **Q1** — **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+
+➡️ <your recommended answer>
+
+---
+
+❓ **Q2** — **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+
+➡️ <your recommended answer>
+```
 
 If a question can be answered by exploring the codebase, explore the codebase instead (via Task when it shouldn't block the rest of the frontier).
