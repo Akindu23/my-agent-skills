@@ -43,7 +43,7 @@ Flags like `-p`, `-y`, `--target`, and `--json` are for scripts and CI only. Ful
 
 ## Recommended Dev Workflow
 
-Defaults: local markdown under `work/`, single-context `CONTEXT.md` / `docs/adr/`. Optional [`/setup-work`](./skills/setup-work/) only when you need GitHub/GitLab/custom tracker or multi-context domain layout recorded under `docs/agents/`.
+Defaults: local markdown under `work/`, single-context `CONTEXT.md` / `docs/adr/`. Optional [`/setup-work`](./skills/setup-work/) when you need GitHub/GitLab/custom tracker, multi-context domain layout under `docs/agents/`, or a reviewer-owned `CODING_STANDARDS.md` seed.
 
 Start with an idea: **`/grill-with-docs`** to sharpen against the repo. If it's already clearly foggy, go straight to **`/wayfinder`**. After the design is sharp enough to build, pick a path by **context risk**: would clearing the chat mid-build force you to re-derive seams and contracts?
 
@@ -62,6 +62,7 @@ flowchart TD
   plan["/to-plan"]
   implPlan["/implement-plan"]
   review["/code-review"]
+  retro["/retro"]
 
   idea --> grill
   idea -->|already foggy| way
@@ -73,6 +74,7 @@ flowchart TD
   spec --> tickets --> impl --> review
   size -->|yes| plan
   plan --> implPlan --> review
+  review --> retro
 ```
 
 | Stage | Skills | Notes |
@@ -81,7 +83,8 @@ flowchart TD
 | Decide in fog | `/wayfinder` | Decision tickets, not build slices. Enter directly when already foggy, or continue from a grill fog offer. See [Working a wayfinder map](#working-a-wayfinder-map). |
 | Spec path (default) | `/to-spec` → `/to-tickets` → `/implement` | Multi-session / dumb-zone risk. One ticket per session; prefer `/tdd` at agreed seams. |
 | Plan path (escape hatch) | `/to-plan` → `/implement-plan` | Only when the whole build fits one context window. |
-| Review | `/code-review` | After implementation. Needs the [Thermos](https://cursor.com/marketplace/cursor/thermos) plugin. Report only. |
+| Review | `/code-review` | After implementation. Needs the [Thermos](https://cursor.com/marketplace/cursor/thermos) plugin. Report only. Reads `CODING_STANDARDS.md` when present; may nominate rules (writes only on accept). |
+| Environment | `/retro` | After a session (often after review). Propose pointers, checks, reviewer standards, tool economy; apply only accepted candidates. |
 
 ### Working a wayfinder map
 
@@ -92,7 +95,7 @@ Two complementary ways to burn down decision tickets — do **not** merge unbloc
 
 Charting may still fire multiple AFK `/research` Tasks in parallel; that exception is for facts, not HITL grilling.
 
-**Optional orient:** `/setup-work` when defaults (local `work/`, single-context domain) are wrong. **Also sharpening:** `/grill-me` when you want grilling without domain-modeling. **Bugs:** `/diagnosing-bugs`. **Architecture debt:** `/improve-codebase-architecture`.
+**Optional orient:** `/setup-work` when defaults (local `work/`, single-context domain) are wrong, or to seed `CODING_STANDARDS.md`. **Also sharpening:** `/grill-me` when you want grilling without domain-modeling. **Bugs:** `/diagnosing-bugs`. **Architecture debt:** `/improve-codebase-architecture`. **Environment:** `/retro` after a session.
 
 Hard stops are intentional: `/to-spec`, `/to-plan`, and `/to-tickets` do not start the next stage unless you ask in the same turn. Clear context between sessions on the ticket path.
 
@@ -116,14 +119,14 @@ Cursor marketplace plugins that pair well with these skills:
 
 ## Skill catalog
 
-**37** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
+**39** skills under [skills/](./skills/). Pack manifest: [skills.json](./skills.json).
 
 
 | Folder                                                                   | `name`                          | One-line intent                                                                                                                                                                    |
 | ------------------------------------------------------------------------ | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [architecture-decision-records](./skills/architecture-decision-records/) | `architecture-decision-records` | Owns lightweight ADRs with detailed rationale, optional expanded sections, scaffolding, and `docs/adr/README.md` index maintenance (draft → approval → write).                     |
 | [best-practices-research](./skills/best-practices-research/)             | `best-practices-research`       | Recon current best practices per domain via live web search (Exa-first) before implementing; fans out one **Task** subagent per unrelated domain.                                  |
-| [code-review](./skills/code-review/)                                     | `code-review`                   | User-invoked diff/PR review: council → thermos/`yagni` → delta BPR → Sol merge. Report only. Requires Thermos plugin.                                                              |
+| [code-review](./skills/code-review/)                                     | `code-review`                   | User-invoked diff/PR review: council → thermos/`yagni` → delta BPR → Sol merge. Report only. Reads `CODING_STANDARDS.md`; nominates rules (write on accept). Requires Thermos plugin. |
 | [codebase-design](./skills/codebase-design/)                             | `codebase-design`               | Shared vocabulary for designing deep modules (interface, seam, depth, leverage, locality) and deepening or design-it-twice patterns.                                             |
 | [codebase-onboarding](./skills/codebase-onboarding/)                     | `codebase-onboarding`           | Analyze an unfamiliar codebase and produce a structured onboarding guide, architecture map, conventions, and starter `AGENTS.md` for Cursor.                                       |
 | [council](./skills/council/)                                             | `council`                       | Explore a codebase area, spawn **Task** subagents for parallel deep dives, then synthesize results (e.g. multi-area review, reconnaissance before planning).                       |
@@ -149,7 +152,8 @@ Cursor marketplace plugins that pair well with these skills:
 | [python-patterns](./skills/python-patterns/)                             | `python-patterns`               | Apply Python idioms, PEP 8 norms, typing, packaging, concurrency, and tooling discipline to everyday Python code.                                                                  |
 | [recursive-decomposition](./skills/recursive-decomposition/)             | `recursive-decomposition`       | Handle oversized tasks via programmatic decomposition and recursive sub-inquiry (RLM-inspired; large docs, many files, huge token spans).                                          |
 | [research](./skills/research/)                                           | `research`                      | Investigate a question against primary sources via a background Task; write cited findings to a Markdown file in the repo.                                                         |
-| [setup-work](./skills/setup-work/)                                           | `setup-work`                    | Optional bootstrap of `docs/agents/issue-tracker.md` and `docs/agents/domain.md` when defaults (local `work/`, single-context domain) are wrong. |
+| [retro](./skills/retro/)                                                 | `retro`                         | User-invoked session retrospective: load `/writing-for-agents`, then propose environment improvements; apply only accepted candidates.                                              |
+| [setup-work](./skills/setup-work/)                                       | `setup-work`                    | Optional bootstrap of `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, and a reviewer-owned `CODING_STANDARDS.md` seed.                                                    |
 | [svg-diagrams](./skills/svg-diagrams/)                                   | `svg-diagrams`                  | Author static SVG (architecture, sequence, freeform) plus HTML embed snippets; required validate script; not for Mermaid source.                                              |
 | [tdd](./skills/tdd/)                                                     | `tdd`                           | Test-driven development (red → green); pre-agreed seams, behavior tests, tautology/horizontal-slice anti-patterns; refactor deferred to `/code-review`.                           |
 | [teach](./skills/teach/)                                                 | `teach`                         | User-invoked multi-session tutoring with `docs/learning/<topic-slug>/` artifacts, Exa-verified resources, and HTML lessons.                                                        |
@@ -157,6 +161,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [to-spec](./skills/to-spec/)                                             | `to-spec`                       | Turn the current conversation context into a spec and publish it to the project issue tracker.                                                                                     |
 | [to-tickets](./skills/to-tickets/)                                       | `to-tickets`                    | Break a plan, spec, or conversation into tracer-bullet tickets with blocking edges on the project tracker.                                                                         |
 | [wayfinder](./skills/wayfinder/)                                         | `wayfinder`                     | Chart oversized work as a shared decision-ticket map; resolve one frontier ticket per pass (Continue / Handoff / Stop); parallel agents optional on unclaimed frontier tickets. On close, may promote answers to ADRs when ADR-POLICY criteria hold. |
+| [writing-for-agents](./skills/writing-for-agents/)                       | `writing-for-agents`            | Model-invoked style guide for documents agents consume (skills, `AGENTS.md` / `CLAUDE.md`, pointer targets). `/retro` loads it before drafting those edits.                      |
 | [yagni](./skills/yagni/)                                                 | `yagni`                         | Forces the laziest working solution: YAGNI, stdlib-first, shortest diff; full (default) flags speculative scope but ships, ultra may skip it on greenfield.                        |
 
 
@@ -199,7 +204,7 @@ The skills in this repo were referenced and adapted from the sources listed belo
 
 | Source                                                                                                              | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[mattpocock/skills](https://github.com/mattpocock/skills)**                                                       | Productivity and engineering workflows (MIT): [setup-work](./skills/setup-work/) (adapted from upstream setup-matt-pocock-skills), [tdd](./skills/tdd/), [to-spec](./skills/to-spec/), [to-tickets](./skills/to-tickets/), [wayfinder](./skills/wayfinder/), [research](./skills/research/), [diagnosing-bugs](./skills/diagnosing-bugs/), [prototype](./skills/prototype/), [improve-codebase-architecture](./skills/improve-codebase-architecture/), [grill-with-docs](./skills/grill-with-docs/), [grill-me](./skills/grill-me/), [grilling](./skills/grilling/), [domain-modeling](./skills/domain-modeling/), [codebase-design](./skills/codebase-design/), [teach](./skills/teach/), [handoff](./skills/handoff/) ; upstream also ships a `triage` skill not included in this pack |
+| **[mattpocock/skills](https://github.com/mattpocock/skills)**                                                       | Productivity and engineering workflows (MIT): [setup-work](./skills/setup-work/) (adapted from upstream setup-matt-pocock-skills), [tdd](./skills/tdd/), [to-spec](./skills/to-spec/), [to-tickets](./skills/to-tickets/), [wayfinder](./skills/wayfinder/), [research](./skills/research/), [diagnosing-bugs](./skills/diagnosing-bugs/), [prototype](./skills/prototype/), [improve-codebase-architecture](./skills/improve-codebase-architecture/), [grill-with-docs](./skills/grill-with-docs/), [grill-me](./skills/grill-me/), [grilling](./skills/grilling/), [domain-modeling](./skills/domain-modeling/), [codebase-design](./skills/codebase-design/), [teach](./skills/teach/), [handoff](./skills/handoff/), [writing-for-agents](./skills/writing-for-agents/), [retro](./skills/retro/) (adapted from upstream in-progress retro; coding-standards seed is pack-local) ; upstream also ships a `triage` skill not included in this pack |
 | **[hunvreus/skill-issue](https://github.com/hunvreus/skill-issue)**                                                 | [document](./skills/document/)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **[anthropics/skills](https://github.com/anthropics/skills)**                                                       | [frontend-design](./skills/frontend-design/) (Apache 2.0)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | **[cxuu/golang-skills](https://github.com/cxuu/golang-skills)**                                                     | [golang](./skills/golang/) - references distilled from Google, Uber, and Go community guides                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |

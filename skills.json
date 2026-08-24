@@ -31,6 +31,7 @@
     "skills/python-patterns",
     "skills/recursive-decomposition",
     "skills/research",
+    "skills/retro",
     "skills/setup-work",
     "skills/svg-diagrams",
     "skills/tdd",
@@ -39,6 +40,7 @@
     "skills/to-spec",
     "skills/to-tickets",
     "skills/wayfinder",
+    "skills/writing-for-agents",
     "skills/yagni"
   ],
   "dependsOn": {
@@ -91,6 +93,9 @@
     ],
     "research": [
       "council"
+    ],
+    "retro": [
+      "writing-for-agents"
     ],
     "teach": [
       "svg-diagrams"
