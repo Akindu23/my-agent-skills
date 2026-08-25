@@ -16,6 +16,18 @@ Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../
 
 Delta `/best-practices-research` runs as that skill is written (it owns its Task fan-out and model picks).
 
+## User clarifications
+
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
+
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
+
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
 1. **Scope.** Honor the user's prompt. If unspecified: changes vs `main` **including** working-tree WIP (committed on the branch + staged + unstaged). **Done when**: base, WIP inclusion, and any path/PR narrowing are explicit.
 
 2. **Package.** Build the review **package**: git diff for that scope + full contents of every changed file (shell + explore Tasks as needed). If `CODING_STANDARDS.md` exists at the repo root, include its full contents; if it is missing, omit it and proceed. Stop in one line if the diff is empty. **Done when**: the package holds diff output, every changed file's contents, and either the standards file or an explicit omit, or an empty-diff stop.
@@ -35,7 +47,7 @@ Delta `/best-practices-research` runs as that skill is written (it owns its Task
 
 8. **Nominate.** After the report, check every merged finding against the membership preamble of `CODING_STANDARDS.md` (or [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md) if the file is missing). At most 3 candidates. If none, say so and stop.
 
-For each candidate, **AskQuestion** accept / skip (plain chat if AskQuestion is unavailable). On accept: if `CODING_STANDARDS.md` is missing, copy that seed (recreate its heading, preamble, and empty `## Rules` if the seed path is missing), then append the rule under `## Rules`. Leave skipped candidates unwritten.
+End the report turn before the nomination MCQ. Put every candidate's accept / skip into **one** structured-MCQ call (`questions[]`). Each question includes the proposed rule. After the round: if `CODING_STANDARDS.md` is missing, copy that seed (recreate its heading, preamble, and empty `## Rules` if the seed path is missing), then append each accepted rule under `## Rules`. Leave skipped candidates unwritten.
 
 **Done when**: each candidate is accepted or skipped, and accepted rules are in `CODING_STANDARDS.md`.
 

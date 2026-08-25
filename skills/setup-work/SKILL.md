@@ -35,13 +35,19 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 Summarise what's present and what's missing. Then take the sections in order — one section, one answer, then the next.
 
-## User clarifications (Cursor)
+## User clarifications
 
-When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
-Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time** when this skill already sequences questions that way.
 
 Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip the section entirely when exploration already settled it (Section B when there's no monorepo; Section C when `CODING_STANDARDS.md` already exists).
 

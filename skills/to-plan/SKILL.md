@@ -8,13 +8,19 @@ Synthesize an implementation plan from what you already know — do **not** inte
 
 **SSOT is the markdown plan.** HTML is an optional review render only — `/implement-plan` reads the `.md`.
 
-## User clarifications (Cursor)
+## User clarifications
 
-When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
-Use **plain chat** for free-form answers.
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time** when this skill already sequences questions that way.
 
 ## Process
 
@@ -33,7 +39,7 @@ Use **plain chat** for free-form answers.
 4. Write and publish the plan (`work/<feature-slug>/plan.md` locally, or tracker equivalent).
    **Done when**: `plan.md` (or tracker equivalent) exists with the template sections filled.
 
-5. **HTML (optional):** If the user already said “with HTML,” write `plan.html` beside the plan per [references/PLAN-HTML.md](references/PLAN-HTML.md). Otherwise AskQuestion — write HTML review companion? — default **No**.
+5. **HTML (optional):** If the user already said “with HTML,” write `plan.html` beside the plan per [references/PLAN-HTML.md](references/PLAN-HTML.md). Otherwise structured MCQ — write HTML review companion? — default **No**.
    **Done when**: HTML written if requested/accepted, or skipped.
 
 6. **Hard stop.** Tell the user to run `/implement-plan` against the plan file. Do not start `/implement-plan` unless asked in the same turn.

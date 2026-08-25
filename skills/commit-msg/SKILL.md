@@ -34,9 +34,21 @@ Every option is a **one-liner**: a single subject. The committed text is only th
 
 **Done when**: every option is a one-liner in this repo's *style*, without the attributions.
 
+## User clarifications
+
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
+
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
+
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
 ## 3. Pick
 
-Use **`AskQuestion`** with one question; each option's label is the one-liner itself. If **`AskQuestion`** is missing, list the same options in chat and wait.
+One question; each option's label is the one-liner itself.
 
 **Done when**: the user has chosen one line (including a line they typed).
 

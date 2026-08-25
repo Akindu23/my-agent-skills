@@ -22,9 +22,19 @@ description: >-
 - User asks **"why did we choose X?"** (read existing ADRs)
 - Architectural trade-offs during planning (offer only — see below)
 
-## User clarifications (Cursor)
+## User clarifications
 
-For **discrete decisions** (about 2–6 options), prefer **`AskQuestion`**, one decision at a time. If unavailable, ask the same options in chat. Use plain chat for free-form rationale.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
+
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
+
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time**.
 
 ## Offer vs write
 

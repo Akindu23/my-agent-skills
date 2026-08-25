@@ -118,7 +118,19 @@ Failing to understand the mission will mean knowledge acquisition is not grounde
 
 Missions may change as the user develops more skills and knowledge. This is normal — update `MISSION.md`, add a learning record to capture the shift, and **confirm with the user before changing the mission**.
 
-When narrowing discrete choices (topic slug, topic split, exercise style, community preferences), prefer **`AskQuestion`** when available; otherwise ask the same choices in chat.
+## User clarifications
+
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
+
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
+
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time** when narrowing topic slug, topic split, exercise style, or community preferences.
 
 ## Zone of proximal development
 

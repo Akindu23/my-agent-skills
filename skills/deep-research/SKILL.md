@@ -12,9 +12,19 @@ The user invoked `/deep-research`. Product/market lens by default; other topics 
 
 **Leading words:** **`pack`** — `docs/research/<topic-slug>/` (markdown + HTML). **`SSOT`** — markdown authoritative; HTML mirrors. **`gate`** — fixed uncertainty menu + HITL tripwires. **`wave`** — ≤2–3 parallel area Tasks. **`evidenced`** — claim-local `[N]` bound to `SOURCES.md`; weak claims `[uncertain]`; never invent sources.
 
-## User clarifications (Cursor)
+## User clarifications
 
-Discrete decisions (about 2–6 options): prefer **`AskQuestion`**, one at a time. If unavailable, same choices in chat. Free-form (topic wording, Retry scope, Drop/demote lists): plain chat.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
+
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
+
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat (topic wording, Retry scope, Drop/demote lists).
+
+Ask **one decision at a time**.
 
 ### Uncertainty gate menu (fixed)
 

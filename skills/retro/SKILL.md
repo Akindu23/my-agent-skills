@@ -8,11 +8,17 @@ disable-model-invocation: true
 
 Improve the coding agent's **environment** from a finished session. You propose **candidates**; the user accepts; then you apply.
 
-## User clarifications (Cursor)
+## User clarifications
 
-When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
-If **`AskQuestion`** is unavailable, ask the same choices in ordinary chat.
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
+
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
 
 ## 1. Writing style
 
@@ -42,9 +48,7 @@ Scan the session for candidates. A candidate is a concrete change to the environ
 
 ## 4. Present
 
-Show candidates in severity order (highest first). Each one: the change, where it lands, and the session evidence that justifies it.
-
-Then **AskQuestion** per candidate (accept / skip). Ask coding-standards candidates one after another.
+Put every candidate's accept / skip into **one** structured-MCQ call (`questions[]`). Order them by severity (highest first). Each question includes the change, where it lands, and the session evidence. Apply only after that round is answered (step 5).
 
 **Done when**: every candidate has accept or skip.
 

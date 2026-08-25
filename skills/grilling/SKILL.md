@@ -19,15 +19,25 @@ The session is done when the frontier is empty: every branch of the design tree 
 
 If the user (or their `AGENTS.md`, `CLAUDE.md`, or user/rules) says to ask one question at a time when grilling, honor that and fall back to the old one-at-a-time rhythm for this session.
 
-## User clarifications (Cursor)
+## User clarifications
 
-When a frontier round includes **discrete decisions** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool: put **all** such decisions from the current frontier into **one** `AskQuestion` call (`questions[]`), so the user can answer the round in the structured UI.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
+
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
+
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+When a frontier round includes discrete decisions, put **all** of them from the current frontier into **one** structured-MCQ call (`questions[]`), so the user can answer the round in the structured UI.
 
 Put **free-form** frontier items (open-ended design explanations, pasted logs, custom workflows) in the **same round** as numbered chat prompts with your recommended answer — do not force them into multiple-choice.
 
-Do not start the next round until both the AskQuestion answers and the free-form replies for this frontier are in.
+Do not start the next round until both the structured-MCQ answers and the free-form replies for this frontier are in.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the whole frontier (discrete and free-form) as a numbered chat list with recommended answers. Format the round like so:
+If neither structured MCQ tool is present, ask the whole frontier (discrete and free-form) as a numbered chat list with recommended answers. Format the round like so:
 
 ```
 ❓ **Q1** — **<question title>**: <question body, might be multiple paragraphs, including multiple choices>

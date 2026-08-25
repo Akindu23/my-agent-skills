@@ -56,13 +56,19 @@ Separate body sections with a horizontal rule: `---`.
 - Every snippet must include short intent comments on the key lines. Use them to tell the reader what this line is doing here and why it matters.
 - Prefer behavior-faithful sketches over verbatim excerpts.
 
-## User clarifications (Cursor)
+## User clarifications
 
-When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
-Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time** when this skill already sequences questions that way.
 
 ## Scope fallback
 
