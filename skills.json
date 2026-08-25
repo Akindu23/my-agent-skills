@@ -52,7 +52,6 @@
       "council"
     ],
     "code-review": [
-      "council",
       "yagni",
       "best-practices-research",
       "remove-slop"
@@ -76,18 +75,18 @@
     "grill-with-docs": [
       "grilling",
       "domain-modeling",
-      "wayfinder",
-      "handoff"
+      "wayfinder"
     ],
     "grill-me": [
       "grilling"
     ],
     "implement": [
-      "code-review",
-      "tdd"
+      "karpathy-guidelines",
+      "yagni",
+      "tdd",
+      "code-review"
     ],
     "implement-plan": [
-      "council",
       "karpathy-guidelines",
       "best-practices-research",
       "yagni"
@@ -95,9 +94,7 @@
     "improve-codebase-architecture": [
       "codebase-design",
       "grilling",
-      "domain-modeling",
-      "architecture-decision-records",
-      "council"
+      "domain-modeling"
     ],
     "recursive-decomposition": [
       "council"
@@ -112,14 +109,14 @@
       "svg-diagrams"
     ],
     "to-spec": [
-      "council",
       "best-practices-research"
     ],
     "wayfinder": [
       "grilling",
       "domain-modeling",
       "prototype",
-      "research"
+      "research",
+      "handoff"
     ]
   },
   "packCommit": "d84a9b5bd6aab9fdbce058db246445d4c69fad2b"
