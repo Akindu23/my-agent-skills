@@ -54,7 +54,8 @@
     "code-review": [
       "council",
       "yagni",
-      "best-practices-research"
+      "best-practices-research",
+      "remove-slop"
     ],
     "deep-research": [
       "council",
