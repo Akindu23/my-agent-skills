@@ -34,43 +34,40 @@ Flags like `-p`, `-y`, `--target`, and `--json` are for scripts and CI only. Ful
 
 Defaults: local markdown under `work/`, single-context `CONTEXT.md` / `docs/adr/`. Optional [`/setup-work`](./skills/setup-work/) when you need GitHub/GitLab/custom tracker, multi-context domain layout under `docs/agents/`, or a reviewer-owned `CODING_STANDARDS.md` seed.
 
-Start with an idea: `**/grill-with-docs**` to sharpen against the repo. If it's already clearly foggy, go straight to `**/wayfinder**`. After the design is sharp enough to build, pick a path by **context risk**: would clearing the chat mid-build force you to re-derive seams and contracts?
+Start with an idea: **`/wayfinder`**. It grills to name the destination, then grills breadth-first. If that surfaces no **fog**, skip the map and pick a build path by **context risk**: would clearing the chat mid-build force you to re-derive seams and contracts? If there is fog, chart the decision map and work it until clear, then the same size fork.
 
 **Fog** means you know roughly where you want to end up, but the open decisions (and what depends on what) are not clear enough to write a spec or one-session plan yet: usually more than one agent session of deciding before building.
+
+**Optional:** `/grill-with-docs` when you want depth plus live ADR offers without charting. If fog appears there, it offers a switch into `/wayfinder` Chart the map.
 
 ```mermaid
 flowchart TD
   idea[Idea / change request]
-  grill["/grill-with-docs<br/>(sharpen)"]
-  fog{"Still foggy?"}
-  way["/wayfinder<br/>(decision map)"]
-  size{"Fits one agent<br/>session?"}
+  way["/wayfinder"]
+  fog{Fog?}
+  map[Chart map, work tickets until clear]
+  size{Fits one agent session?}
   spec["/to-spec"]
   tickets["/to-tickets"]
-  impl["/implement<br/>(one ticket per session)"]
+  impl["/implement"]
   plan["/to-plan"]
   implPlan["/implement-plan"]
   review["/code-review"]
   retro["/retro"]
 
-  idea --> grill
-  idea -->|already foggy| way
-  grill --> fog
-  fog -->|yes: offer switch| way
-  fog -->|no: design sharp| size
-  way -->|map clear| size
-  size -->|no / unsure| spec
-  spec --> tickets --> impl --> review
-  size -->|yes| plan
-  plan --> implPlan --> review
+  idea --> way --> fog
+  fog -->|no| size
+  fog -->|yes| map --> size
+  size -->|no / unsure| spec --> tickets --> impl --> review
+  size -->|yes| plan --> implPlan --> review
   review --> retro
 ```
 
 
 | Stage                    | Skills                                    | Notes                                                                                                                                                                                               |
 | ------------------------ | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sharpen                  | `/grill-with-docs`                        | Default entry with an idea. May offer `/wayfinder` when destination is nameable and fog appears.                                                                                                    |
-| Decide in fog            | `/wayfinder`                              | Decision tickets, not build slices. Enter directly when already foggy, or continue from a grill fog offer. See [Working a wayfinder map](#working-a-wayfinder-map).                                 |
+| Front door               | `/wayfinder`                              | Default entry. Destination grill + breadth; no fog → size fork; fog → decision map. Resolved terms in `CONTEXT.md`; ADRs on ticket close. See [Working a wayfinder map](#working-a-wayfinder-map). |
+| Optional sharpen         | `/grill-with-docs`                        | Depth + live ADR offers without a map. May offer `/wayfinder` when destination is nameable and fog appears.                                                                                         |
 | Spec path (default)      | `/to-spec` → `/to-tickets` → `/implement` | Multi-session / dumb-zone risk. One ticket per session; prefer `/tdd` at agreed seams.                                                                                                              |
 | Plan path (escape hatch) | `/to-plan` → `/implement-plan`            | Only when the whole build fits one context window.                                                                                                                                                  |
 | Review                   | `/code-review`                            | After implementation. Needs the [Thermos](https://cursor.com/marketplace/cursor/thermos) plugin. Report only. Reads `CODING_STANDARDS.md` when present; may nominate rules (writes only on accept). |
@@ -86,7 +83,7 @@ Two complementary ways to burn down decision tickets — do **not** merge unbloc
 
 Charting may still fire multiple AFK `/research` Tasks in parallel; that exception is for facts, not HITL grilling.
 
-**Optional orient:** `/setup-work` when defaults (local `work/`, single-context domain) are wrong, or to seed `CODING_STANDARDS.md`. **Also sharpening:** `/grill-me` when you want grilling without domain-modeling. **Bugs:** `/diagnosing-bugs`. **Architecture debt:** `/improve-codebase-architecture`. **Environment:** `/retro` after a session.
+**Optional orient:** `/setup-work` when defaults (local `work/`, single-context domain) are wrong, or to seed `CODING_STANDARDS.md`. **Also sharpening:** `/grill-with-docs` (depth + live ADRs) or `/grill-me` (grilling without domain-modeling). **Bugs:** `/diagnosing-bugs`. **Architecture debt:** `/improve-codebase-architecture`. **Environment:** `/retro` after a session.
 
 Hard stops are intentional: `/to-spec`, `/to-plan`, and `/to-tickets` do not start the next stage unless you ask in the same turn. Clear context between sessions on the ticket path.
 
@@ -129,7 +126,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [frontend-slides](./skills/frontend-slides/)                             | `frontend-slides`               | Create animation-rich HTML presentations from scratch or by converting PowerPoint files.                                                                                                                                                             |
 | [golang](./skills/golang/)                                               | `golang`                        | Route Go work to the right reference guides and conventions for architecture, implementation, concurrency, errors, testing, performance, or review.                                                                                                  |
 | [grill-me](./skills/grill-me/)                                           | `grill-me`                      | User-invoked router to a relentless interview (`/grilling`) to sharpen a plan or design.                                                                                                                                                             |
-| [grill-with-docs](./skills/grill-with-docs/)                             | `grill-with-docs`               | User-invoked: `/grilling` + `/domain-modeling` to sharpen a plan (`CONTEXT.md` / ADRs); may offer `/wayfinder` when fog appears.                                                                                                                     |
+| [grill-with-docs](./skills/grill-with-docs/)                             | `grill-with-docs`               | Optional sharpen: `/grilling` + `/domain-modeling` (`CONTEXT.md` / live ADRs) without a map; may offer `/wayfinder` when fog appears.                                                                                                                |
 | [grilling](./skills/grilling/)                                           | `grilling`                      | Model-invoked relentless interview leaf: stress-test plans and designs in frontier rounds.                                                                                                                                                           |
 | [handoff](./skills/handoff/)                                             | `handoff`                       | Compact session handoff to a single `docs/handoffs/CURRENT.md`, to be used by another agent in a new session                                                                                                                                         |
 | [implement](./skills/implement/)                                         | `implement`                     | Implement one ticket per session, following `/karpathy-guidelines` and `/yagni`; prefer `/tdd` at agreed seams. Not for whole-plan runs; that is `/implement-plan`.                                                                                  |
@@ -151,7 +148,7 @@ Cursor marketplace plugins that pair well with these skills:
 | [to-plan](./skills/to-plan/)                                             | `to-plan`                       | Publish a one-session plan for `/implement-plan`: escape hatch when the build fits one context window.                                                                                                                                               |
 | [to-spec](./skills/to-spec/)                                             | `to-spec`                       | Turn the current conversation context into a spec and publish it to the project issue tracker.                                                                                                                                                       |
 | [to-tickets](./skills/to-tickets/)                                       | `to-tickets`                    | Break a plan, spec, or conversation into tracer-bullet tickets with blocking edges on the project tracker.                                                                                                                                           |
-| [wayfinder](./skills/wayfinder/)                                         | `wayfinder`                     | Chart oversized work as a shared decision-ticket map; resolve one frontier ticket per pass (Continue / Handoff / Stop); parallel agents optional on unclaimed frontier tickets. On close, may promote answers to ADRs when ADR-POLICY criteria hold. |
+| [wayfinder](./skills/wayfinder/)                                         | `wayfinder`                     | Front door: grill destination + breadth; skip the map when there is no fog. Chart decision tickets otherwise; one frontier ticket per pass (Continue / Handoff / Stop). Resolved terms in `CONTEXT.md`; ADRs on close when ADR-POLICY holds.         |
 | [writing-for-agents](./skills/writing-for-agents/)                       | `writing-for-agents`            | Model-invoked style guide for documents agents consume (skills, `AGENTS.md` / `CLAUDE.md`, pointer targets). `/retro` loads it before drafting those edits.                                                                                          |
 | [yagni](./skills/yagni/)                                                 | `yagni`                         | Forces the laziest working solution: YAGNI, stdlib-first, shortest diff; full (default) flags speculative scope but ships, ultra may skip it on greenfield.                                                                                          |
 
