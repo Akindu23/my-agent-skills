@@ -6,23 +6,26 @@ disable-model-invocation: true
 
 # Explain Code
 
-Explain the user-scoped code as a short, scannable post. Prefer plain-English prose and small code sketches over exhaustive walkthroughs.
+Explain the user-scoped code as a short, scannable post. Prefer small code sketches over exhaustive walkthroughs.
+
+Read [`../simplify-this/references/ste.md`](../simplify-this/references/ste.md). Apply rules 1, 2, 3, and 5 to the title, the TL;DR, and each section lead-in. Keep Format as the structure. Name identifiers from the code.
+
+**Done when:** every scoped idea has a section with a sketch, and those four STE rules hold on the title, TL;DR, and lead-ins.
 
 ## Defaults
 
 - Match the user's scope exactly.
 - Use this structure: `#` title, `## TL;DR`, then one or more `##` sections.
 - Each `##` section covers one idea and includes at least one fenced code block.
-- Keep prose simple and snippets small.
+- Keep snippets small.
 - Simplify code when useful, but stay faithful to behavior.
 - Do not invent intent that the code or prompt does not support.
-- When **gpt-taste** is also in scope for UI or markup output, follow its stricter presentation rules (no emojis in code, markup, text content, or alt text) even though this skill otherwise allows plain headings.
 
 ## Format
 
 ### `#` Title
 
-One plain-English line naming the topic.
+One line naming the topic.
 
 ### `## TL;DR`
 
@@ -36,20 +39,13 @@ After the TL;DR section, add a horizontal rule: `---`.
 
 For each section:
 
-1. Write a plain-English `##` title (no emoji required).
+1. Write a `##` title (no emoji required).
 2. Add a one- or two-sentence lead-in.
 3. Show one fenced code block.
 
 Stop the section after the code block.
 
 Separate body sections with a horizontal rule: `---`.
-
-## Prose
-
-- One main idea per sentence.
-- Use short, common words where possible.
-- Start with the simple story, then add detail.
-- Avoid dense sentences, unexplained jargon, and private shorthand.
 
 ## Code
 
@@ -60,13 +56,19 @@ Separate body sections with a horizontal rule: `---`.
 - Every snippet must include short intent comments on the key lines. Use them to tell the reader what this line is doing here and why it matters.
 - Prefer behavior-faithful sketches over verbatim excerpts.
 
-## User clarifications (Cursor)
+## User clarifications
 
-When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
-Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time** when this skill already sequences questions that way.
 
 ## Scope fallback
 

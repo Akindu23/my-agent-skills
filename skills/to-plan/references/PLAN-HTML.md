@@ -1,6 +1,6 @@
 # Plan HTML (optional review companion)
 
-Write only when the user passed **with HTML** or accepted the post-`plan.md` AskQuestion (default No).
+Write only when the user passed **with HTML** or accepted the post-`plan.md` structured MCQ (default No).
 
 **SSOT remains `plan.md`.** Do not tell `/implement-plan` to read the HTML.
 

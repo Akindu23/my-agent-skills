@@ -8,17 +8,18 @@
     "skills/code-review",
     "skills/codebase-design",
     "skills/codebase-onboarding",
+    "skills/commit-msg",
     "skills/council",
     "skills/deep-research",
     "skills/diagnosing-bugs",
     "skills/docker-patterns",
     "skills/document",
     "skills/domain-modeling",
+    "skills/eli5",
     "skills/explain-code",
     "skills/frontend-design",
     "skills/frontend-slides",
     "skills/golang",
-    "skills/gpt-taste",
     "skills/grill-me",
     "skills/grill-with-docs",
     "skills/grilling",
@@ -27,14 +28,15 @@
     "skills/implement-plan",
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
-    "skills/mermaid",
-    "skills/pitstop",
     "skills/postgres-patterns",
     "skills/prototype",
     "skills/python-patterns",
     "skills/recursive-decomposition",
+    "skills/remove-slop",
     "skills/research",
+    "skills/retro",
     "skills/setup-work",
+    "skills/simplify-this",
     "skills/svg-diagrams",
     "skills/tdd",
     "skills/teach",
@@ -42,7 +44,7 @@
     "skills/to-spec",
     "skills/to-tickets",
     "skills/wayfinder",
-    "skills/web-design-guidelines",
+    "skills/writing-for-agents",
     "skills/yagni"
   ],
   "dependsOn": {
@@ -50,9 +52,9 @@
       "council"
     ],
     "code-review": [
-      "council",
       "yagni",
-      "best-practices-research"
+      "best-practices-research",
+      "remove-slop"
     ],
     "deep-research": [
       "council",
@@ -61,24 +63,30 @@
     "domain-modeling": [
       "architecture-decision-records"
     ],
+    "eli5": [
+      "simplify-this"
+    ],
+    "explain-code": [
+      "simplify-this"
+    ],
     "grilling": [
       "council"
     ],
     "grill-with-docs": [
       "grilling",
       "domain-modeling",
-      "wayfinder",
-      "handoff"
+      "wayfinder"
     ],
     "grill-me": [
       "grilling"
     ],
     "implement": [
-      "code-review",
-      "tdd"
+      "karpathy-guidelines",
+      "yagni",
+      "tdd",
+      "code-review"
     ],
     "implement-plan": [
-      "council",
       "karpathy-guidelines",
       "best-practices-research",
       "yagni"
@@ -86,9 +94,7 @@
     "improve-codebase-architecture": [
       "codebase-design",
       "grilling",
-      "domain-modeling",
-      "architecture-decision-records",
-      "council"
+      "domain-modeling"
     ],
     "recursive-decomposition": [
       "council"
@@ -96,18 +102,21 @@
     "research": [
       "council"
     ],
+    "retro": [
+      "writing-for-agents"
+    ],
     "teach": [
       "svg-diagrams"
     ],
     "to-spec": [
-      "council",
       "best-practices-research"
     ],
     "wayfinder": [
       "grilling",
       "domain-modeling",
       "prototype",
-      "research"
+      "research",
+      "handoff"
     ]
   },
   "packCommit": "d84a9b5bd6aab9fdbce058db246445d4c69fad2b"

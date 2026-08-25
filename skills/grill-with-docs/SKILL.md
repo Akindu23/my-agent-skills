@@ -11,6 +11,18 @@ disable-model-invocation: true
 
 Run `/grilling` with `/domain-modeling` until the design is sharp **or** fog makes a decision map the right next move. It is a a sharpening skill and not a size-based rival to `/wayfinder`. 
 
+## User clarifications
+
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
+
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
+
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
 ## 1. Grill
 
 Run a `/grilling` session using `/domain-modeling`. Glossary updates and ADR offers proceed as those skills specify.
@@ -27,8 +39,6 @@ After a frontier round, offer a switch **only when both hold**:
 Do **not** offer on hardness alone, or before the destination can be named.
 
 **Soft dumb-zone check:** if the thread already feels lossy or very long (~120k tokens is a heuristic, not a meter), include the handoff option below; otherwise omit it.
-
-Use **AskQuestion** (or plain chat if unavailable):
 
 **Normal (not dumb-zoned)**
 

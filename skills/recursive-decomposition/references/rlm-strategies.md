@@ -88,7 +88,7 @@ Main agent
 └── Synthesize hierarchically
 ```
 
-(Use **Task** or **Agent** with a portable role from the SSOT above; when only reading, use read-only semantics — and cap recursion depth.)
+(Use **Task** or **Agent** with a portable role from task-workflow.md above; when only reading, use read-only semantics — and cap recursion depth.)
 
 ### 4. Verification Through Re-Query
 

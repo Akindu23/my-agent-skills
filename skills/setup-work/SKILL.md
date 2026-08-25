@@ -1,6 +1,6 @@
 ---
 name: setup-work
-description: Optional per-repo bootstrap of `docs/agents/issue-tracker.md` and `docs/agents/domain.md` so engineering skills know where issues live (local markdown under `work/` by default; GitHub and GitLab also supported) and how to consume domain docs. Not required for the default path — skills assume local `work/` and single-context `CONTEXT.md` / `docs/adr/` when these files are missing. Run when switching to GitHub/GitLab/custom tracker, changing tracker, or confirming multi-context domain layout.
+description: Optional per-repo bootstrap of `docs/agents/issue-tracker.md` and `docs/agents/domain.md` so engineering skills know where issues live (local markdown under `work/` by default; GitHub and GitLab also supported) and how to consume domain docs. May seed reviewer-owned `CODING_STANDARDS.md`. Not required for the default path — skills assume local `work/` and single-context `CONTEXT.md` / `docs/adr/` when these files are missing. Run when switching to GitHub/GitLab/custom tracker, changing tracker, confirming multi-context domain layout, or seeding coding standards.
 disable-model-invocation: true
 ---
 
@@ -10,8 +10,9 @@ Optional scaffold for per-repo configuration the engineering skills read when pr
 
 - **Issue tracker** — where issues live (local markdown under `work/` by default; GitHub and GitLab are also supported out of the box)
 - **Domain docs** — where `CONTEXT.md` and ADRs live, and the consumer rules for reading them
+- **Coding standards** — optional reviewer-owned `CODING_STANDARDS.md` (empty **Rules** until a human accepts a rule)
 
-**Defaults without this skill:** local markdown under `work/`, single-context `CONTEXT.md` + `docs/adr/` at the repo root. Run this only when those defaults are wrong, or when switching trackers.
+**Defaults without this skill:** local markdown under `work/`, single-context `CONTEXT.md` + `docs/adr/` at the repo root, no `CODING_STANDARDS.md` until `/code-review` or `/retro` creates it on an accepted rule. Run this when those defaults are wrong, when switching trackers, or to seed `CODING_STANDARDS.md`.
 
 This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write. Do **not** edit `AGENTS.md` / `CLAUDE.md`.
 
@@ -25,6 +26,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 - `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/agents/` — does this skill's prior output already exist?
+- `CODING_STANDARDS.md` at the repo root
 - `work/` — sign that the local-markdown issue tracker convention is already in use
 - `.scratch/` — legacy local-tracker root; if present and `work/` is missing (or both exist), plan a migrate into `work/` when local markdown is chosen
 - Monorepo signals — a `pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or a populated `packages/*` with its own `src/`. Present only in a genuinely large multi-package repo; their absence means single-context, which is almost every repo.
@@ -33,15 +35,21 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 Summarise what's present and what's missing. Then take the sections in order — one section, one answer, then the next.
 
-## User clarifications (Cursor)
+## User clarifications
 
-When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
-Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
 
-Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip the section entirely when exploration already settled it (Section B when there's no monorepo).
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time** when this skill already sequences questions that way.
+
+Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip the section entirely when exploration already settled it (Section B when there's no monorepo; Section C when `CODING_STANDARDS.md` already exists).
 
 Assume the user does not know what these terms mean. Each section that *does* run starts with a short explainer (what it is, why these skills need it, what changes if they pick differently). Then show the choices and the default.
 
@@ -68,11 +76,18 @@ Offer **multi-context** — a root `CONTEXT-MAP.md` pointing to per-context `CON
 
 > Explainer (only when offering multi-context): Some skills (`improve-codebase-architecture`, `diagnosing-bugs`, `tdd`) read a `CONTEXT.md` file to learn the project's domain language, and `docs/adr/` for past architectural decisions. They need to know whether the repo has one global context or multiple (e.g. a monorepo with separate frontend/backend contexts) so they look in the right place.
 
+**Section C — Coding standards.** Skip when `CODING_STANDARDS.md` already exists.
+
+> Explainer: `/code-review` applies this file; implementers do not load it. Seed it empty. Rules are added later when you accept a nomination from `/code-review` or `/retro`.
+
+Recommend **create the seed** (yes). On no, skip. Do not generate rules in this section.
+
 ### 3. Confirm and edit
 
 Show the user a draft of:
 
 - The contents of `docs/agents/issue-tracker.md` and `docs/agents/domain.md`
+- `CODING_STANDARDS.md` when Section C ran (the seed, no invented rules)
 
 Let them edit before writing.
 
@@ -84,11 +99,14 @@ Write the docs files using the seed templates in this skill folder as a starting
 - [issue-tracker-github.md](./issue-tracker-github.md) — GitHub issue tracker
 - [issue-tracker-gitlab.md](./issue-tracker-gitlab.md) — GitLab issue tracker
 - [domain.md](./domain.md) — domain doc consumer rules + layout
+- [coding-standards.md](./coding-standards.md) — reviewer-owned `CODING_STANDARDS.md` seed (Section C only)
 
 When writing the local tracker and `.scratch/` still has content, perform the migrate into `work/` as part of this step (after the user confirmed Section A), then remove or leave an empty `.scratch/` only if nothing remains.
 
 For "other" issue trackers, write `docs/agents/issue-tracker.md` from scratch using the user's description.
 
+When Section C ran, write [coding-standards.md](./coding-standards.md) to `CODING_STANDARDS.md` at the repo root. Do not invent rules.
+
 ### 5. Done
 
-Tell the user the setup is complete and which engineering skills will now read from these files. Mention they can edit `docs/agents/*.md` directly later — re-running this skill is only necessary if they want to switch issue trackers, change domain layout, or restart from scratch.
+Tell the user the setup is complete and which engineering skills will now read from these files. Mention they can edit `docs/agents/*.md` and `CODING_STANDARDS.md` directly later — re-running this skill is only necessary if they want to switch issue trackers, change domain layout, or restart from scratch. If Section C was skipped because the file already existed, leave it untouched.

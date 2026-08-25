@@ -13,13 +13,19 @@ description: >-
 - User wants README, architecture, API, devops, runbook, migration, or colocated package docs refreshed after code changes
 - Triggers: "document this", "update the README", "write a runbook", "add docs for", "document the API", "capture how X works in the repo", `/document`
 
-## User clarifications (Cursor)
+## User clarifications
 
-When you need a **discrete decision** with a small set of clear options (about 2–6)—for example audience, doc location, or scope—prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill sequences questions that way.
+For a discrete decision with about 2-6 clear options (audience, doc location, scope), use the session's structured MCQ tool.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
-Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted existing doc text, a custom doc layout, or an open-ended description of what to cover.
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time** when this skill sequences questions that way.
 
 ## Scope
 

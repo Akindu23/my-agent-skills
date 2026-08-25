@@ -17,13 +17,19 @@ This command is _informed_ by the project's domain model and built on a shared d
 - Run the `/codebase-design` skill for the architecture vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) and its principles (the deletion test, "the interface is the test surface", "one adapter = hypothetical seam, two = real"). Use these terms exactly in every suggestion — don't drift into "component," "service," "API," or "boundary."
 - The domain language in `CONTEXT.md` gives names to good seams; ADRs in `docs/adr/` record decisions this command should not re-litigate.
 
-## User clarifications (Cursor)
+## User clarifications
 
-When you need a **discrete decision** with a small set of clear options (about 2–6), prefer the **`AskQuestion`** tool so the user gets structured choices. Ask **one decision at a time** when this skill already sequences questions that way.
+For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
-If **`AskQuestion`** is unavailable in the current environment, ask the same choices in ordinary chat (same options, same ordering).
+1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
+2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
-Use **plain chat** (not forced multiple-choice) when the answer is inherently free-form—for example pasted logs, a paragraph describing a custom tracker workflow, or an open-ended design explanation.
+Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
+
+Free-form answers stay in plain chat.
+
+Ask **one decision at a time** when this skill already sequences questions that way.
 
 If a question can be answered by exploring the codebase, explore the codebase instead.
 
@@ -38,6 +44,11 @@ If a question can be answered by exploring the codebase, explore the codebase in
 
 ### 1. Explore
 
+**Scope before you scan — YAGNI.** Deepening a module pays off by making future changes to it easier, so put extra weight on the parts of the codebase that have recently changed. Decide *where* to look before you look:
+
+- If the user named a direction (a module, a subsystem, a pain point), take it and skip the inference below.
+- Otherwise, walk back a good stretch of the commit history (`git log --oneline`) to find the codebase's hot spots — the files and areas that keep coming up — and let those paths pull your attention first. If the changes are scattered with no clear hot spot, widen the net.
+
 Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you're touching first.
 
 - If **`CONTEXT-MAP.md`** exists at the repo root, read it first for where domain docs and ADRs live.
@@ -45,7 +56,7 @@ Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you'r
 
 Then walk the codebase using the **Task** tool:
 
-- Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT). Portable role **`explore`**, read-only.
+- Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md). Portable role **`explore`**, read-only.
 - Launch **multiple Task/Agent calls in one message** when partitions are independent (dirs, concerns, packages).
 
 Don't follow rigid heuristics — explore organically and note where you experience friction:

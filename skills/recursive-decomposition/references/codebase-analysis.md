@@ -38,7 +38,7 @@ By module, for example:
 ### Phase 3: Launch parallel Task/Agent subagents
 
 ```text
-Task(  # or Agent — per SSOT
+Task(  # or Agent — per task-workflow.md
   role="explore",
   readonly=true,  # Claude: Explore / Plan / permissionMode plan
   prompt="Analyze error handling under src/api/* ... return structured findings."
