@@ -6,11 +6,10 @@ disable-model-invocation: true
 
 Post-change **code review**. Report only — do not edit code unless the user asks after the report. `CODING_STANDARDS.md` is the exception: append a rule only after the user accepts a nomination (step 8).
 
-Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT), with these overrides:
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md), with these overrides:
 
 | Role | Model |
 |------|--------|
-| Council workers | SSOT defaults (parallel / light) |
 | Thermos, `/yagni` | heavy lane / `[heavy]` |
 | Fresh pass + merge | **Cursor:** `gpt-5.6-sol-medium` if in enum, else heavy. **Claude Code:** `claude-opus-4-8` if in enum, else `opus`, else heavy |
 

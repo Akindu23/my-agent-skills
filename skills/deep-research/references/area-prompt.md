@@ -4,7 +4,7 @@ Parent fills placeholders, then dispatches one Task or Agent per research area. 
 
 ## Dispatch parameters
 
-Probe Task/Agent enums; route per [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md) (SSOT).
+Probe Task/Agent enums; route per [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md).
 
 - Portable role: `general-purpose`
 - Write-capable (required for MCP/web + file write)

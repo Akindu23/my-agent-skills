@@ -18,7 +18,7 @@ Consult these resources as needed:
 - ./references/cost-analysis.md — When to apply recursive vs. direct approaches
 - ./references/codebase-analysis.md — Full walkthrough of codebase-wide analysis
 - ./references/document-aggregation.md — Multi-document information extraction
-- ../council/references/task-workflow.md — sub-delegate routing, enum probe, parallelism (SSOT)
+- ../council/references/task-workflow.md — sub-delegate routing, enum probe, portable roles
 
 ## Core Principles
 
@@ -72,7 +72,7 @@ Most tasks fail when context is overloaded. Instead of loading entire contexts i
 
 ## Sub-agents
 
-Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT). Use Task/Agent for independent segments (read-only sweeps, parallel batches, or work that should stay isolated).
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md). Use Task/Agent for independent segments (read-only sweeps, parallel batches, or work that should stay isolated).
 
 - Portable roles: `explore` for read-only codebase survey; `general-purpose` when edits or multi-step work is needed; `shell` / `bash` or a specialized type when they match the job and appear in the enum.
 - Prefer read-only when the subagent must not write files; write-capable when it should implement changes.

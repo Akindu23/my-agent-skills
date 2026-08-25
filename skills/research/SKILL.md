@@ -21,7 +21,7 @@ Pin the question the agent must answer. Prefer one sharp question (or a tight cl
 
 Spin up one **Task** with `run_in_background: true` so research continues while the parent proceeds.
 
-Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT).
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md).
 
 Use portable role **`general-purpose`**, write-capable (read-only mode strips MCP/internet access research needs).
 

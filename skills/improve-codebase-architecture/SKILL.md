@@ -56,7 +56,7 @@ Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you'r
 
 Then walk the codebase using the **Task** tool:
 
-- Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT). Portable role **`explore`**, read-only.
+- Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md). Portable role **`explore`**, read-only.
 - Launch **multiple Task/Agent calls in one message** when partitions are independent (dirs, concerns, packages).
 
 Don't follow rigid heuristics — explore organically and note where you experience friction:

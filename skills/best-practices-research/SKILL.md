@@ -20,7 +20,7 @@ Identify 1-3 domains the task touches (a stack, library, or framework). For each
 
 One domain → one subagent with all its questions. 2-3 clearly unrelated domains → one subagent per domain, dispatched together in a single message (parallel `Task` calls).
 
-Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT).
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md).
 
 Use portable role **`general-purpose`**, write-capable, foreground (you need findings before writing code; read-only mode strips MCP/internet access these subagents need).
 

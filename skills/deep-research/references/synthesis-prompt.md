@@ -4,7 +4,7 @@ Parent fills placeholders, then dispatches **one serial** Task or Agent after ga
 
 ## Dispatch parameters
 
-Probe Task/Agent enums; route per [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md) (SSOT).
+Probe Task/Agent enums; route per [`../../council/references/task-workflow.md`](../../council/references/task-workflow.md).
 
 - Portable role: `general-purpose`
 - Write-capable (writes `gaps.md`)

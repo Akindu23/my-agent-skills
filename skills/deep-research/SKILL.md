@@ -67,12 +67,12 @@ Claim-local `[N]` bound to `SOURCES.md` / `#src-N`. Mark weak claims `[uncertain
 
 ## Task / Agent routing
 
-Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md) (SSOT).
+Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md).
 
 | Role | Skill-local override |
 |------|----------------------|
 | Area waves | portable role `general-purpose`; write-capable; **foreground**; ≤2–3 parallel; writes findings only |
-| Synthesis | Serial; portable role `general-purpose`; write-capable; writes `gaps.md` only (overrides council’s generic synthesis-readonly default); include `[heavy]` in description |
+| Synthesis | Serial; portable role `general-purpose`; write-capable; writes `gaps.md` only (overrides the workflow file’s read-only synthesis preference); include `[heavy]` in description |
 
 Pass **path pointers** (pack root, `plan.md`, `SOURCES.md`, write path, slug/title) — not inlined file bodies. Load full prompt text from `references/`.
 
