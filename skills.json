@@ -36,6 +36,7 @@
     "skills/research",
     "skills/retro",
     "skills/setup-work",
+    "skills/simplify-this",
     "skills/svg-diagrams",
     "skills/tdd",
     "skills/teach",
@@ -61,6 +62,12 @@
     ],
     "domain-modeling": [
       "architecture-decision-records"
+    ],
+    "eli5": [
+      "simplify-this"
+    ],
+    "explain-code": [
+      "simplify-this"
     ],
     "grilling": [
       "council"

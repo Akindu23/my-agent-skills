@@ -6,14 +6,18 @@ disable-model-invocation: true
 
 # Explain Code
 
-Explain the user-scoped code as a short, scannable post. Prefer plain-English prose and small code sketches over exhaustive walkthroughs.
+Explain the user-scoped code as a short, scannable post. Prefer small code sketches over exhaustive walkthroughs.
+
+Read [`../simplify-this/references/ste.md`](../simplify-this/references/ste.md). Apply rules 1, 2, 3, and 5 to the title, the TL;DR, and each section lead-in. Keep Format as the structure. Name identifiers from the code.
+
+**Done when:** every scoped idea has a section with a sketch, and those four STE rules hold on the title, TL;DR, and lead-ins.
 
 ## Defaults
 
 - Match the user's scope exactly.
 - Use this structure: `#` title, `## TL;DR`, then one or more `##` sections.
 - Each `##` section covers one idea and includes at least one fenced code block.
-- Keep prose simple and snippets small.
+- Keep snippets small.
 - Simplify code when useful, but stay faithful to behavior.
 - Do not invent intent that the code or prompt does not support.
 
@@ -21,7 +25,7 @@ Explain the user-scoped code as a short, scannable post. Prefer plain-English pr
 
 ### `#` Title
 
-One plain-English line naming the topic.
+One line naming the topic.
 
 ### `## TL;DR`
 
@@ -35,20 +39,13 @@ After the TL;DR section, add a horizontal rule: `---`.
 
 For each section:
 
-1. Write a plain-English `##` title (no emoji required).
+1. Write a `##` title (no emoji required).
 2. Add a one- or two-sentence lead-in.
 3. Show one fenced code block.
 
 Stop the section after the code block.
 
 Separate body sections with a horizontal rule: `---`.
-
-## Prose
-
-- One main idea per sentence.
-- Use short, common words where possible.
-- Start with the simple story, then add detail.
-- Avoid dense sentences, unexplained jargon, and private shorthand.
 
 ## Code
 
