@@ -10,5 +10,6 @@ Using the plan attached to this message (typically `work/<feature-slug>/plan.md`
 2. Run `/best-practices-research` on the domains the plan touches, before writing any code. **Done when**: every recommendation is incorporated into the plan or explicitly rejected.
 3. Implement the plan, following `/karpathy-guidelines`. **Done when**: every step in the plan is implemented.
 4. Run a `/yagni` pass over the changes made in step 3, to simplify. **Done when**: the pass has reviewed every file changed in step 3.
+5. Close the plan **on disk**: mark the plan file's status `implemented / awaiting review` (whole plan - this path has no per-ticket order). **Done when**: a fresh session reading only the plan file knows the work is built and pending review.
 
-Do **not** use this as the default executor for `/to-tickets` output — that is `/implement` (one ticket per session). `/to-spec` already runs council/BPR on the Matt path; this skill runs them on the attached plan — do not also re-prep a spec here.
+Do **not** use this as the default executor for `/to-tickets` output - that is `/implement` (one ticket per session). `/to-spec` already runs council/BPR on the Matt path; this skill runs them on the attached plan - do not also re-prep a spec here.
