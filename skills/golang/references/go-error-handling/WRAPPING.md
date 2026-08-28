@@ -145,7 +145,7 @@ Go 1.21). Inject `*slog.Logger` where useful; use `slog.InfoContext` /
 `slog.ErrorContext` when a request `context.Context` is in scope.
 
 Google-internal style guides still mention `log.Error` / `log.V` / `log.Infof`
-(glog-shaped APIs). Those are **not** methods on the standard `log` package —
+(glog-shaped APIs). Those are **not** methods on the standard `log` package -
 do not copy them into stdlib-only code.
 
 ```go

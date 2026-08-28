@@ -7,7 +7,7 @@ description: Go performance patterns including efficient string handling, type c
 
 > **Source**: Uber Go Style Guide
 
-Performance-specific guidelines apply only to the **hot path**. Don't prematurely optimize—focus these patterns where they matter most.
+Performance-specific guidelines apply only to the **hot path**. Don't prematurely optimize - focus these patterns where they matter most.
 
 ---
 
@@ -90,7 +90,7 @@ Provide capacity hints when initializing maps with `make()`.
 make(map[T1]T2, hint)
 ```
 
-**Note**: Unlike slices, map capacity hints do not guarantee complete preemptive allocation—they approximate the number of hashmap buckets required.
+**Note**: Unlike slices, map capacity hints do not guarantee complete preemptive allocation - they approximate the number of hashmap buckets required.
 
 **Bad:**
 
@@ -124,7 +124,7 @@ Provide capacity hints when initializing slices with `make()`, particularly when
 make([]T, length, capacity)
 ```
 
-Unlike maps, slice capacity is **not a hint**—the compiler allocates exactly that much memory. Subsequent `append()` operations incur zero allocations until capacity is reached.
+Unlike maps, slice capacity is **not a hint** - the compiler allocates exactly that much memory. Subsequent `append()` operations incur zero allocations until capacity is reached.
 
 **Bad:**
 
@@ -167,8 +167,8 @@ Don't pass pointers as function arguments just to save a few bytes. If a functio
 
 **Common instances where values should be passed directly:**
 
-- Pointer to a string (`*string`) — strings are already small fixed-size headers
-- Pointer to an interface value (`*io.Reader`) — interfaces are fixed-size (type + data pointers)
+- Pointer to a string (`*string`) - strings are already small fixed-size headers
+- Pointer to an interface value (`*io.Reader`) - interfaces are fixed-size (type + data pointers)
 
 **Bad:**
 
@@ -209,7 +209,7 @@ into the repo (often as `default.pgo`), and enable `-pgo` on release builds.
 **When it helps:** CPU-bound services with stable hot paths; less impact on
 I/O-bound or highly branchy code.
 
-**CI caveat:** profiles must reflect **real workload** — a synthetic or
+**CI caveat:** profiles must reflect **real workload** - a synthetic or
 wrong-phase profile can misguide optimizations. Regenerate when behavior shifts;
 treat the profile file like release configuration, not arbitrary test output.
 

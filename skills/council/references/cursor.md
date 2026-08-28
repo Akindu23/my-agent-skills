@@ -37,7 +37,7 @@ The same light slug applies to every partition worker.
 ## Notes
 
 - Auto-pick Composer, Grok, or Gemini Flash per the lanes above. Claude or GPT only when the user requested that slug and it appears in the enum.
-- Plugin agent markdown under `plugins/**/agents/*.md` may use `inherit`, `sonnet`, `haiku`, or `fast` for other harnesses — those are not Task `model` values.
+- Plugin agent markdown under `plugins/**/agents/*.md` may use `inherit`, `sonnet`, `haiku`, or `fast` for other harnesses - those are not Task `model` values.
 
 ## Task `subagent_type` orientation (probe enum)
 
@@ -45,7 +45,7 @@ The enum is session- and plugin-dependent. Use values that appear in the current
 
 **Auto-delegated (not Task picks):** Cursor may auto-delegate `explore`, `bash` (Task slug: `shell`), and `browser` without explicit Task calls.
 
-**Custom agents:** `.cursor/agents/` or `~/.cursor/agents/` — invoked by `name` when that name appears in the enum (e.g. `code-reviewer`). Not built-in.
+**Custom agents:** `.cursor/agents/` or `~/.cursor/agents/` - invoked by `name` when that name appears in the enum (e.g. `code-reviewer`). Not built-in.
 
 ### Core (usually in enum)
 

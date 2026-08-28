@@ -40,7 +40,7 @@ Per document, extract: product area, features, priority, status, quarter, depend
 Partition by time bucket, product line, or folder so chunks are independent.
 
 For each batch:
-Task(  # or Agent — per task-workflow.md
+Task(  # or Agent - per task-workflow.md
   role="explore",
   readonly=true,  # Claude: Explore / Plan / permissionMode plan
   prompt="Read these files [list]. Extract to schema: … Return JSON per doc."

@@ -16,7 +16,7 @@ Go's approach to composition over inheritance.
 ## Interface Basics
 
 Interfaces in Go specify behavior: if something can do *this*, it can be used
-*here*. Types implement interfaces implicitly—no `implements` keyword needed.
+*here*. Types implement interfaces implicitly - no `implements` keyword needed.
 
 ```go
 // io.Writer interface - any type with this method satisfies it
@@ -168,12 +168,12 @@ case Stringer:
 **Default (same as [golang-patterns](golang-patterns.md)):** *accept interfaces,
 return concrete types.* That keeps APIs clear and refactor-friendly.
 
-**This section covers the deliberate exceptions** — when returning a **small
+**This section covers the deliberate exceptions** - when returning a **small
 interface** is idiomatic:
 
-- **Hide implementation** — the concrete type is unexported (or should not be
+- **Hide implementation** - the concrete type is unexported (or should not be
   part of the public contract); the interface *is* the API.
-- **Match stdlib or ecosystem shape** — callers already think in terms of
+- **Match stdlib or ecosystem shape** - callers already think in terms of
   `io.Reader`, `io.Writer`, `hash.Hash`, `hash.Hash32`, `cipher.Stream`, etc.
 
 Do **not** return a broad interface “for flexibility” when a concrete type (or
@@ -182,7 +182,7 @@ a more specific documented type) would serve callers better.
 ### Hide Implementation, Expose Interface
 
 ```go
-// Good: Constructor returns interface type — implementation is unexported
+// Good: Constructor returns interface type - implementation is unexported
 func NewHash() hash.Hash32 {
     return &myHash{} // unexported type; callers depend on hash.Hash32
 }
@@ -234,7 +234,7 @@ type ReadWriter interface {
 }
 ```
 
-A `ReadWriter` can do what a `Reader` does *and* what a `Writer` does—it's a
+A `ReadWriter` can do what a `Reader` does *and* what a `Writer` does - it's a
 union of the embedded interfaces.
 
 **Rule**: Only interfaces can be embedded within interfaces.
@@ -363,7 +363,7 @@ func (m *MyType) MarshalJSON() ([]byte, error) { /* ... */ }
 var _ json.Marshaler = (*MyType)(nil)
 ```
 
-**Don't** add these checks for every interface implementation—only when there's
+**Don't** add these checks for every interface implementation - only when there's
 no other static conversion that would catch the error.
 
 ---

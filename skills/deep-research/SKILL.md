@@ -1,7 +1,7 @@
 ---
 name: deep-research
 description: >-
-  Runs a multi-phase deep dive—defaulting to a product/market lens—and writes a
+  Runs a multi-phase deep dive - defaulting to a product/market lens - and writes a
   navigable multi-page HTML report pack under docs/research/<topic-slug>/.
 disable-model-invocation: true
 ---
@@ -10,14 +10,14 @@ disable-model-invocation: true
 
 The user invoked `/deep-research`. Product/market lens by default; other topics allowed.
 
-**Leading words:** **`pack`** — `docs/research/<topic-slug>/` (markdown + HTML). **`SSOT`** — markdown authoritative; HTML mirrors. **`gate`** — fixed uncertainty menu + HITL tripwires. **`wave`** — ≤2–3 parallel area Tasks. **`evidenced`** — claim-local `[N]` bound to `SOURCES.md`; weak claims `[uncertain]`; never invent sources.
+**Leading words:** **`pack`** - `docs/research/<topic-slug>/` (markdown + HTML). **`SSOT`** - markdown authoritative; HTML mirrors. **`gate`** - fixed uncertainty menu + HITL tripwires. **`wave`** - ≤2-3 parallel area Tasks. **`evidenced`** - claim-local `[N]` bound to `SOURCES.md`; weak claims `[uncertain]`; never invent sources.
 
 ## User clarifications
 
 For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
 1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
-2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+2. Call the one that exists, using that tool's schema from the session - field names are not interchangeable.
 3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
 Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
@@ -30,9 +30,9 @@ Ask **one decision at a time**.
 
 When a pre-synthesis or pre-render tripwire fires, present exactly these options (same labels and order every time):
 
-1. **Proceed as-is** — continue; shaky items stay marked in markdown/HTML
-2. **Retry** — user names areas (pre-synth) or “re-synthesize” (pre-render); re-run only that scope; **re-evaluate the same gate**
-3. **Drop or demote** — user confirms items; edit findings/`gaps.md`; **re-evaluate**
+1. **Proceed as-is** - continue; shaky items stay marked in markdown/HTML
+2. **Retry** - user names areas (pre-synth) or “re-synthesize” (pre-render); re-run only that scope; **re-evaluate the same gate**
+3. **Drop or demote** - user confirms items; edit findings/`gaps.md`; **re-evaluate**
 4. **Stop**
 
 Do not invent a fifth option.
@@ -71,10 +71,10 @@ Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../
 
 | Role | Skill-local override |
 |------|----------------------|
-| Area waves | portable role `general-purpose`; write-capable; **foreground**; ≤2–3 parallel; writes findings only |
+| Area waves | portable role `general-purpose`; write-capable; **foreground**; ≤2-3 parallel; writes findings only |
 | Synthesis | Serial; portable role `general-purpose`; write-capable; writes `gaps.md` only (overrides the workflow file’s read-only synthesis preference); include `[heavy]` in description |
 
-Pass **path pointers** (pack root, `plan.md`, `SOURCES.md`, write path, slug/title) — not inlined file bodies. Load full prompt text from `references/`.
+Pass **path pointers** (pack root, `plan.md`, `SOURCES.md`, write path, slug/title) - not inlined file bodies. Load full prompt text from `references/`.
 
 ## Process
 
@@ -86,7 +86,7 @@ Propose default area seeds: **landscape**, **competitors**, **academic**, **adja
 
 ### 2. Gather waves (AFK)
 
-Run locked areas in waves of ≤2–3 parallel Tasks. After each wave: merge proposed sources into `SOURCES.md` (verify, dedupe, number); confirm each findings file matches [PACK-SCHEMAS.md](references/PACK-SCHEMAS.md). Mid-gather area ideas go under **Deferred proposals** in `plan.md` — never silent adds, never interrupt the wave.
+Run locked areas in waves of ≤2-3 parallel Tasks. After each wave: merge proposed sources into `SOURCES.md` (verify, dedupe, number); confirm each findings file matches [PACK-SCHEMAS.md](references/PACK-SCHEMAS.md). Mid-gather area ideas go under **Deferred proposals** in `plan.md` - never silent adds, never interrupt the wave.
 
 **Done when:** every locked area is `complete` or `failed`; `SOURCES.md` is current.
 
@@ -94,7 +94,7 @@ Run locked areas in waves of ≤2–3 parallel Tasks. After each wave: merge pro
 
 If Deferred proposals is non-empty, ask whether to add any. On yes, append to Areas, gather those areas (same wave rules), then continue. On no, leave them deferred.
 
-**Done when:** deferred list cleared or explicitly left deferred by the user — or skipped because empty.
+**Done when:** deferred list cleared or explicitly left deferred by the user - or skipped because empty.
 
 ### 4. Pre-synthesis uncertainty gate (HITL, conditional)
 

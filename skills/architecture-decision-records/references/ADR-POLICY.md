@@ -8,9 +8,9 @@ Canonical policy for when and how to record architecture decision records in a p
 
 Offer to record only when **all three** are true:
 
-1. **Hard to reverse** — changing course later has meaningful cost
-2. **Surprising without context** — a future reader will wonder why it was done this way
-3. **Real trade-off** — genuine alternatives existed and one was chosen for specific reasons
+1. **Hard to reverse** - changing course later has meaningful cost
+2. **Surprising without context** - a future reader will wonder why it was done this way
+3. **Real trade-off** - genuine alternatives existed and one was chosen for specific reasons
 
 If any criterion is missing, do not offer an ADR.
 
@@ -46,10 +46,10 @@ Create directories **lazily** on first ADR, with user consent for scaffolding.
 
 `proposed` → `accepted` → `deprecated` | `superseded by ADR-NNNN`
 
-- **proposed** — under discussion, not committed
-- **accepted** — in effect
-- **deprecated** — no longer relevant
-- **superseded** — replaced; always link the successor ADR
+- **proposed** - under discussion, not committed
+- **accepted** - in effect
+- **deprecated** - no longer relevant
+- **superseded** - replaced; always link the successor ADR
 
 ## Approval before write
 

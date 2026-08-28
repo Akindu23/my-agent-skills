@@ -44,7 +44,7 @@ dict keys), prefer `dict.get` over `try/except KeyError`.
 ```python
 from typing import Any
 
-# Good: expected absence — use get
+# Good: expected absence - use get
 def get_value(dictionary: dict[str, Any], key: str, default: Any = None) -> Any:
     return dictionary.get(key, default)
 

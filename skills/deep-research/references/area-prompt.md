@@ -9,11 +9,11 @@ Probe Task/Agent enums; route per [`../../council/references/task-workflow.md`](
 - Portable role: `general-purpose`
 - Write-capable (required for MCP/web + file write)
 - Foreground (`run_in_background` unset/false)
-- Parallelism: ≤2–3 area workers in one parent message
+- Parallelism: ≤2-3 area workers in one parent message
 
 ## Prompt body (fill and send)
 
-Use a fenced block when pasting into the Task/Agent `prompt`. Avoid nested fences inside the prompt text — describe frontmatter as a bullet list.
+Use a fenced block when pasting into the Task/Agent `prompt`. Avoid nested fences inside the prompt text - describe frontmatter as a bullet list.
 
 ~~~~
 You are researching one area of a deep-research pack.
@@ -36,8 +36,8 @@ Read plan.md and SOURCES.md from disk as needed. Do not expect file bodies inlin
 2. Discover with `web_search_exa` via CallMcpTool when ready; otherwise built-in WebSearch.
 3. Verify before citing: `web_fetch_exa` (batch urls) when ready; otherwise WebFetch (one URL per call). Retry fetch once, then mark the claim `[uncertain]` or omit the source.
 4. On missing tools, auth errors, 429/rate limits, timeout/5xx, or repeated MCP failures: fall back to built-in WebSearch/WebFetch for **that call only**.
-5. Do **not** invoke Exa plugin slash skills (`exa-web-search`, `exa-fetch`, etc.) — they forbid built-in fallback.
-6. Today's date: {{today}} — prefer recent sources.
+5. Do **not** invoke Exa plugin slash skills (`exa-web-search`, `exa-fetch`, etc.) - they forbid built-in fallback.
+6. Today's date: {{today}} - prefer recent sources.
 7. If tools are completely unusable: write the findings file with `status: failed`, explain under Knowledge boundaries, and stop. Never invent sources or fill headings from memory.
 
 ## Output file
@@ -51,16 +51,16 @@ Write {{pack_root}}/findings/{{slug}}.md with YAML frontmatter fields:
 Required headings (in order): Summary; Findings; Contradictions & open questions; Knowledge boundaries; Uncertain claims; Sources used.
 
 Rules:
-- Keep claims evidenced (claim-local [N]; [uncertain] when weak/single-source — also list under Uncertain claims).
+- Keep claims evidenced (claim-local [N]; [uncertain] when weak/single-source - also list under Uncertain claims).
 - Sources used footer: list the [N] ids you cited (titles optional).
 - failed ≠ complete+low: use failed only when the file is unusable (tools broken, zero credible sources, blocked).
 - Never edit files other than your write path.
 
 ## Confidence rubric
-- high — thin Uncertain claims section; key claims have solid cites
-- mixed — material uncertain claims or single-source key claims
-- low — mostly uncertain / thin evidence (file still written)
-- failed — unusable output (see above)
+- high - thin Uncertain claims section; key claims have solid cites
+- mixed - material uncertain claims or single-source key claims
+- low - mostly uncertain / thin evidence (file still written)
+- failed - unusable output (see above)
 
 ## Sources to propose (for parent)
 At the end of your Task result (chat return, not SOURCES.md), list proposed new sources:

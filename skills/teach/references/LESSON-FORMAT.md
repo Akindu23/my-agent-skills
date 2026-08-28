@@ -23,13 +23,13 @@ docs/learning/typescript-generics/lessons/0003-generic-constraints.html
 
 ## Design
 
-Each lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Think Tufte.
+Each lesson should be **beautiful** - clean, readable typography and layout - since the user will return to these later to review. Think Tufte.
 
 Vary visual design to fit the topic and lesson mood. Do not reuse the same palette, layout, or section shape every time. Prefer print-friendly contrast and scannable hierarchy over a fixed house style. Shared files in `assets/` are for interactive behavior (quizzes, simulators), not lesson-wide styling.
 
 Keep each lesson **short** and completable in one sitting. Deliver a **single tangible win** tied to `MISSION.md`. If it needs multiple major sections, split into multiple lessons.
 
-Make opening a lesson as easy as possible — ideally a single CLI command the user can run to open the HTML file in their browser.
+Make opening a lesson as easy as possible - ideally a single CLI command the user can run to open the HTML file in their browser.
 
 ## Preview
 
@@ -64,7 +64,7 @@ def greet(name: str) -> str:
 
 Do not rely on auto-detection for short snippets; it often misfires.
 
-For syntax highlighting, [highlight.js](https://highlightjs.org/) `11.11.1` via cdnjs is a good default. Load a theme stylesheet that matches the lesson's visual design — without a theme, highlighted code can render monochrome. If a language is not in the common bundle, load its module before calling `hljs.highlightAll()`:
+For syntax highlighting, [highlight.js](https://highlightjs.org/) `11.11.1` via cdnjs is a good default. Load a theme stylesheet that matches the lesson's visual design - without a theme, highlighted code can render monochrome. If a language is not in the common bundle, load its module before calling `hljs.highlightAll()`:
 
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
@@ -80,7 +80,7 @@ CSS approach is open: plain CSS, a CDN utility framework, or embedded styles are
 - Use terms from `GLOSSARY.md`; if a term is not ready for the glossary, introduce it plainly in the lesson.
 - Tie the lesson to the user's `MISSION.md` in the opening promise or first exercise.
 - Include at least one active step: retrieval question, scenario, worked example with a pause, or small in-browser exercise.
-- Litter lessons with citations — link only to entries in `RESOURCES.md` (Exa-verified when added). Do not link to URLs not yet listed there.
+- Litter lessons with citations - link only to entries in `RESOURCES.md` (Exa-verified when added). Do not link to URLs not yet listed there.
 - Recommend a **primary source** from `RESOURCES.md` for the user to read or watch after the lesson.
 - Link to sibling lessons and `reference/*.html` files via HTML anchors when relevant.
 - For quizzes, make each answer option the same number of words (and characters, if possible). Do not clue answers through formatting.

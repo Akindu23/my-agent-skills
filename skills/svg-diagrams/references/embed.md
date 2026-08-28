@@ -30,7 +30,7 @@ Path: `assets/diagrams/<diagram-slug>.svg` (stable names; overwrite on re-render
 </figure>
 ```
 
-Bake palette at write time. Relative `./` paths only. No runtime Mermaid/CDN for diagrams — see `skills/deep-research/references/PACK-HTML.md`.
+Bake palette at write time. Relative `./` paths only. No runtime Mermaid/CDN for diagrams - see `skills/deep-research/references/PACK-HTML.md`.
 
 ### `teach`
 

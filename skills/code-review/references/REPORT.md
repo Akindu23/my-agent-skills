@@ -4,9 +4,9 @@
 
 Calibrate every finding onto this scale:
 
-- **P0** — release-blocking: outage, security compromise, irreversible data loss.
-- **P1** — severe common-path break: crash, major contract break, feature unusable on the intended path.
-- **P2** — everything else (nits, style, ordinary test gaps, speculative hardening).
+- **P0** - release-blocking: outage, security compromise, irreversible data loss.
+- **P1** - severe common-path break: crash, major contract break, feature unusable on the intended path.
+- **P2** - everything else (nits, style, ordinary test gaps, speculative hardening).
 
 ## Gate
 
@@ -39,7 +39,7 @@ Snapshot of this diff. A later Run `/remove-slop` scans the tree as it is.
 Omit this section when the scan missed every class. Tests are **code** (narration at `*_test.*` is comments).
 
 ## Skipped
-- Delta BPR: <ran scoped to X | skipped — reason>
+- Delta BPR: <ran scoped to X | skipped - reason>
 - Other: <none | …>
 
 ## Notes

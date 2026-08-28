@@ -1,14 +1,14 @@
 ---
 name: document
 description: >-
-  Creates or updates durable project documentation—README sections, architecture docs, API docs, examples, migration notes, devops docs, runbooks, and usage guides verified against code. Use when the user asks to document behavior, write or update repo docs, refresh README, add API or runbook docs, capture how something works in the repository, or remove stale documentation after code changes. Triggers: "document this", "update the README", "write a runbook", "add docs for", "document the API", "capture how X works in the repo", "/document".
+  Creates or updates durable project documentation - README sections, architecture docs, API docs, examples, migration notes, devops docs, runbooks, and usage guides verified against code. Use when the user asks to document behavior, write or update repo docs, refresh README, add API or runbook docs, capture how something works in the repository, or remove stale documentation after code changes. Triggers: "document this", "update the README", "write a runbook", "add docs for", "document the API", "capture how X works in the repo", "/document".
 ---
 
 # Document
 
 ## When to Use
 
-- User wants **documentation committed in the repo** (create, update, or prune)—not a chat-only walkthrough
+- User wants **documentation committed in the repo** (create, update, or prune) - not a chat-only walkthrough
 - User asks to document a feature, module, command, API, release, operational procedure, or existing doc scope
 - User wants README, architecture, API, devops, runbook, migration, or colocated package docs refreshed after code changes
 - Triggers: "document this", "update the README", "write a runbook", "add docs for", "document the API", "capture how X works in the repo", `/document`
@@ -18,7 +18,7 @@ description: >-
 For a discrete decision with about 2-6 clear options (audience, doc location, scope), use the session's structured MCQ tool.
 
 1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
-2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+2. Call the one that exists, using that tool's schema from the session - field names are not interchangeable.
 3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
 Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.

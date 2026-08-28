@@ -38,12 +38,12 @@ By module, for example:
 ### Phase 3: Launch parallel Task/Agent subagents
 
 ```text
-Task(  # or Agent — per task-workflow.md
+Task(  # or Agent - per task-workflow.md
   role="explore",
   readonly=true,  # Claude: Explore / Plan / permissionMode plan
   prompt="Analyze error handling under src/api/* ... return structured findings."
 )
-# Repeat for B–E; issue Task/Agent calls in parallel in one user message when the runner supports it.
+# Repeat for B-E; issue Task/Agent calls in parallel in one user message when the runner supports it.
 ```
 
 Use portable role `explore` (read-only) for surveys; use `general-purpose` if a subagent must edit or run multi-step local automation.

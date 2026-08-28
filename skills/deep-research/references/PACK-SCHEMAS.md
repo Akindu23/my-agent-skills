@@ -20,6 +20,6 @@ Markdown + YAML frontmatter only. No sidecar JSON. Load before writing or mergin
 
 ## `SOURCES.md`
 
-Append-only numbered registry — `[N]. Title — URL` + one-line “supports …”; optional `as_of`, `type` (primary/secondary), `areas: […]`.
+Append-only numbered registry - `[N]. Title - URL` + one-line “supports …”; optional `as_of`, `type` (primary/secondary), `areas: […]`.
 
 Parent owns all appends (dedupe URLs to one `[N]`, merge `areas`). Area Tasks propose entries; parent verifies (fetch) before assigning numbers.

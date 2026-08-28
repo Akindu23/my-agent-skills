@@ -212,7 +212,7 @@ ctx = context.WithValue(ctx, requestIDKey, reqID)
 
 ### Checking Cancellation
 
-**Avoid** a `select` with a tight `default` branch — that **busy-spins** and
+**Avoid** a `select` with a tight `default` branch - that **busy-spins** and
 wastes CPU. Prefer **blocking** on `ctx`, on real I/O, or on a **ticker** with
 `defer ticker.Stop()` when work is paced on a schedule.
 
@@ -281,7 +281,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 | Request-scoped data | Appropriate for context values |
 | Sharing context | Safe - contexts are immutable |
 | `context.Background()` | Only for non-request-specific code |
-| Cancellation waits | Block on `<-ctx.Done()`, blocking I/O, or a ticker — no tight `select`/`default` spin |
+| Cancellation waits | Block on `<-ctx.Done()`, blocking I/O, or a ticker - no tight `select`/`default` spin |
 | Default | Pass context even if you think you don't need it |
 
 ---

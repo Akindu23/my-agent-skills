@@ -14,10 +14,10 @@ Generate **SBOM** and **build provenance** attestation as part of release builds
 
 ## Signing
 
-**Docker Content Trust / Notary v1 is retired** — do not design new pipelines around DCT. Sign and verify with **Cosign / Sigstore** (or Notation). Sign the image **digest**, not a mutable tag.
+**Docker Content Trust / Notary v1 is retired** - do not design new pipelines around DCT. Sign and verify with **Cosign / Sigstore** (or Notation). Sign the image **digest**, not a mutable tag.
 
 Sign release images so consumers can verify publisher and digest. One-line shape (exact flags evolve): sign the digest after push, verify with your org’s key or keyless policy.
 
 ## Base image cadence
 
-Moving tags (e.g. `node:22-alpine`) pick up upstream fixes—and upstream breakage. Prefer **scheduled rebuilds** of pinned bases (digest or immutable patch tags) so security patches land on a controlled rhythm; combine with scanner alerts for critical CVEs between rebuilds.
+Moving tags (e.g. `node:22-alpine`) pick up upstream fixes - and upstream breakage. Prefer **scheduled rebuilds** of pinned bases (digest or immutable patch tags) so security patches land on a controlled rhythm; combine with scanner alerts for critical CVEs between rebuilds.

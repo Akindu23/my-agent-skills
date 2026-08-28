@@ -1,19 +1,19 @@
 ---
 name: to-plan
-description: Publish a one-session implementation plan for /implement-plan — escape hatch when the build fits one context window.
+description: Publish a one-session implementation plan for /implement-plan - escape hatch when the build fits one context window.
 disable-model-invocation: true
 ---
 
-Synthesize an implementation plan from what you already know — do **not** interview. Default artifact: `work/<feature-slug>/plan.md`. If `docs/agents/issue-tracker.md` exists, follow it; otherwise assume local `work/`. Run `/setup-work` only for a non-default tracker.
+Synthesize an implementation plan from what you already know - do **not** interview. Default artifact: `work/<feature-slug>/plan.md`. If `docs/agents/issue-tracker.md` exists, follow it; otherwise assume local `work/`. Run `/setup-work` only for a non-default tracker.
 
-**SSOT is the markdown plan.** HTML is an optional review render only — `/implement-plan` reads the `.md`.
+**SSOT is the markdown plan.** HTML is an optional review render only - `/implement-plan` reads the `.md`.
 
 ## User clarifications
 
 For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
 1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
-2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+2. Call the one that exists, using that tool's schema from the session - field names are not interchangeable.
 3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
 Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
@@ -39,7 +39,7 @@ Ask **one decision at a time** when this skill already sequences questions that 
 4. Write and publish the plan (`work/<feature-slug>/plan.md` locally, or tracker equivalent).
    **Done when**: `plan.md` (or tracker equivalent) exists with the template sections filled.
 
-5. **HTML (optional):** If the user already said “with HTML,” write `plan.html` beside the plan per [references/PLAN-HTML.md](references/PLAN-HTML.md). Otherwise structured MCQ — write HTML review companion? — default **No**.
+5. **HTML (optional):** If the user already said “with HTML,” write `plan.html` beside the plan per [references/PLAN-HTML.md](references/PLAN-HTML.md). Otherwise structured MCQ - write HTML review companion? - default **No**.
    **Done when**: HTML written if requested/accepted, or skipped.
 
 6. **Hard stop.** Tell the user to run `/implement-plan` against the plan file. Do not start `/implement-plan` unless asked in the same turn.
@@ -51,12 +51,12 @@ Ask **one decision at a time** when this skill already sequences questions that 
 
 ## Goal
 
-What the user gets when this plan is done — one or two sentences.
+What the user gets when this plan is done - one or two sentences.
 
 ## Context
 
 - Source: wayfinder map / grill / conversation (link paths or issue URLs)
-- Decisions that constrain the build (bullets; link ADRs — do not restate them in full)
+- Decisions that constrain the build (bullets; link ADRs - do not restate them in full)
 
 ## Seams
 
@@ -64,7 +64,7 @@ Where behavior will be tested. Prefer existing seams; note any new ones.
 
 ## Steps
 
-Numbered, ordered, verifiable steps sized for **one** fresh agent session — if you cannot keep them that small, abort and recommend `/to-spec` instead.
+Numbered, ordered, verifiable steps sized for **one** fresh agent session - if you cannot keep them that small, abort and recommend `/to-spec` instead.
 
 1. …
 2. …
@@ -79,4 +79,4 @@ Acceptance checks for the overall plan (not layer-by-layer file lists).
 
 </plan-template>
 
-Avoid specific file paths or large code dumps — they go stale. Exception: trim prototype snippets that encode a decision (state machine, schema, type shape) and note they came from a prototype.
+Avoid specific file paths or large code dumps - they go stale. Exception: trim prototype snippets that encode a decision (state machine, schema, type shape) and note they came from a prototype.

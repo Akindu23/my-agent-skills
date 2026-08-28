@@ -1,6 +1,6 @@
 # ADR Expanded Sections (optional)
 
-Add these only when the default **Rationale** prose is not enough — for example, many alternatives, compliance-heavy consequences, or active supersession chains.
+Add these only when the default **Rationale** prose is not enough - for example, many alternatives, compliance-heavy consequences, or active supersession chains.
 
 ## Status
 
@@ -54,7 +54,7 @@ Use when downstream effects are non-obvious.
 
 ```markdown
 ## Risks
-- [risk] — mitigation: …
+- [risk] - mitigation: …
 ```
 
 ## Supersedes / Superseded by

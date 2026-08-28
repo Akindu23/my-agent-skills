@@ -23,7 +23,7 @@ Write a gaps/opportunities synthesis to the path given. Keep claims evidenced (c
 - Pack root: {{pack_root}}
 - Plan: {{pack_root}}/plan.md
 - Sources registry: {{pack_root}}/SOURCES.md
-- Findings to include (status complete — include low/mixed):
+- Findings to include (status complete - include low/mixed):
 {{findings_paths}}
 - Write path: {{pack_root}}/gaps.md
 - Failed or pending areas (list under Knowledge boundaries; do not synthesize as if complete):
@@ -41,7 +41,7 @@ Write gaps.md with these headings in order (no YAML frontmatter required):
 
 ## Hard rules
 - Keep claims evidenced; every opportunity hypothesis needs ≥1 cite.
-- Fill every locked heading. If a section has nothing solid, say so briefly — do not pad with speculation.
+- Fill every locked heading. If a section has nothing solid, say so briefly - do not pad with speculation.
 - Under Knowledge boundaries, name failed/pending areas and any coverage holes.
 - Under Confidence assessment, call out any opportunity that is low-confidence or blocked by a contradiction.
 - Do not edit findings/*.md, SOURCES.md, plan.md, or HTML files.

@@ -14,11 +14,11 @@ description: >-
 
 Consult these resources as needed:
 
-- ./references/rlm-strategies.md — Detailed decomposition patterns from the RLM paper
-- ./references/cost-analysis.md — When to apply recursive vs. direct approaches
-- ./references/codebase-analysis.md — Full walkthrough of codebase-wide analysis
-- ./references/document-aggregation.md — Multi-document information extraction
-- ../council/references/task-workflow.md — sub-delegate routing, enum probe, portable roles
+- ./references/rlm-strategies.md - Detailed decomposition patterns from the RLM paper
+- ./references/cost-analysis.md - When to apply recursive vs. direct approaches
+- ./references/codebase-analysis.md - Full walkthrough of codebase-wide analysis
+- ./references/document-aggregation.md - Multi-document information extraction
+- ../council/references/task-workflow.md - sub-delegate routing, enum probe, portable roles
 
 ## Core Principles
 
@@ -66,7 +66,7 @@ Most tasks fail when context is overloaded. Instead of loading entire contexts i
 ## Tool Preferences
 
 - **Grep** and **Glob** (not ad-hoc `ls -R`) unless you are only mapping top-level structure.
-- **Read** with `path`, `offset`, and `limit` for large files — not full-file reads of huge files.
+- **Read** with `path`, `offset`, and `limit` for large files - not full-file reads of huge files.
 - **Shell** for `wc -l` / `ls -lh` before reading unknown large files; prefer **Grep** / **Glob** for search over reading everything.
 - For searching code or log content, prefer **Grep** over reading entire files.
 
@@ -174,7 +174,7 @@ Mitigate context degradation by checking answers on smaller windows:
 
 1. Glob for relevant file types (`*.ts`, `*.py`, etc.).
 2. Grep for error-related keywords (`catch`, `except`, `Error`, `throw`).
-3. Partition matching files into batches of 5–10.
+3. Partition matching files into batches of 5-10.
 4. Launch parallel Task/Agent subagents with portable role `explore` (read-only) per batch.
 5. Aggregate into a categorized summary; spot-check a few files.
 

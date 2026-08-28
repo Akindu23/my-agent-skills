@@ -81,7 +81,7 @@ s := []string{Enone: "no error", Eio: "Eio", Einval: "invalid"}
 m := map[int]string{Enone: "no error", Eio: "Eio", Einval: "invalid"}
 ```
 
-**Note**: It's safe to return the address of a local variable in Go—the storage
+**Note**: It's safe to return the address of a local variable in Go - the storage
 survives after the function returns.
 
 ---
@@ -137,7 +137,7 @@ n, err := f.Read(buf[0:32])
 func append(slice []T, elements ...T) []T
 ```
 
-**Always assign the result**—the underlying array may change:
+**Always assign the result** - the underlying array may change:
 
 ```go
 x := []int{1, 2, 3}
@@ -188,7 +188,7 @@ t := []string{}
 ```
 
 The former declares a **nil slice**, while the latter is **non-nil but zero-length**.
-They are functionally equivalent—their `len` and `cap` are both zero—but the nil
+They are functionally equivalent - their `len` and `cap` are both zero - but the nil
 slice is the preferred style.
 
 **Exception for JSON encoding:** A nil slice encodes to `null`, while an empty
@@ -326,7 +326,7 @@ func (t *T) String() string {
 }
 ```
 
-**Warning**: Don't call `Sprintf` with `%s` on the receiver—infinite recursion:
+**Warning**: Don't call `Sprintf` with `%s` on the receiver - infinite recursion:
 
 ```go
 // Bad: infinite recursion

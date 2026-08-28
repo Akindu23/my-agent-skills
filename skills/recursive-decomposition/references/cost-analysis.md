@@ -22,7 +22,7 @@ This reference provides guidance on when recursive decomposition is cost-effecti
 - Comprehensive analysis is required
 - Quality matters more than speed
 
-### Gray zone (30k–50k tokens):
+### Gray zone (30k-50k tokens):
 
 - Consider task complexity
 - Evaluate quality requirements

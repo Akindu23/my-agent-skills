@@ -307,7 +307,7 @@ func ExampleConfig_WriteTo() {
 ```
 
 Examples appear in Godoc attached to the documented element. Prefer `fmt` (or
-writing to `os.Stdout`) with an `// Output:` block — do **not** call
+writing to `os.Stdout`) with an `// Output:` block - do **not** call
 `log.Fatal`, `os.Exit`, or nonexistent helpers like `log.Exitf`; they make the
 example non-runnable or brittle under `go test`.
 

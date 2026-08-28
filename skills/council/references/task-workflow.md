@@ -2,20 +2,20 @@
 
 Use this when spawning subagents via a harness **spawn tool** (Cursor **Task**, Claude Code **Agent**). This file is the spawn-routing source for `model` lanes and portable role → `subagent_type`. Dependents point here; after probe, load exactly one harness file.
 
-Lane tables live in [`cursor.md`](cursor.md) and [`claude.md`](claude.md) — do not copy them into other skills.
+Lane tables live in [`cursor.md`](cursor.md) and [`claude.md`](claude.md) - do not copy them into other skills.
 
 ## Scope
 
 - Route only after probing the session’s spawn-tool schemas (or a rejection that lists allowed values). Use only tool names, `model` slugs, and `subagent_type` strings from that probe.
 - Prefer harness-native lanes from the harness file probe selects.
-- Plugin / custom agent frontmatter values are not interchangeable across tools — resolve via this file’s matrix and the harness file.
+- Plugin / custom agent frontmatter values are not interchangeable across tools - resolve via this file’s matrix and the harness file.
 
 ## Enum / tool probe (required)
 
 Before fan-out:
 
 1. Discover spawn tool(s) available in the session (`Task`, `Agent`, both, or neither).
-2. Read `model` / `subagent_type` from the tool schema **or**, if unreadable, make one intentional invalid call and parse the rejection — never invent slugs.
+2. Read `model` / `subagent_type` from the tool schema **or**, if unreadable, make one intentional invalid call and parse the rejection - never invent slugs.
 3. If the spawn tool is `Task` and the `model` enum contains Composer, Grok, or Gemini Flash → that tool + read [`cursor.md`](cursor.md).
 4. Else if `Agent` is present → `Agent` + read [`claude.md`](claude.md) (including when `Task` exists but failed step 3).
 5. Else apply [`claude.md`](claude.md) on the spawn tool you have.
@@ -76,7 +76,7 @@ Model-lane routing does not imply one `subagent_type`, one permission mode, or o
 | Delegate job | Portable role (resolve via matrix) | Read-only preference | Notes |
 |--------------|------------------------------------|----------------------|-------|
 | Codebase survey, subsystem mapping, file ownership research | `explore` or `general-purpose` | Prefer read-only / Explore semantics | Keep findings narrow and cited by file path. Light lane (partition workers). |
-| Review, critique, judge, synthesis | `judge` or `synthesis` | Prefer read-only | Judge artifacts after workers finish; do not judge partial outputs. Presumed-heavy → heavy lane when available. `[opus]` / `[complex]` only when the task is very complex — not the default for every judge. |
+| Review, critique, judge, synthesis | `judge` or `synthesis` | Prefer read-only | Judge artifacts after workers finish; do not judge partial outputs. Presumed-heavy → heavy lane when available. `[opus]` / `[complex]` only when the task is very complex - not the default for every judge. |
 | Implementation, codemods, doc edits, generated artifacts | `general-purpose` or a specialized writer | Write-capable | Give each writer a non-overlapping scope or serialize writers. Overlapping write targets: serial Task/Agent calls or a single general-purpose worker. |
 | Shell, git, tests, local scripts | `shell` / `bash` (→ `general-purpose` on Claude Code) or parent shell | Write-capable when commands mutate | On Cursor, `readonly` may remove tool/MCP access; use it only when the command set is observational. |
 | MCP, web, or external research | docs/research-capable type or `general-purpose` | Write-capable when tools are needed | Read-only only when it still leaves the tools the delegate needs. |

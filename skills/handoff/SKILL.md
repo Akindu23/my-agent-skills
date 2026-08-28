@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Handoff
 
-Invoke with **`/handoff`** in Agent chat. The artifact is a single canonical file — **`docs/handoffs/CURRENT.md`** — that the next session opens with **`@docs/handoffs/CURRENT.md`**.
+Invoke with **`/handoff`** in Agent chat. The artifact is a single canonical file - **`docs/handoffs/CURRENT.md`** - that the next session opens with **`@docs/handoffs/CURRENT.md`**.
 
 A handoff is **transient continuation context**, not an archive. There is only ever one of them, and each `/handoff` **overwrites** the previous one.
 
@@ -19,16 +19,16 @@ A handoff is **transient continuation context**, not an archive. There is only e
 
 ## Instructions
 
-1. **Next-session focus** — If the user typed text after `/handoff` or described a focus in the same message, use it as the primary goal for the handoff. Otherwise infer the most important continuation goal from the conversation.
-2. **Redact sensitive content** — Before writing, redact API keys, passwords, tokens, and personally identifiable information. Replace each with `[REDACTED]` or a short generic label (e.g. `[REDACTED: API key]`). Do not paste secrets even if they appeared in the chat.
-3. **Extract, do not duplicate** — Do not paste large chunks of specs, plans, ADRs, issues, commit messages, or diffs. **Link** them by workspace path or URL. Quote at most a line or two if absolutely necessary. Capture only what the next agent cannot recover from those links:
-   - **Current state** — What works and what was tried. Include **environment** when relevant: branch, uncommitted or dirty tree, services or commands that mattered, tooling versions only if they affected this session.
-   - **Preferences (this session):** constraints the user stated in chat (e.g. no commits unless asked, use structured MCQ for discrete choices). Do not copy all of `AGENTS.md` or rules files—only what this thread established.
-   - **Decisions and constraints** — Outcomes the next agent must not reverse. Include **rejected or failed approaches** as one line each (`what was tried → why stopped`) so the next agent does not repeat dead ends. If a decision is durable beyond this task, promote it to an ADR and link it here instead of relying on the handoff to preserve it.
-4. **Write to `docs/handoffs/CURRENT.md`** — Follow **Output Location** below. Create `docs/handoffs/` if missing. If `CURRENT.md` already exists, **overwrite it** (do not create a second handoff file).
-5. **Fill the template** — Copy the structure from **Handoff Template**, omit empty sub-bullets and sections, and keep bullets tight.
-6. **Skills** — In the template, list **Cursor Agent Skills** the next session should consider (invoke with **`/skill-name`** per [Agent Skills](https://cursor.com/docs/skills)). Only suggest skills that clearly match the **remaining next actions**—not every skill that might ever apply.
-7. **Finish** — Run **Verification**, then reply with **`@docs/handoffs/CURRENT.md`** and a one-line instruction to open it in the next session.
+1. **Next-session focus** - If the user typed text after `/handoff` or described a focus in the same message, use it as the primary goal for the handoff. Otherwise infer the most important continuation goal from the conversation.
+2. **Redact sensitive content** - Before writing, redact API keys, passwords, tokens, and personally identifiable information. Replace each with `[REDACTED]` or a short generic label (e.g. `[REDACTED: API key]`). Do not paste secrets even if they appeared in the chat.
+3. **Extract, do not duplicate** - Do not paste large chunks of specs, plans, ADRs, issues, commit messages, or diffs. **Link** them by workspace path or URL. Quote at most a line or two if absolutely necessary. Capture only what the next agent cannot recover from those links:
+   - **Current state** - What works and what was tried. Include **environment** when relevant: branch, uncommitted or dirty tree, services or commands that mattered, tooling versions only if they affected this session.
+   - **Preferences (this session):** constraints the user stated in chat (e.g. no commits unless asked, use structured MCQ for discrete choices). Do not copy all of `AGENTS.md` or rules files - only what this thread established.
+   - **Decisions and constraints** - Outcomes the next agent must not reverse. Include **rejected or failed approaches** as one line each (`what was tried → why stopped`) so the next agent does not repeat dead ends. If a decision is durable beyond this task, promote it to an ADR and link it here instead of relying on the handoff to preserve it.
+4. **Write to `docs/handoffs/CURRENT.md`** - Follow **Output Location** below. Create `docs/handoffs/` if missing. If `CURRENT.md` already exists, **overwrite it** (do not create a second handoff file).
+5. **Fill the template** - Copy the structure from **Handoff Template**, omit empty sub-bullets and sections, and keep bullets tight.
+6. **Skills** - In the template, list **Cursor Agent Skills** the next session should consider (invoke with **`/skill-name`** per [Agent Skills](https://cursor.com/docs/skills)). Only suggest skills that clearly match the **remaining next actions** - not every skill that might ever apply.
+7. **Finish** - Run **Verification**, then reply with **`@docs/handoffs/CURRENT.md`** and a one-line instruction to open it in the next session.
 
 ## Output Location
 
@@ -36,7 +36,7 @@ A handoff is **transient continuation context**, not an archive. There is only e
 
 `docs/handoffs/CURRENT.md`
 
-- A single canonical file. Each `/handoff` overwrites it — the previous handoff is intentionally not preserved.
+- A single canonical file. Each `/handoff` overwrites it - the previous handoff is intentionally not preserved.
 - The next session always opens the same path: **`@docs/handoffs/CURRENT.md`**. No lookup, no archive folder, no timestamped variants.
 - Need lasting history? It is already in your **chat history** (raw) and your **ADRs** (distilled decisions). The handoff does not duplicate either.
 
@@ -51,20 +51,20 @@ Use this structure inside the written file (replace placeholders; delete sub-bul
 ```markdown
 # Handoff: <short title>
 
-**For next session:** <one sentence — what to accomplish first>
+**For next session:** <one sentence - what to accomplish first>
 
 **Created:** <ISO date or YYYY-MM-DD>
 
 ## Current state
 
 - <what works, what was tried>
-- **Environment:** <branch, uncommitted changes, relevant runtime context — or omit>
-- **Preferences (this session):** <user-stated constraints from chat — or omit>
+- **Environment:** <branch, uncommitted changes, relevant runtime context - or omit>
+- **Preferences (this session):** <user-stated constraints from chat - or omit>
 
 ## Decisions and constraints
 
 - <decisions the next agent must not reverse>
-- **Rejected / failed:** <approach → why not pursued — or omit>
+- **Rejected / failed:** <approach → why not pursued - or omit>
 
 ## Links (no prose duplication)
 
@@ -84,7 +84,7 @@ Use this structure inside the written file (replace placeholders; delete sub-bul
 
 ## Suggested Cursor skills
 
-- `/skill-name` — <why, tied to next actions>
+- `/skill-name` - <why, tied to next actions>
 ```
 
 ## Verification

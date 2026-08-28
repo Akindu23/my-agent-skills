@@ -17,7 +17,7 @@ and Uber's Go style guides.
 > **Advisory**: This is a best practice recommendation.
 
 Package names should describe what the package provides. Avoid generic names
-like `util`, `helper`, `common`, or similar—they make code harder to read and
+like `util`, `helper`, `common`, or similar - they make code harder to read and
 cause import conflicts.
 
 ```go

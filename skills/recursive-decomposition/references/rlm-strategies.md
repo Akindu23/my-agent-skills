@@ -72,7 +72,7 @@ Process each category with a focused sub-task
 
 ```text
 Main agent
-├── Subtask 1 (Chunk A) — e.g. Task/Agent (portable role: explore)
+├── Subtask 1 (Chunk A) - e.g. Task/Agent (portable role: explore)
 ├── Subtask 2 (Chunk B)
 └── Subtask 3 (Chunk C)
     └── Synthesize results
@@ -88,7 +88,7 @@ Main agent
 └── Synthesize hierarchically
 ```
 
-(Use **Task** or **Agent** with a portable role from task-workflow.md above; when only reading, use read-only semantics — and cap recursion depth.)
+(Use **Task** or **Agent** with a portable role from task-workflow.md above; when only reading, use read-only semantics - and cap recursion depth.)
 
 ### 4. Verification Through Re-Query
 
@@ -193,8 +193,8 @@ From the RLM paper:
 
 | Task Type | Direct model | RLM approach | Improvement |
 | --------- | ------------ | ------------ | ----------- |
-| Multi-hop QA (6–11M tokens) | 70% | 91% | +21% |
-| Linear aggregation | Baseline | +28–33% | Significant |
+| Multi-hop QA (6-11M tokens) | 70% | 91% | +21% |
+| Linear aggregation | Baseline | +28-33% | Significant |
 | Quadratic reasoning | <0.1% | 58% | Large |
 | Context scaling | 2^14 tokens | 2^18 tokens | 16x |
 

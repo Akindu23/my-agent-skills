@@ -117,7 +117,7 @@ gofmt -w .
 
 > **Source**: Effective Go
 
-Go needs fewer parentheses than C and Java. Control structures (`if`, `for`, `switch`) don't have parentheses in their syntax. The operator precedence hierarchy is shorter and clearer, so `x<<8 + y<<16` means what the spacing suggests—unlike in other languages.
+Go needs fewer parentheses than C and Java. Control structures (`if`, `for`, `switch`) don't have parentheses in their syntax. The operator precedence hierarchy is shorter and clearer, so `x<<8 + y<<16` means what the spacing suggests - unlike in other languages.
 
 ### MixedCaps (Camel Case)
 
@@ -164,7 +164,7 @@ Long lines often correlate with long names. If you find lines are too long,
 consider whether the names could be shorter. Getting rid of long names often
 helps more than wrapping lines.
 
-This advice applies equally to function length—there's no rule "never have a
+This advice applies equally to function length - there's no rule "never have a
 function more than N lines", but there is such a thing as too long. The solution
 is to change where function boundaries are, not to count lines.
 

@@ -109,7 +109,7 @@ func Compile(str string) (regexp *Regexp, err error) {
 
 - Deferred functions can modify named return values
 - Type assertion `e.(Error)` re-panics on unexpected error types
-- Never expose panics to clients—always convert at API boundary
+- Never expose panics to clients - always convert at API boundary
 
 ---
 
@@ -126,4 +126,4 @@ func Compile(str string) (regexp *Regexp, err error) {
 
 - **Panic**: Only for truly unrecoverable situations or init failures
 - **Recover**: Server handlers, package-internal error simplification
-- **Never**: Expose panics across package boundaries—always convert to errors
+- **Never**: Expose panics across package boundaries - always convert to errors

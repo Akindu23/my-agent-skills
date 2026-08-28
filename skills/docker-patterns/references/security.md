@@ -1,6 +1,6 @@
 # Container Security
 
-Linux containers inherit the host’s **default seccomp** profile unless `security_opt` overrides it—avoid loosening seccomp/AppArmor unless required and reviewed.
+Linux containers inherit the host’s **default seccomp** profile unless `security_opt` overrides it - avoid loosening seccomp/AppArmor unless required and reviewed.
 
 ## Dockerfile Hardening
 
@@ -36,7 +36,7 @@ services:
 ## Secret Management
 
 - **Non-sensitive config** (feature flags, public URLs, log levels): environment variables, `environment:` / `env_file:` pointing at **`.env`** (gitignored) are fine.
-- **Secrets** (tokens, DB passwords, signing keys): **do not** treat “plain `.env` on disk” as strong secret storage for production. Prefer **orchestrator-backed secrets** (Kubernetes secrets + CSI, ECS secrets, Swarm secrets), **secret managers** (Vault, cloud SM) with injection at runtime, or **runtime-mounted secret files** on **tmpfs** with minimal permissions—**not** baking credentials into images or checked-in compose.
+- **Secrets** (tokens, DB passwords, signing keys): **do not** treat “plain `.env` on disk” as strong secret storage for production. Prefer **orchestrator-backed secrets** (Kubernetes secrets + CSI, ECS secrets, Swarm secrets), **secret managers** (Vault, cloud SM) with injection at runtime, or **runtime-mounted secret files** on **tmpfs** with minimal permissions - **not** baking credentials into images or checked-in compose.
 
 Compose **v2.6+** also supports top-level `secrets:` with `file:` / `environment:`
 sources on **standalone** Compose (not only Swarm). Secrets mount under
@@ -79,18 +79,18 @@ Ship **`.env.example`** (names only, dummy values) so onboarding stays explicit;
 
 **Critical**
 
-- **Never bind-mount `docker.sock`** (`/var/run/docker.sock`) into application containers—it grants host-level Docker API access from inside the container.
+- **Never bind-mount `docker.sock`** (`/var/run/docker.sock`) into application containers - it grants host-level Docker API access from inside the container.
 - **Avoid `privileged: true`** unless there is a narrow, reviewed justification; it strips most isolation guarantees.
 - **Avoid `network_mode: host`** unless you need host networking semantics and accept the loss of network namespace isolation.
 
 **Common mistakes**
 
 - Running production multi-service stacks on **`docker compose up`** without orchestration where HA, rollouts, or Swarm-only deploy fields matter.
-- Storing state only in container writable layers—use volumes for data you care about.
+- Storing state only in container writable layers - use volumes for data you care about.
 - Running as root when the workload does not require it.
 - Using **`:latest`** for images you deploy or debug reproducibly.
-- One giant container running many unrelated processes—prefer one main process per container.
-- Putting raw secrets in **`compose.yaml`** / committed env files—use CI/orchestrator injection, Compose-native secrets, secret managers, or K8s/Swarm secrets.
+- One giant container running many unrelated processes - prefer one main process per container.
+- Putting raw secrets in **`compose.yaml`** / committed env files - use CI/orchestrator injection, Compose-native secrets, secret managers, or K8s/Swarm secrets.
 
 # .dockerignore
 

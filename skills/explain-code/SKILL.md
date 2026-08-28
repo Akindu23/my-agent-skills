@@ -61,7 +61,7 @@ Separate body sections with a horizontal rule: `---`.
 For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
 1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
-2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+2. Call the one that exists, using that tool's schema from the session - field names are not interchangeable.
 3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
 Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.

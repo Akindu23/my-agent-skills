@@ -329,7 +329,7 @@ func TestWorkerWaits(t *testing.T) {
 
 > **Normative**: [`t.Setenv`](https://pkg.go.dev/testing#T.Setenv) mutates
 > process environment for the test. It **must not** be used in a test that runs
-> in parallel — including when **`t.Parallel()` was called on an ancestor**
+> in parallel - including when **`t.Parallel()` was called on an ancestor**
 > subtest (the whole subtree runs on a parallel goroutine).
 
 If you need custom environment variables **and** `t.Parallel()`, isolate env

@@ -5,11 +5,11 @@ description: Interview the user relentlessly about a plan or design. Use when th
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 
-Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled — the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
+Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled - the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
 
-Each round the user answers reshapes the tree — settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
+Each round the user answers reshapes the tree - settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
 
-Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a **Task** subagent to find it — don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report — ask the rest of the frontier now. The _decisions_ are the user's — put each to them and wait.
+Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a **Task** subagent to find it - don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report - ask the rest of the frontier now. The _decisions_ are the user's - put each to them and wait.
 
 Probe Task/Agent enums; route per [task-workflow.md](../council/references/task-workflow.md).
 
@@ -24,7 +24,7 @@ If the user (or their `AGENTS.md`, `CLAUDE.md`, or user/rules) says to ask one q
 For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
 1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
-2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+2. Call the one that exists, using that tool's schema from the session - field names are not interchangeable.
 3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
 Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
@@ -33,20 +33,20 @@ Free-form answers stay in plain chat.
 
 When a frontier round includes discrete decisions, put **all** of them from the current frontier into **one** structured-MCQ call (`questions[]`), so the user can answer the round in the structured UI.
 
-Put **free-form** frontier items (open-ended design explanations, pasted logs, custom workflows) in the **same round** as numbered chat prompts with your recommended answer — do not force them into multiple-choice.
+Put **free-form** frontier items (open-ended design explanations, pasted logs, custom workflows) in the **same round** as numbered chat prompts with your recommended answer - do not force them into multiple-choice.
 
 Do not start the next round until both the structured-MCQ answers and the free-form replies for this frontier are in.
 
 If neither structured MCQ tool is present, ask the whole frontier (discrete and free-form) as a numbered chat list with recommended answers. Format the round like so:
 
 ```
-❓ **Q1** — **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
 
 ➡️ <your recommended answer>
 
 ---
 
-❓ **Q2** — **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+❓ **Q2** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
 
 ➡️ <your recommended answer>
 ```

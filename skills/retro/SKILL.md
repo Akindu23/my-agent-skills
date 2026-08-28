@@ -1,6 +1,6 @@
 ---
 name: retro
-description: Session retrospective — propose environment improvements (pointers, checks, reviewer standards, tool economy). Apply only what you accept.
+description: Session retrospective - propose environment improvements (pointers, checks, reviewer standards, tool economy). Apply only what you accept.
 disable-model-invocation: true
 ---
 
@@ -13,7 +13,7 @@ Improve the coding agent's **environment** from a finished session. You propose 
 For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
 1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
-2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+2. Call the one that exists, using that tool's schema from the session - field names are not interchangeable.
 3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
 Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
@@ -36,13 +36,13 @@ Read the session the user names. If they name none, use the current conversation
 
 Scan the session for candidates. A candidate is a concrete change to the environment, not a recap of the work. Use every category that fired; skip the rest.
 
-- **Navigation** — a **navigation pointer** (usually one line in `AGENTS.md` / `CLAUDE.md`) would have found the file or dependency faster. Use when the session spent a long time locating information.
-- **Automated checks** — a linter, typecheck, test, or filesystem check would have caught the agent's mistake. Use when the mistake is mechanically detectable.
-- **Coding standards** — a this-repo rule for the **reviewer** (`CODING_STANDARDS.md`). Membership is the preamble of that file, or the seed at [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md) if the file is missing. Use when a missed convention belongs in **Rules**.
-- **Steering load** — a line in `AGENTS.md` / `CLAUDE.md` (repo or user-global) should move to coding standards, an automated check, or a skill. Use when those files are large.
-- **Tool economy** — an expensive or token-heavy tool/MCP/CLI call has a tighter path. Use when the session paid that cost.
-- **No-ops** — a steering instruction that does not change behaviour vs the model's default. Use when steering files are large.
-- **Information access** — logs, readonly third-party access, or a tee'd dev server would have unblocked the agent. Use when a needed fact was out of reach.
+- **Navigation** - a **navigation pointer** (usually one line in `AGENTS.md` / `CLAUDE.md`) would have found the file or dependency faster. Use when the session spent a long time locating information.
+- **Automated checks** - a linter, typecheck, test, or filesystem check would have caught the agent's mistake. Use when the mistake is mechanically detectable.
+- **Coding standards** - a this-repo rule for the **reviewer** (`CODING_STANDARDS.md`). Membership is the preamble of that file, or the seed at [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md) if the file is missing. Use when a missed convention belongs in **Rules**.
+- **Steering load** - a line in `AGENTS.md` / `CLAUDE.md` (repo or user-global) should move to coding standards, an automated check, or a skill. Use when those files are large.
+- **Tool economy** - an expensive or token-heavy tool/MCP/CLI call has a tighter path. Use when the session paid that cost.
+- **No-ops** - a steering instruction that does not change behaviour vs the model's default. Use when steering files are large.
+- **Information access** - logs, readonly third-party access, or a tee'd dev server would have unblocked the agent. Use when a needed fact was out of reach.
 
 **Done when**: every firing category has its candidates listed, or you can state that none fired.
 
@@ -67,11 +67,11 @@ Apply only accepted candidates. Draft every steering-file or skill edit under `/
 
 ### Implementer vs reviewer
 
-The implementer carries exploration, writing, and debug — **context pressure**. The reviewer receives a diff. **Coding standards bind the reviewer** (`/code-review` reads `CODING_STANDARDS.md`).
+The implementer carries exploration, writing, and debug - **context pressure**. The reviewer receives a diff. **Coding standards bind the reviewer** (`/code-review` reads `CODING_STANDARDS.md`).
 
 ### Files this pack already owns
 
-- `AGENTS.md` / `CLAUDE.md` — always-loaded; **navigation pointers** and almost nothing else. `/setup-work` does not edit these; this skill may, on accept.
-- `CODING_STANDARDS.md` — reviewer-owned. Seed: [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md).
-- `CONTEXT.md` / `docs/adr/` / `docs/agents/` — domain and tracker layout.
-- Skills — `/writing-for-agents` is the style guide.
+- `AGENTS.md` / `CLAUDE.md` - always-loaded; **navigation pointers** and almost nothing else. `/setup-work` does not edit these; this skill may, on accept.
+- `CODING_STANDARDS.md` - reviewer-owned. Seed: [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md).
+- `CONTEXT.md` / `docs/adr/` / `docs/agents/` - domain and tracker layout.
+- Skills - `/writing-for-agents` is the style guide.

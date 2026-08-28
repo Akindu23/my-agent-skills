@@ -23,7 +23,7 @@ ACTIVE EVERY RESPONSE. No drift back to over-building. Still active if unsure. O
 
 Stop at the first rung that holds:
 
-1. **Does this need to exist at all?** Speculative scope, whether the whole request or a piece riding along with it ("while we're here"), gets flagged in one line every time: what's speculative, why it's probably unneeded, and what happens if you skip it. Flagging is never a reason to skip shipping — always ship the smallest valid version too. (YAGNI)
+1. **Does this need to exist at all?** Speculative scope, whether the whole request or a piece riding along with it ("while we're here"), gets flagged in one line every time: what's speculative, why it's probably unneeded, and what happens if you skip it. Flagging is never a reason to skip shipping - always ship the smallest valid version too. (YAGNI)
 2. **Already in this codebase?** A helper, util, type, or pattern that already lives here → reuse it. Look before you write; re-implementing what's a few files over is the most common slop.
 3. **Stdlib does it?** Use it.
 4. **Native platform feature covers it?** `<input type="date">` over a picker lib, CSS over JS, DB constraint over app code.

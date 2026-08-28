@@ -1,6 +1,6 @@
 # Craft bar (static SVG)
 
-Clarity over decoration. Treat SVG as a structured document: fixed coordinate system, accessible name, system fonts, sufficient contrast, dual encoding beyond color. **v1 is static only** — no CSS/SMIL/JS animation.
+Clarity over decoration. Treat SVG as a structured document: fixed coordinate system, accessible name, system fonts, sufficient contrast, dual encoding beyond color. **v1 is static only** - no CSS/SMIL/JS animation.
 
 ## Root document
 
@@ -15,7 +15,7 @@ Clarity over decoration. Treat SVG as a structured document: fixed coordinate sy
 </svg>
 ```
 
-- Always set `xmlns="http://www.w3.org/2000/svg"` and a padded `viewBox` (≈5–10% margin beyond content).
+- Always set `xmlns="http://www.w3.org/2000/svg"` and a padded `viewBox` (≈5-10% margin beyond content).
 - Prefer scalable sizing (`viewBox` + host CSS); omit fixed root `width`/`height` unless reserving layout space.
 - Use semantic primitives (`rect`, `circle`, `line`, `text`, `g`, `marker`) over hand-authored `path` when possible.
 - Plan layout before coordinates: type → flow direction → margins → place nodes.
@@ -29,11 +29,11 @@ Every SVG needs a non-empty child `<title>` (required by validate). `aria-label`
 | Standalone `.svg` / file for `<img>` | HTML `alt` carries the name in image mode. |
 | Inline `<svg>` | `role="img"` + `aria-labelledby` → `<title>` (and `<desc>` when complex). |
 
-Do not rely on SVG `<title>` alone for AT when embedded as `<img>` — also set meaningful `alt` on the `<img>`.
+Do not rely on SVG `<title>` alone for AT when embedded as `<img>` - also set meaningful `alt` on the `<img>`.
 
 ## Typography
 
-System stacks only — no `@font-face`, no font CDN:
+System stacks only - no `@font-face`, no font CDN:
 
 | Role | Stack |
 |------|-------|
@@ -41,7 +41,7 @@ System stacks only — no `@font-face`, no font CDN:
 | Code / IDs | `ui-monospace, SFMono-Regular, Menlo, Consolas, monospace` |
 
 - Color text with `fill`, not CSS `color`.
-- SVG text does not wrap by default — use `<tspan>` or shorter labels.
+- SVG text does not wrap by default - use `<tspan>` or shorter labels.
 - Center in boxes with `text-anchor="middle"` and `dominant-baseline="middle"`; keep ≥12px equivalent at display size.
 - Prefer `text-rendering: geometricPrecision` when the diagram scales.
 
@@ -52,7 +52,7 @@ System stacks only — no `@font-face`, no font CDN:
 | Essential strokes / fills / icons | **3:1** vs adjacent color (WCAG 1.4.11) |
 | Normal text labels | **4.5:1** vs background (WCAG 1.4.3) |
 
-Never encode meaning with color alone — pair with label, dash pattern, marker, or icon. Use the skill [theme tokens](theme-tokens.md).
+Never encode meaning with color alone - pair with label, dash pattern, marker, or icon. Use the skill [theme tokens](theme-tokens.md).
 
 ## Connectors
 

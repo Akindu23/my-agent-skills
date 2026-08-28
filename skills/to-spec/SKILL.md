@@ -1,10 +1,10 @@
 ---
 name: to-spec
-description: Turn the current conversation into a published spec, then validate it with /council and /best-practices-research — no interview, no tickets.
+description: Turn the current conversation into a published spec, then validate it with /council and /best-practices-research - no interview, no tickets.
 disable-model-invocation: true
 ---
 
-Synthesize a spec (PRD) from what you already know — do **not** interview. Then validate it once. **Do not** run `/to-tickets` or implement unless the user asks in the same turn.
+Synthesize a spec (PRD) from what you already know - do **not** interview. Then validate it once. **Do not** run `/to-tickets` or implement unless the user asks in the same turn.
 
 Default tracker: local markdown under `work/`. If `docs/agents/issue-tracker.md` exists, follow it. Run `/setup-work` only when the tracker is not local `work/` (or you need to switch / record a non-default tracker).
 
@@ -13,7 +13,7 @@ Default tracker: local markdown under `work/`. If `docs/agents/issue-tracker.md`
 For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
 1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
-2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+2. Call the one that exists, using that tool's schema from the session - field names are not interchangeable.
 3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
 Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
@@ -27,7 +27,7 @@ Ask **one decision at a time** when this skill already sequences questions that 
 1. Explore the repo if you haven't already. Use the project's domain glossary; respect ADRs in the area you're touching.
    **Done when**: you can write the spec in glossary vocabulary without inventing modules you haven't seen.
 
-2. Sketch test seams — prefer existing, highest seam; fewer is better (ideal: one). Check with the user that seams match expectations.
+2. Sketch test seams - prefer existing, highest seam; fewer is better (ideal: one). Check with the user that seams match expectations.
    **Done when**: user has confirmed the seams (or accepted the default).
 
 3. Write the spec with the template below; publish to the issue tracker.
@@ -42,7 +42,7 @@ Ask **one decision at a time** when this skill already sequences questions that 
 6. **Hard stop.** Tell the user the spec is ready. Next is `/to-tickets` → `/implement` (one ticket per session), or `/to-plan` → `/implement-plan` if the remaining build fits one session. Do **not** start tickets, plans, or implementation unless asked in the same turn.
    **Done when**: this session has stopped without `/to-tickets`, `/to-plan`, or implementation unless the user explicitly requested one of those in the same turn.
 
-Skip steps 4–5 only when the user asked for a draft spec without validation.
+Skip steps 4-5 only when the user asked for a draft spec without validation.
 
 <spec-template>
 
@@ -80,7 +80,7 @@ A list of implementation decisions that were made. This can include:
 
 Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
 
-Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
+Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts - not a working demo, just the important bits.
 
 ## Testing Decisions
 

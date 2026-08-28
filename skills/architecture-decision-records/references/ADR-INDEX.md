@@ -36,7 +36,7 @@ Seed `README.md` with the table header below and a one-line intro.
 
 1. Open `docs/adr/README.md` (or context-scoped path)
 2. Find relevant rows by title or number
-3. Read the linked file — prioritize the **Rationale** section (or Context/Decision in older ADRs)
+3. Read the linked file - prioritize the **Rationale** section (or Context/Decision in older ADRs)
 
 ## Captured via values
 

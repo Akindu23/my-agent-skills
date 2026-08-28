@@ -1,7 +1,7 @@
 # Avoiding Repetition
 
 This reference covers how to avoid redundant naming in Go by considering the context
-where names appear—package, receiver type, and surrounding code.
+where names appear - package, receiver type, and surrounding code.
 
 ## Package vs. Exported Symbol
 

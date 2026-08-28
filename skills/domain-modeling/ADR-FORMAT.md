@@ -11,6 +11,6 @@ Set **Captured via** to `domain-modeling` when offering from this skill.
 
 ## When to offer an ADR
 
-All three criteria in [ADR-POLICY.md](../architecture-decision-records/references/ADR-POLICY.md) must be true (offer only — user must accept before writing).
+All three criteria in [ADR-POLICY.md](../architecture-decision-records/references/ADR-POLICY.md) must be true (offer only - user must accept before writing).
 
 On acceptance, follow **`/architecture-decision-records`** when not already following that skill inline.

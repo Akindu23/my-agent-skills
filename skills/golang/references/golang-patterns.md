@@ -78,12 +78,12 @@ you control; return types stay specific and easy to evolve.
 See also **[go-interfaces](go-interfaces.md)** for the same rule and the
 exceptions below (wording aligned so the two references do not contradict).
 
-**Exceptions — returning a small interface is appropriate when:**
+**Exceptions - returning a small interface is appropriate when:**
 
-- **Hiding implementation** — the concrete type is unexported and the public
+- **Hiding implementation** - the concrete type is unexported and the public
   surface is the interface (for example `hash.Hash`, `hash.Hash32`, or a
   constructor that returns only the behavior you promise).
-- **Matching standard library or domain idioms** — the API mirrors patterns
+- **Matching standard library or domain idioms** - the API mirrors patterns
   callers already use (`io.Reader`, `io.Writer`, `fmt.Stringer`, `sort.Interface`,
   etc.).
 
@@ -545,7 +545,7 @@ func ProcessRequest(data []byte) []byte {
 
     buf.Write(data)
     // Process...
-    // Copy before return — buf.Bytes() aliases pooled memory that may be reused.
+    // Copy before return - buf.Bytes() aliases pooled memory that may be reused.
     out := make([]byte, buf.Len())
     copy(out, buf.Bytes())
     return out

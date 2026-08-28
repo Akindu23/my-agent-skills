@@ -2,7 +2,7 @@
 
 Prefer canonical filenames `compose.yaml` / `compose.override.yaml` (legacy
 `docker-compose.yml` still works). BuildKit is the default builder since Docker
-Engine 23.0 — you usually do not need `DOCKER_BUILDKIT=1`.
+Engine 23.0 - you usually do not need `DOCKER_BUILDKIT=1`.
 
 ## Standard Web App Stack
 
@@ -79,20 +79,20 @@ mounts + anonymous `node_modules` volumes remain valid when Watch is not a fit.
 
 Use a syntax directive so cache mounts and secret mounts parse reliably. BuildKit
 is on by default; provenance attestations are also default for `docker build`
-(`mode=min`) — add `--sbom=true` when you need an SBOM attestation.
+(`mode=min`) - add `--sbom=true` when you need an SBOM attestation.
 
 ```dockerfile
 # syntax=docker/dockerfile:1
 
 # Pin ONE reproducibility strategy per pipeline: immutable digest (strongest) or patch-level tag (weaker).
-# Moving minor tags (e.g. node:22-alpine) trade reproducibility for silent upstream updates—document that trade-off if you use them.
+# Moving minor tags (e.g. node:22-alpine) trade reproducibility for silent upstream updates - document that trade-off if you use them.
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 # Persist npm cache across builds (BuildKit)
 RUN --mount=type=cache,target=/root/.npm \
     npm ci
-# Build-time tokens (private registry, git): supply files via BuildKit secrets—never COPY .npmrc with tokens into the image.
+# Build-time tokens (private registry, git): supply files via BuildKit secrets - never COPY .npmrc with tokens into the image.
 #   docker build --secret id=npmrc,src=$HOME/.npmrc .
 # RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci
 
@@ -158,7 +158,7 @@ services:
 
 **`deploy.resources`:** Compose **v2.13+** enforces `limits` and `reservations` on
 standalone `docker compose up`. Replicas, placement, rolling updates, and
-endpoint-mode remain **Swarm-oriented** — use Swarm/Kubernetes/ECS when those matter.
+endpoint-mode remain **Swarm-oriented** - use Swarm/Kubernetes/ECS when those matter.
 
 ```bash
 # Development (auto-loads override; add --watch for Compose Watch)

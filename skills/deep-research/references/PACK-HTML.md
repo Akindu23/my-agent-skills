@@ -18,7 +18,7 @@ docs/research/<topic-slug>/
       <diagram-slug>.svg
 ```
 
-Stable filenames; overwrite on re-render. HTML mirrors SSOT sections only — no inventing content absent from markdown (diagrams may visualize relationships already stated in the SSOT).
+Stable filenames; overwrite on re-render. HTML mirrors SSOT sections only - no inventing content absent from markdown (diagrams may visualize relationships already stated in the SSOT).
 
 ## Page roles
 
@@ -40,7 +40,7 @@ Every page:
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{topic}} — {{page}}</title>
+  <title>{{topic}} - {{page}}</title>
   <link rel="stylesheet" href="./assets/pack.css" />
 </head>
 <body>
@@ -64,8 +64,8 @@ Mark the current page link with `aria-current="page"`. Relative links only (`./�
 - Consistent nav + max-width content column
 - System UI font stack is fine (utilitarian pack)
 - `.uncertain` styling for `[uncertain]` claims
-- `figure.diagram img` — full-width, readable on mobile
-- `@media print` — hide `.pack-nav`; avoid breaks inside articles
+- `figure.diagram img` - full-width, readable on mobile
+- `@media print` - hide `.pack-nav`; avoid breaks inside articles
 
 Shared CSS in `assets/` is required for this multi-page pack (do not put per-page-only styles and skip `pack.css`).
 
@@ -78,9 +78,9 @@ Shared CSS in `assets/` is required for this multi-page pack (do not put per-pag
 | Sources used footer | links to `./sources.html#src-N` for ids on that page |
 | Uncertain | keep `[uncertain]` text or wrap with `<span class="uncertain">` |
 
-From body pages always use `./sources.html#src-N` (flat pack — not `../sources.html`).
+From body pages always use `./sources.html#src-N` (flat pack - not `../sources.html`).
 
-## Diagrams (static SVG — preferred)
+## Diagrams (static SVG - preferred)
 
 Include a diagram only when it earns its keep (not mandatory). When you do, follow `/svg-diagrams` (`deep-research` preset): craft, checklist, and `scripts/validate.py` before shipping.
 
@@ -98,7 +98,7 @@ Include a diagram only when it earns its keep (not mandatory). When you do, foll
 
 - Inline-safe: no external fonts/CDN; use `system-ui, sans-serif` (or omit font-family and inherit).
 - Include `<title>` (and `role="img"` + `aria-labelledby` when helpful).
-- Prefer simple flow/box diagrams; match pack colors via CSS variables only if inlined — for `<img>` SVGs, hard-code a small palette consistent with `pack.css`.
+- Prefer simple flow/box diagrams; match pack colors via CSS variables only if inlined - for `<img>` SVGs, hard-code a small palette consistent with `pack.css`.
 - Stable filenames; overwrite on re-render.
 
 ### Authoring from markdown

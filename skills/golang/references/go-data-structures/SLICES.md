@@ -24,7 +24,7 @@ A `nil` slice has all three items set to zero/nil.
 
 ## Slices Reference Underlying Arrays
 
-Slices don't store data—they describe a section of an array:
+Slices don't store data - they describe a section of an array:
 
 ```go
 data := [4]int{1, 2, 3, 4}
@@ -73,7 +73,7 @@ func Append(slice, data []byte) []byte {
 ```
 
 When reallocation occurs, `slice` points to a new array. The caller's original
-still points to the old one—returning lets them update their reference.
+still points to the old one - returning lets them update their reference.
 
 ---
 
@@ -88,7 +88,7 @@ n := copy(dst, src)  // n=3, dst=[1,2,3]
 ```
 
 Handles overlapping slices correctly. Copies `min(len(dst), len(src))`
-elements—no reallocation occurs.
+elements - no reallocation occurs.
 
 ---
 

@@ -28,7 +28,7 @@ Author **static** SVG diagrams (no animation in v1) for architecture, sequence, 
 
 3. **Write** a self-contained static `.svg` (semantic shapes, system fonts, baked or `var()` colors per embed mode).
 
-4. **Checklist** — run [agent checklist](references/agent-checklist.md) (layout, labels, crossings, contrast/dual-encoding, type rules, earns-its-keep).
+4. **Checklist** - run [agent checklist](references/agent-checklist.md) (layout, labels, crossings, contrast/dual-encoding, type rules, earns-its-keep).
 
    **Done when:** every checklist item is checked (or explicitly N/A with reason).
 
@@ -42,6 +42,6 @@ Author **static** SVG diagrams (no animation in v1) for architecture, sequence, 
 
    **Done when:** the command prints `OK:` and exits 0.
 
-6. **Embed snippet** if the caller needs HTML — [embed](references/embed.md) (`deep-research`, `teach`, `standalone`).
+6. **Embed snippet** if the caller needs HTML - [embed](references/embed.md) (`deep-research`, `teach`, `standalone`).
 
    **Done when:** snippet matches the caller preset and embed mode from step 1, or no HTML was requested.

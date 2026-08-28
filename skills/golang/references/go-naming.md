@@ -1,6 +1,6 @@
 ---
 name: go-naming
-description: Go naming conventions for packages, functions, methods, variables, constants, and receivers from Google and Uber style guides. Use when naming any identifier in Go code—choosing names for types, functions, methods, variables, constants, or packages—to ensure clarity, consistency, and idiomatic style.
+description: Go naming conventions for packages, functions, methods, variables, constants, and receivers from Google and Uber style guides. Use when naming any identifier in Go code - choosing names for types, functions, methods, variables, constants, or packages - to ensure clarity, consistency, and idiomatic style.
 ---
 
 # Go Naming Conventions
@@ -16,7 +16,7 @@ Names should:
 - Take context into consideration
 - Not repeat concepts that are already clear
 
-Naming is more art than science—Go names tend to be shorter than in other
+Naming is more art than science - Go names tend to be shorter than in other
 languages.
 
 ---
@@ -97,7 +97,7 @@ type CloseNotifier interface { CloseNotify() <-chan bool }
 
 Honor canonical method names (`Read`, `Write`, `Close`, `String`) and their
 signatures. If your type implements a method with the same meaning as a
-well-known type, use the same name—call it `String` not `ToString`.
+well-known type, use the same name - call it `String` not `ToString`.
 
 ---
 

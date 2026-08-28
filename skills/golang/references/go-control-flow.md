@@ -9,7 +9,7 @@ description: Go control flow idioms from Effective Go. Covers if with initializa
 > in important ways. Understanding these differences is essential for writing
 > idiomatic Go code.
 
-Go has no `do` or `while` loop—only a generalized `for`. There are no
+Go has no `do` or `while` loop - only a generalized `for`. There are no
 parentheses around conditions, and bodies must always be brace-delimited.
 
 ---
@@ -338,7 +338,7 @@ import _ "net/http/pprof"  // registers HTTP handlers
 import _ "image/png"       // registers PNG decoder
 ```
 
-This makes clear the package is imported only for side effects—it has no usable
+This makes clear the package is imported only for side effects - it has no usable
 name in this file.
 
 ### Interface Compliance Check

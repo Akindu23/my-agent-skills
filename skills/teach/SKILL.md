@@ -32,7 +32,7 @@ The state of learning is captured in these files:
 - `GLOSSARY.md`: The canonical terminology for the topic. All lessons, exercises, and records should follow it. Use [GLOSSARY-FORMAT.md](references/GLOSSARY-FORMAT.md).
 - `RESOURCES.md`: A curated set of verified sources and communities. Use [RESOURCES-FORMAT.md](references/RESOURCES-FORMAT.md).
 - `learning-records/*.md`: Short records of demonstrated understanding, prior knowledge, corrected misconceptions, or mission shifts. Use [LEARNING-RECORD-FORMAT.md](references/LEARNING-RECORD-FORMAT.md).
-- `lessons/*.html`: Self-contained HTML lessons and exercises — the primary teaching unit. Use [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
+- `lessons/*.html`: Self-contained HTML lessons and exercises - the primary teaching unit. Use [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
 - `assets/*`: Reusable interactive components shared across lessons in this topic. See [Assets](#assets).
 - `reference/*.html`: Compressed quick-reference sheets (syntax, poses, algorithms, glossary render) designed for repeat lookup. Create when a topic benefits from durable cheat-sheets beyond glossary terms.
 - `NOTES.md`: A scratchpad for user preferences and working notes.
@@ -60,7 +60,7 @@ Fluency can give the user an illusory sense of mastery, but storage strength is 
 
 - **Retrieval practice** (recall from memory)
 - **Spacing** (distributing practice over time)
-- **Interleaving** (mixing related topics in practice — for skills practice only)
+- **Interleaving** (mixing related topics in practice - for skills practice only)
 
 ## Gathering knowledge
 
@@ -70,33 +70,33 @@ Before populating `RESOURCES.md`, finding communities, or grounding factual clai
 
 ## Lessons
 
-A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file in `lessons/`, teaching one tightly-scoped thing tied to the mission.
+A lesson is the main thing you produce - the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file in `lessons/`, teaching one tightly-scoped thing tied to the mission.
 
 Pedagogical rules:
 
-- **Beautiful** — clean, readable typography and layout; think Tufte. Vary visual design to fit the topic; do not default to the same palette or layout every time.
-- **Short** — completable very quickly. Learners' working memory is small; each lesson should deliver a single tangible win they can build on.
-- **Scoped** — directly tied to the mission and the user's zone of proximal development.
-- **Linked** — use HTML anchors to other lessons and reference documents in the same topic folder.
-- **Sourced** — recommend a primary source from `RESOURCES.md` for the user to read or watch.
-- **Open** — if possible, open the lesson for the user via CLI (see [LESSON-FORMAT.md](references/LESSON-FORMAT.md)).
-- **Follow-up** — remind the user they can ask the agent when something is unclear.
+- **Beautiful** - clean, readable typography and layout; think Tufte. Vary visual design to fit the topic; do not default to the same palette or layout every time.
+- **Short** - completable very quickly. Learners' working memory is small; each lesson should deliver a single tangible win they can build on.
+- **Scoped** - directly tied to the mission and the user's zone of proximal development.
+- **Linked** - use HTML anchors to other lessons and reference documents in the same topic folder.
+- **Sourced** - recommend a primary source from `RESOURCES.md` for the user to read or watch.
+- **Open** - if possible, open the lesson for the user via CLI (see [LESSON-FORMAT.md](references/LESSON-FORMAT.md)).
+- **Follow-up** - remind the user they can ask the agent when something is unclear.
 
 HTML implementation, preview commands, and code-block rules: [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
 
 ## Assets
 
-Lessons are built from reusable **interactive components**, stored in `assets/`: quiz and feedback widgets, simulators, diagram helpers — anything a second lesson in this topic could reuse.
+Lessons are built from reusable **interactive components**, stored in `assets/`: quiz and feedback widgets, simulators, diagram helpers - anything a second lesson in this topic could reuse.
 
 **Not for shared stylesheets.** Each lesson owns its own visual design. Assets are for behavior, not a house style.
 
-Before authoring a lesson, read `assets/` and build from components already there. When a lesson needs something new and reusable in principle, write it to `assets/` and link from the lesson HTML — do not inline code a future lesson would duplicate. Create `assets/` lazily on first write.
+Before authoring a lesson, read `assets/` and build from components already there. When a lesson needs something new and reusable in principle, write it to `assets/` and link from the lesson HTML - do not inline code a future lesson would duplicate. Create `assets/` lazily on first write.
 
 ## Reference documents
 
-While creating lessons, also create `reference/*.html` when the topic benefits from durable cheat-sheets. Lessons are mission-scoped and taught once; reference documents are compressed essence for repeat lookup — the raw units of learning the user returns to.
+While creating lessons, also create `reference/*.html` when the topic benefits from durable cheat-sheets. Lessons are mission-scoped and taught once; reference documents are compressed essence for repeat lookup - the raw units of learning the user returns to.
 
-Lessons will rarely be revisited later; reference documents will. They should be beautiful, print-friendly, and quick to scan. No exercises. Same design freedom as lessons — see [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
+Lessons will rarely be revisited later; reference documents will. They should be beautiful, print-friendly, and quick to scan. No exercises. Same design freedom as lessons - see [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
 
 Some topics lend themselves to reference sheets:
 
@@ -110,20 +110,20 @@ Some topics lend themselves to reference sheets:
 
 ## The Mission
 
-Every lesson should be tied into the mission — the reason the user is interested in learning about the topic.
+Every lesson should be tied into the mission - the reason the user is interested in learning about the topic.
 
 If the user is unclear about the mission, or the `MISSION.md` is not populated, your first job should be to question the user on why they want to learn this.
 
 Failing to understand the mission will mean knowledge acquisition is not grounded in real-world goals. Lessons will feel too abstract. You will have no way of judging what the user should do next.
 
-Missions may change as the user develops more skills and knowledge. This is normal — update `MISSION.md`, add a learning record to capture the shift, and **confirm with the user before changing the mission**.
+Missions may change as the user develops more skills and knowledge. This is normal - update `MISSION.md`, add a learning record to capture the shift, and **confirm with the user before changing the mission**.
 
 ## User clarifications
 
 For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
 
 1. Probe the tool list for `AskQuestion` (Cursor) or `AskUserQuestion` (Claude Code).
-2. Call the one that exists, using that tool's schema from the session — field names are not interchangeable.
+2. Call the one that exists, using that tool's schema from the session - field names are not interchangeable.
 3. If neither exists, ask the same choices in ordinary chat, same options and order.
 
 Put every fact the user needs to choose inside the question and option text. Some clients hide assistant preamble in the same turn as the tool call.
@@ -154,7 +154,7 @@ Building the glossary should be done once you feel confident that the user under
 
 Lessons should be designed around a skill the user is going to learn. The knowledge in the lesson should be only what's required to acquire that skill. Teach the knowledge first, then get the user to practice via an interactive feedback loop.
 
-Knowledge should first be gathered from verified resources in `RESOURCES.md`, then taught via HTML lessons. Litter lessons with citations — link only to entries in `RESOURCES.md`.
+Knowledge should first be gathered from verified resources in `RESOURCES.md`, then taught via HTML lessons. Litter lessons with citations - link only to entries in `RESOURCES.md`.
 
 For acquiring knowledge, difficulty is the enemy. It eats working memory you need for understanding.
 
@@ -170,15 +170,15 @@ For skill acquisition, difficulty is the tool. Effortful retrieval is what build
 - Lessons that guide the user through real-world steps (for instance, yoga poses)
 - In-agent scenario quizzes when HTML isn't warranted
 
-Each approach should use a **feedback loop** — feedback as tight as possible, immediately and ideally automatically.
+Each approach should use a **feedback loop** - feedback as tight as possible, immediately and ideally automatically.
 
 For quizzes, each answer option should be exactly the same number of words (and characters, if possible). Do not give the user clues about the answer through formatting.
 
 ## Acquiring wisdom
 
-Wisdom comes from true real-world interaction — testing your skills outside the learning environment.
+Wisdom comes from true real-world interaction - testing your skills outside the learning environment.
 
-When the user asks a question that appears to require wisdom, your default posture should be to attempt to answer — but to ultimately delegate to a **community**.
+When the user asks a question that appears to require wisdom, your default posture should be to attempt to answer - but to ultimately delegate to a **community**.
 
 A community is a place (online or offline) where the user can test their skills in the real world. This might be a forum, a subreddit, a real-world class (budget permitting) or a local interest group.
 

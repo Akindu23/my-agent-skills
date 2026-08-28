@@ -43,7 +43,7 @@ def process_all(datasets: list[list[int]]) -> list[int]:
 ### Async/Await for Concurrent I/O
 
 Prefer `asyncio.TaskGroup` (3.11+) for structured concurrency. Reuse one
-`aiohttp.ClientSession` for the whole batch — do not open a session per request.
+`aiohttp.ClientSession` for the whole batch - do not open a session per request.
 
 ```python
 import asyncio

@@ -397,7 +397,7 @@ For text output:
 
 > **Source**: Effective Go
 
-Use `panic` only for truly unrecoverable situations. Library functions should avoid panic—if the problem can be worked around, let things continue rather than taking down the whole program.
+Use `panic` only for truly unrecoverable situations. Library functions should avoid panic - if the problem can be worked around, let things continue rather than taking down the whole program.
 
 Use `recover` to regain control of a panicking goroutine (only works inside deferred functions):
 
@@ -413,7 +413,7 @@ func safelyDo(work *Work) {
 ```
 
 **Key rules:**
-- Never expose panics across package boundaries—always convert to errors
+- Never expose panics across package boundaries - always convert to errors
 - Acceptable to panic in `init()` if a library truly cannot set itself up
 - Use recover to isolate panics in server goroutine handlers
 
