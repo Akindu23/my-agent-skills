@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Diff/PR review: council → thermos/yagni/slop-report → delta BPR → Sol merge. P0/P1 + slop table; may nominate; may Run /remove-slop when the gate is empty."
+description: "Diff/PR review: council → thermos/yagni/slop-report → delta BPR → merge. P0/P1 + slop table; may nominate; may Run /remove-slop when the gate is empty."
 disable-model-invocation: true
 ---
 
@@ -11,7 +11,7 @@ Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../
 | Role | Model |
 |------|--------|
 | Thermos, `/yagni` | heavy lane / `[heavy]` |
-| Fresh pass + merge | **Cursor:** `gpt-5.6-sol-medium` if in enum, else heavy. **Claude Code:** `claude-opus-4-8` if in enum, else `opus`, else heavy |
+| Fresh pass + merge | **Cursor:** heavy. **Claude Code:** `opus` |
 
 Delta `/best-practices-research` runs as that skill is written (it owns its Task fan-out and model picks).
 
@@ -27,9 +27,9 @@ Put every fact the user needs to choose inside the question and option text. Som
 
 Free-form answers stay in plain chat.
 
-1. **Scope.** Honor the user's prompt. If unspecified: changes vs `main` **including** working-tree WIP (committed on the branch + staged + unstaged). Also discover the review's **work item**: search the repo's tickets/plan files (`work/**`) for a ticket or plan whose status is `implemented / awaiting review`. Exactly one match → that is this review's work item. None or several → review the diff plain, no bookkeeping. **Done when**: base, WIP inclusion, any path/PR narrowing, and the work item (or its absence) are explicit.
+1. **Scope.** Honor the user's prompt. If unspecified: changes vs `main` **including** working-tree WIP (committed on the branch + staged + unstaged). Also discover the review's **work items**: search `**/work/**` for a ticket or plan whose status is `implemented / awaiting review`. A work item the user named wins. Else keep the matches whose acceptance the changed files implement; if that still leaves several and which is which is unclear, one structured MCQ of those tickets. Zero matches, or none of them cover the diff → review the diff plain, no bookkeeping. **Done when**: base, WIP inclusion, any path/PR narrowing, and the work items (or their absence) are explicit.
 
-2. **Package.** Build the review **package**: git diff for that scope + full contents of every changed file (shell + explore Tasks as needed) + the work item's spec/acceptance criteria when step 1 found one (a plan's full contents; a ticket's section). If `CODING_STANDARDS.md` exists at the repo root, include its full contents; if it is missing, omit it and proceed. Stop in one line if the diff is empty. **Done when**: the package holds diff output, every changed file's contents, and either the standards file or an explicit omit, or an empty-diff stop.
+2. **Package.** Build the review **package**: git diff for that scope + full contents of every changed file (shell + explore Tasks as needed) + each work item's spec/acceptance criteria when step 1 found any (a plan's full contents; a ticket's section). If `CODING_STANDARDS.md` exists at the repo root, include its full contents; if it is missing, omit it and proceed. Stop in one line if the diff is empty. **Done when**: the package holds diff output, every changed file's contents, and either the standards file or an explicit omit, or an empty-diff stop.
 
 3. **Council.** Run `/council` scoped only to areas the change touches - context brief for specialists, not the review itself. Attach that brief to later Task prompts. **Done when**: every touched area has been explored enough to brief steps 4-6.
 
@@ -44,7 +44,7 @@ Free-form answers stay in plain chat.
 
 6. **Fresh pass + merge.** One Task/Agent (portable role `general-purpose`, or a review/judge type if in the enum; readonly). Prompt must include the package, council brief, full thermos / yagni / BPR / slop-report outputs, and [`references/REPORT.md`](references/REPORT.md). Worker: (1) independent **fresh pass** over the package, (2) apply **every** rule in `CODING_STANDARDS.md` when that file is in the package (lens: `standards`), (3) merge - dedupe, calibrate onto the scale, attribute each finding's lens, apply the **gate** and **placement**. Model per the table above. **Done when**: a single report matching that file is ready, and every standards rule was applied or the file was omitted.
 
-7. **Report.** Give the user the merged report ([shape](references/REPORT.md)). Do not fix. When step 1 found a work item, update its status line: `reviewed: clean` or `reviewed: N findings` with a one-liner per open P0/P1. **Done when**: the report matches that file and the work item's file alone tells the next session whether it is commit-ready or needs fixes; or empty diff was already stated.
+7. **Report.** Give the user the merged report ([shape](references/REPORT.md)). Do not fix. When step 1 found work items, update each status line: `reviewed: clean` or `reviewed: N findings` with a one-liner per open P0/P1. **Done when**: the report matches that file and each work item's file alone tells the next session whether it is commit-ready or needs fixes; or empty diff was already stated.
 
 8. **Nominate.** After the report, check every **Findings** row against the membership preamble of `CODING_STANDARDS.md` (or [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md) if the file is missing). At most 3 candidates. If none, say so.
 
@@ -56,4 +56,4 @@ End the report turn before the nomination MCQ. Put every candidate's accept / sk
 
 **Done when**: stopped on blockers or empty slop, Skip, or the Edit Task has returned.
 
-Do **not** nest council, BPR, yagni, or `/remove-slop` Edit inside the Sol Task. Do **not** run full BPR by default.
+Run council, BPR, yagni, and `/remove-slop` Edit in the parent. The merge Task is fresh-pass + merge only. Full BPR stays behind step 5.
