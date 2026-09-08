@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Break a plan, spec, or conversation into a set of **tickets** - tracer-bullet vertical slices, each declaring the tickets that **block** it.
 
-Default tracker: local markdown under `work/`. If `docs/agents/issue-tracker.md` exists, follow it. Run `/setup-work` only when the tracker is not local `work/` (or you need to switch / record a non-default tracker).
+Build tickets live as markdown under `work/<feature-slug>/tickets/`. Commit them - they are in-flight product work, not disposable scratch. The map's decision children stay in `issues/`.
 
 ## User clarifications
 
@@ -28,7 +28,7 @@ Ask **one decision at a time** when this skill already sequences questions that 
 
 ### 1. Gather context
 
-Work from whatever is already in the conversation context. If the user passes a reference (a spec path, an issue number or URL) as an argument, fetch it and read its full body and comments.
+Work from whatever is already in the conversation context. If the user passes a reference (a spec path or ticket path) as an argument, fetch it and read its full body.
 
 ### 2. Explore the codebase (optional)
 
@@ -69,16 +69,13 @@ Ask the user:
 
 Iterate until the user approves the breakdown.
 
-### 5. Publish the tickets to the configured tracker
+### 5. Publish the tickets
 
-Publish the approved tickets. **How** depends on the configured tracker (`docs/agents/issue-tracker.md`, else local `work/`) - the tickets are the same either way, only the shape of the blocking edges changes:
+Write one file per approved ticket under `work/<feature-slug>/tickets/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's "Blocked by" lists the numbers/titles it depends on. Use the per-ticket file template below - one ticket per file, never a single combined file.
 
-- **Local files** → write one file per ticket under `work/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's "Blocked by" lists the numbers/titles it depends on. Use the per-ticket file template below - one ticket per file, never a single combined file.
-- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking / sub-issue relationship where it has one; otherwise set each ticket's "Blocked by" to the blocking issues.
+When numbering, order by dependency - blockers first. For a purely linear chain that means top to bottom.
 
-When numbering and publishing, order by dependency - blockers first. For a purely linear chain that means top to bottom.
-
-Do NOT close or modify any parent issue.
+Write only under `tickets/`. Leave the parent spec, map, and `issues/` unchanged.
 
 <local-ticket-template>
 
@@ -93,28 +90,7 @@ Do NOT close or modify any parent issue.
 
 </local-ticket-template>
 
-<issue-template>
-
-## Parent
-
-A reference to the parent issue on the tracker (if the source was an existing issue, otherwise omit this section).
-
-## What to build
-
-The end-to-end behaviour this ticket makes work, from the user's perspective - not layer-by-layer implementation.
-
-## Acceptance criteria
-
-- [ ] Criterion 1
-- [ ] Criterion 2
-
-## Blocked by
-
-- A reference to each blocking ticket, or "None - can start immediately".
-
-</issue-template>
-
-In either form, avoid specific file paths or code snippets - they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts - not a working demo, just the important bits.
+Avoid specific file paths or code snippets - they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts - not a working demo, just the important bits.
 
 Publish the approved tickets, then stop - do not start implementation.
 

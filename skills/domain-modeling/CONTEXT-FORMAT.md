@@ -33,7 +33,29 @@ _Avoid_: Client, buyer, account
 
 **Single context (most repos):** One `CONTEXT.md` at the repo root.
 
-**Multiple contexts:** A `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other:
+```
+/
+├── CONTEXT.md
+├── docs/adr/
+└── src/
+```
+
+**Multiple contexts:** A `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate. That file is the layout.
+
+```
+/
+├── CONTEXT-MAP.md
+├── docs/adr/                 ← system-wide decisions
+└── src/
+    ├── ordering/
+    │   ├── CONTEXT.md
+    │   └── docs/adr/         ← context-specific decisions
+    └── billing/
+        ├── CONTEXT.md
+        └── docs/adr/
+```
+
+Map shape:
 
 ```md
 # Context Map
@@ -51,10 +73,14 @@ _Avoid_: Client, buyer, account
 - **Ordering ↔ Billing**: Shared types for `CustomerId` and `Money`
 ```
 
-The skill infers which structure applies:
+Paths in the map follow the repo: `src/<context>/` or `packages/<name>/`, whichever is the package root.
 
-- If `CONTEXT-MAP.md` exists, read it to find contexts
-- If only a root `CONTEXT.md` exists, single context
-- If neither exists, create a root `CONTEXT.md` lazily when the first term is resolved
+### Which layout
 
-When multiple contexts exist, infer which one the current topic relates to. If unclear, ask.
+- If `CONTEXT-MAP.md` exists, read it and write that context's `CONTEXT.md`. If which context is unclear, ask (structured MCQ if the session has `AskQuestion` / `AskUserQuestion`).
+- If only a root `CONTEXT.md` exists, single context.
+- If neither exists, create a root `CONTEXT.md` when the first term is resolved.
+
+**Monorepo first write.** Offer a per-package glossary only when exploration found real multi-package signals (`pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or populated `packages/*` with its own `src/`). Their absence is single-context - do not ask. When signals are present, ask once: whole repo vs this package. This package → write `CONTEXT-MAP.md` plus `<package-root>/CONTEXT.md`. Whole repo → root `CONTEXT.md`.
+
+**Promote.** When a resolved term belongs to a second bounded context, ask. On yes: write `CONTEXT-MAP.md`, place this term in that context's `CONTEXT.md`, and move the existing root glossary onto its context path (ask which context it belongs to). Leave system-wide ADRs in `docs/adr/`.

@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 Synthesize a spec (PRD) from what you already know - do **not** interview. Then validate it once. **Do not** run `/to-tickets` or implement unless the user asks in the same turn.
 
-Default tracker: local markdown under `work/`. If `docs/agents/issue-tracker.md` exists, follow it. Run `/setup-work` only when the tracker is not local `work/` (or you need to switch / record a non-default tracker).
+Publish to `work/<feature-slug>/spec.md`.
 
 ## User clarifications
 
@@ -30,8 +30,8 @@ Ask **one decision at a time** when this skill already sequences questions that 
 2. Sketch test seams - prefer existing, highest seam; fewer is better (ideal: one). Check with the user that seams match expectations.
    **Done when**: user has confirmed the seams (or accepted the default).
 
-3. Write the spec with the template below; publish to the issue tracker.
-   **Done when**: the spec is published and reachable by path or issue URL.
+3. Write the spec with the template below; publish to `work/<feature-slug>/spec.md`.
+   **Done when**: `work/<feature-slug>/spec.md` exists with the template sections filled.
 
 4. Run `/council` scoped to every area the spec touches.
    **Done when**: every file/area the spec will change has been explored.

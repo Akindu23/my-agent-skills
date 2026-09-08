@@ -38,7 +38,7 @@ Scan the session for candidates. A candidate is a concrete change to the environ
 
 - **Navigation** - a **navigation pointer** (usually one line in `AGENTS.md` / `CLAUDE.md`) would have found the file or dependency faster. Use when the session spent a long time locating information.
 - **Automated checks** - a linter, typecheck, test, or filesystem check would have caught the agent's mistake. Use when the mistake is mechanically detectable.
-- **Coding standards** - a this-repo rule for the **reviewer** (`CODING_STANDARDS.md`). Membership is the preamble of that file, or the seed at [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md) if the file is missing. Use when a missed convention belongs in **Rules**.
+- **Coding standards** - a this-repo rule for the **reviewer** (`CODING_STANDARDS.md`). Membership is the preamble of that file, or the seed at [`../code-review/references/coding-standards.md`](../code-review/references/coding-standards.md) if the file is missing. Use when a missed convention belongs in **Rules**.
 - **Steering load** - a line in `AGENTS.md` / `CLAUDE.md` (repo or user-global) should move to coding standards, an automated check, or a skill. Use when those files are large.
 - **Tool economy** - an expensive or token-heavy tool/MCP/CLI call has a tighter path. Use when the session paid that cost.
 - **No-ops** - a steering instruction that does not change behaviour vs the model's default. Use when steering files are large.
@@ -56,7 +56,7 @@ Put every candidate's accept / skip into **one** structured-MCQ call (`questions
 
 Apply only accepted candidates. Draft every steering-file or skill edit under `/writing-for-agents`.
 
-- **`CODING_STANDARDS.md`**: if missing, copy the seed from [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md) (if that path exists) or recreate that seed's heading, preamble, and empty `## Rules`. Append each accepted rule under `## Rules`.
+- **`CODING_STANDARDS.md`**: if missing, copy the seed from [`../code-review/references/coding-standards.md`](../code-review/references/coding-standards.md) (if that path exists) or recreate that seed's heading, preamble, and empty `## Rules`. Append each accepted rule under `## Rules`.
 - **Navigation pointers / steering load / no-ops**: edit whichever of `AGENTS.md` or `CLAUDE.md` the repo already uses. Pointer lines name the target and the branch that should load it.
 - **Automated checks / tool economy / information access**: make the repo change the candidate named (script, CI step, config). Skip and say so when the change needs credentials or a dashboard the agent cannot complete.
 - **Skills**: apply the accepted skill edit.
@@ -71,7 +71,8 @@ The implementer carries exploration, writing, and debug - **context pressure**. 
 
 ### Files this pack already owns
 
-- `AGENTS.md` / `CLAUDE.md` - always-loaded; **navigation pointers** and almost nothing else. `/setup-work` does not edit these; this skill may, on accept.
-- `CODING_STANDARDS.md` - reviewer-owned. Seed: [`../setup-work/coding-standards.md`](../setup-work/coding-standards.md).
-- `CONTEXT.md` / `docs/adr/` / `docs/agents/` - domain and tracker layout.
+- `AGENTS.md` / `CLAUDE.md` - always-loaded; **navigation pointers** and almost nothing else. This skill may edit them on accept.
+- `CODING_STANDARDS.md` - reviewer-owned. Seed: [`../code-review/references/coding-standards.md`](../code-review/references/coding-standards.md).
+- `CONTEXT.md` / `CONTEXT-MAP.md` / `docs/adr/` - domain layout.
+- `work/` - local maps, specs, plans, and tickets.
 - Skills - `/writing-for-agents` is the style guide.

@@ -9,35 +9,9 @@ Actively build and sharpen the project's domain model as you design. This is the
 
 ## File structure
 
-Most repos have a single context:
+Default: one `CONTEXT.md` + `docs/adr/` at the repo root. Create lazily - only when you have something to write. First resolved term creates the glossary; first ADR creates `docs/adr/`.
 
-```
-/
-├── CONTEXT.md
-├── docs/
-│   └── adr/
-│       ├── 0001-event-sourced-orders.md
-│       └── 0002-postgres-for-write-model.md
-└── src/
-```
-
-If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The map points to where each one lives:
-
-```
-/
-├── CONTEXT-MAP.md
-├── docs/
-│   └── adr/                          ← system-wide decisions
-├── src/
-│   ├── ordering/
-│   │   ├── CONTEXT.md
-│   │   └── docs/adr/                 ← context-specific decisions
-│   └── billing/
-│       ├── CONTEXT.md
-│       └── docs/adr/
-```
-
-Create files lazily - only when you have something to write. If no `CONTEXT.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
+If `CONTEXT-MAP.md` exists, follow it (per-context `CONTEXT.md` and `docs/adr/`). Creating or promoting a map is in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md) (Single vs multi-context) - load that section when the first write is in a monorepo package, or a term belongs to a second bounded context. Presence of `CONTEXT-MAP.md` is the layout.
 
 ## During the session
 
@@ -59,7 +33,7 @@ When the user states how something works, check whether the code agrees. If you 
 
 ### Update CONTEXT.md inline
 
-When a term is resolved, update `CONTEXT.md` right there. Don't batch these up - capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
+When a term is resolved, update that context's `CONTEXT.md` right there (root unless `CONTEXT-MAP.md` says otherwise). Don't batch these up - capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
 
 `CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
 

@@ -43,6 +43,6 @@ Run typechecking regularly, single test files regularly, and the full test suite
 
 Ticket work stays uncommitted. Baseline **Fix first** and mechanical file changes are the only commits, through `/commit-msg`. After the slice is done, run `/code-review` in a fresh turn (or ask for it explicitly).
 
-Close the ticket **on disk**: in the tickets/plan file the work came from, mark this ticket's status (implemented / awaiting review) and name the next ticket in order. Status line only; `**Pre-existing failures:**` stays if present. **Done when**: a fresh session reading only that file can answer "what's next?".
+Close the ticket **on disk**: in the `work/<feature-slug>/tickets/` file this session implemented (or the plan file on the `/to-plan` path), mark this ticket's status (implemented / awaiting review) and name the next ticket in order. Status line only; `**Pre-existing failures:**` stays if present. **Done when**: a fresh session reading only that file can answer "what's next?".
 
 For a whole attached plan with council / best-practices / YAGNI, use /implement-plan instead.

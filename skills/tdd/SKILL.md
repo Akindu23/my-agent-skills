@@ -7,7 +7,7 @@ description: TDD. Use when building or fixing test-first, or when the user menti
 
 TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle - consult them before and during the loop, not after.
 
-When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
+When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching. If `CONTEXT-MAP.md` exists, follow it to the right glossary.
 
 ## What a good test is
 
