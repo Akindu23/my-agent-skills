@@ -1,6 +1,6 @@
 ---
 name: karpathy-guidelines
-description: Strict coding discipline - think before coding, simplify, surgical changes only, verifiable success criteria.
+description: Karpathy guidelines. Use when implementing or making a surgical edit, or when another skill requires this discipline.
 license: MIT
 ---
 

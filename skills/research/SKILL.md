@@ -1,10 +1,8 @@
 ---
 name: research
 description: >-
-  Investigate a question against high-trust primary sources and capture the
-  findings as a Markdown file in the repo. Use when the user wants a topic
-  researched, docs or API facts gathered, or reading legwork delegated to a
-  background agent - including when /wayfinder fires research tickets.
+  Research. Use when a question needs primary-source findings written to a
+  Markdown file in the repo, including when /wayfinder fires a research ticket.
 ---
 
 # Research

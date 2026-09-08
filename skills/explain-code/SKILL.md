@@ -1,6 +1,6 @@
 ---
 name: explain-code
-description: Explains code in a short, scannable structure with a TL;DR, sectioned ideas, and small code examples. Use when the user wants code explained, summarized, walkthroughs, or documentation-style breakdowns.
+description: Explains code in a short, scannable structure with a TL;DR, sectioned ideas, and small code examples.
 disable-model-invocation: true
 ---
 

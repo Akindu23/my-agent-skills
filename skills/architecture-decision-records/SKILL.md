@@ -1,11 +1,8 @@
 ---
 name: architecture-decision-records
 description: >-
-  Captures architectural decisions as lightweight ADRs with detailed rationale,
-  optional expanded sections, scaffolding, and index maintenance. Detects decision
-  moments, drafts for approval, writes files, and updates docs/adr/README.md.
-  Use when recording why the codebase chose a pattern, library, or trade-off;
-  when the user says ADR, record this decision, or why did we choose X.
+  ADRs. Use when recording why the codebase chose a pattern, library, or
+  trade-off, or when another skill offers a decision for the index.
 ---
 
 # Architecture Decision Records

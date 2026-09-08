@@ -1,9 +1,6 @@
 ---
 name: grill-with-docs
-description: >-
-  Sharpen a plan or design against this codebase via grilling + domain-modeling
-  (CONTEXT.md / ADR offers). May offer /wayfinder when fog appears. Invoke with
-  `/grill-with-docs`.
+description: Sharpen a plan against this codebase (grilling + domain model, optional wayfinder).
 disable-model-invocation: true
 ---
 

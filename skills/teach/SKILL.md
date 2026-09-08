@@ -1,7 +1,6 @@
 ---
 name: teach
-description: >-
-  Teaches the user a topic over multiple sessions using a grounded learning workspace under docs/learning/, with Exa-verified resources. Use when the user invokes /teach, asks to learn a concept, wants structured lessons, or needs curated resources, glossary terms, learning records, exercises, and HTML lessons.
+description: Multi-session tutoring with a grounded learning workspace under docs/learning/.
 disable-model-invocation: true
 ---
 

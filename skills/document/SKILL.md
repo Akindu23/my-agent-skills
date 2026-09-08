@@ -1,17 +1,9 @@
 ---
 name: document
-description: >-
-  Creates or updates durable project documentation - README sections, architecture docs, API docs, examples, migration notes, devops docs, runbooks, and usage guides verified against code. Use when the user asks to document behavior, write or update repo docs, refresh README, add API or runbook docs, capture how something works in the repository, or remove stale documentation after code changes. Triggers: "document this", "update the README", "write a runbook", "add docs for", "document the API", "capture how X works in the repo", "/document".
+description: Document. Use when creating or updating durable repo docs, or pruning stale docs in a touched area.
 ---
 
 # Document
-
-## When to Use
-
-- User wants **documentation committed in the repo** (create, update, or prune) - not a chat-only walkthrough
-- User asks to document a feature, module, command, API, release, operational procedure, or existing doc scope
-- User wants README, architecture, API, devops, runbook, migration, or colocated package docs refreshed after code changes
-- Triggers: "document this", "update the README", "write a runbook", "add docs for", "document the API", "capture how X works in the repo", `/document`
 
 ## User clarifications
 

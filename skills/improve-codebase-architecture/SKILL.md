@@ -1,10 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: >-
-  Architecture review: scan a codebase for deepening opportunities, present
-  them as a visual HTML report, then grill through the candidate the user
-  picks. Use for architecture review, deepening refactors, testability
-  improvements, or `/improve-codebase-architecture`.
+description: Architecture review with an HTML deepening report, then grilling on the candidate you pick.
 disable-model-invocation: true
 ---
 

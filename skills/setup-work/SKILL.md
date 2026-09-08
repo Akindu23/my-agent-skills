@@ -1,6 +1,6 @@
 ---
 name: setup-work
-description: Optional per-repo bootstrap of `docs/agents/issue-tracker.md` and `docs/agents/domain.md` so engineering skills know where issues live (local markdown under `work/` by default; GitHub and GitLab also supported) and how to consume domain docs. May seed reviewer-owned `CODING_STANDARDS.md`. Not required for the default path - skills assume local `work/` and single-context `CONTEXT.md` / `docs/adr/` when these files are missing. Run when switching to GitHub/GitLab/custom tracker, changing tracker, confirming multi-context domain layout, or seeding coding standards.
+description: Optional per-repo bootstrap for issue-tracker, domain docs, and CODING_STANDARDS seeds.
 disable-model-invocation: true
 ---
 

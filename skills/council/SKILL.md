@@ -1,6 +1,6 @@
 ---
 name: council
-description: "Council: recon a codebase area, then return a cited brief."
+description: Council. Use when reconning a codebase area, mapping ownership or layout to partition work, or returning a cited brief of what is already implemented.
 ---
 
 The parent scouts, partitions, launches dives, waits, and writes the brief.

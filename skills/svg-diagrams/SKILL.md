@@ -1,10 +1,8 @@
 ---
 name: svg-diagrams
 description: >-
-  Authors static SVG (architecture, sequence, freeform) and HTML embed snippets.
-  Use for standalone SVG visuals and HTML packs/lessons that need diagrams as
-  `.svg` / `<img>` / inline SVG. Not for Mermaid source or markdown-fenced
-  Mermaid diagrams.
+  SVG diagrams. Use for standalone static SVG or HTML packs that need diagrams
+  as `.svg`, `<img>`, or inline SVG.
 license: MIT
 ---
 

@@ -1,11 +1,9 @@
 ---
 name: best-practices-research
 description: >-
-  Runs recon on current best practices for a language, framework, or domain
-  via live web search before implementing. Use when starting non-trivial work
-  in an unfamiliar or fast-moving domain, library, or framework, or when the
-  user asks to follow best practices, current practices, or "the modern way"
-  to do something. Skip for routine edits or familiar, stable code.
+  Best practices. Use when starting non-trivial work in an unfamiliar or
+  fast-moving domain, or when another skill needs a current-practice pass.
+  Skip routine edits and familiar, stable code.
 ---
 
 # Best Practices Research
