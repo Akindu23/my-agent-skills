@@ -30,11 +30,15 @@ Ask **one decision at a time** when this skill already sequences questions that 
 
 Work from whatever is already in the conversation context. If the user passes a reference (a spec path or ticket path) as an argument, fetch it and read its full body.
 
+**Done when**: the source is in this session in full (the conversation, or the named spec/ticket path's body).
+
 ### 2. Explore the codebase (optional)
 
 If you have not already explored the codebase, do so to understand the current state of the code. Ticket titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.
 
 Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
+
+**Done when**: skipped (already explored this session), or titles can use the project's glossary, ADRs in the area are known, and any prefactor is its own first ticket (or none is needed).
 
 ### 3. Draft vertical slices
 
@@ -53,6 +57,8 @@ Give each ticket its **blocking edges** - the other tickets that must complete b
 
 **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change - rename a column, retype a shared symbol - whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand-contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket - green is promised only there.
 
+**Done when**: every ticket is a tracer bullet (complete vertical path, demoable alone, one-window sized) or an expand-contract wide-refactor sequence, and every ticket names its blockers.
+
 ### 4. Quiz the user
 
 Present the proposed breakdown as a numbered list. For each ticket, show:
@@ -68,6 +74,8 @@ Ask the user:
 - Should any tickets be merged or split further?
 
 Iterate until the user approves the breakdown.
+
+**Done when**: the user has approved the numbered list (granularity, blocking edges, merge/split).
 
 ### 5. Publish the tickets
 
@@ -95,3 +103,5 @@ Avoid specific file paths or code snippets - they go stale fast. Exception: if a
 Publish the approved tickets, then stop - do not start implementation.
 
 Work the frontier **one ticket at a time** with `/implement`, clearing context between tickets. Do not run `/implement-plan` per ticket (that skill is for `/to-plan` / attached plans). Escalate to `/implement-plan` only if a ticket is still full of unknowns - treat that as a process smell.
+
+**Done when**: one `work/<feature-slug>/tickets/<NN>-<slug>.md` per approved ticket exists, numbered from `01` in dependency order, each with What to build, Blocked by, and at least one checkable acceptance criterion; this session has stopped without `/implement`.

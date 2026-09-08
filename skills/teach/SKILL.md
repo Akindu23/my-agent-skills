@@ -67,6 +67,8 @@ Never cite sources or teach factual material from memory alone.
 
 Before populating `RESOURCES.md`, finding communities, or grounding factual claims in lessons, read [RESOURCES-FORMAT.md](references/RESOURCES-FORMAT.md) and follow its Exa discover-then-verify workflow. Lesson and reference-sheet links may only cite URLs already listed in `RESOURCES.md`; add new sources via that workflow before first use.
 
+**Done when**: every URL this session will cite is in `RESOURCES.md`.
+
 ## Lessons
 
 A lesson is the main thing you produce - the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file in `lessons/`, teaching one tightly-scoped thing tied to the mission.
@@ -82,6 +84,8 @@ Pedagogical rules:
 - **Follow-up** - remind the user they can ask the agent when something is unclear.
 
 HTML implementation, preview commands, and code-block rules: [LESSON-FORMAT.md](references/LESSON-FORMAT.md).
+
+**Done when**: every lesson written this session is tied to the mission and the user's zone of proximal development, cites only `RESOURCES.md` URLs, and is opened for the user if possible.
 
 ## Assets
 
@@ -117,6 +121,8 @@ Failing to understand the mission will mean knowledge acquisition is not grounde
 
 Missions may change as the user develops more skills and knowledge. This is normal - update `MISSION.md`, add a learning record to capture the shift, and **confirm with the user before changing the mission**.
 
+**Done when**: `MISSION.md` exists and this session's next lesson can be judged against it; any mission change is user-confirmed and recorded.
+
 ## User clarifications
 
 For a discrete decision with about 2-6 clear options, use the session's structured MCQ tool.
@@ -143,11 +149,15 @@ The user may specify an exact thing they want to learn. If they don't, figure ou
 
 A user may tell you that they already know about a topic. If so, record the depth of that prior knowledge in `learning-records/`.
 
+**Done when**: this lesson's scope is named from `learning-records/` plus `MISSION.md`, or the user named the exact thing.
+
 ## Glossary
 
 A key part of acquiring knowledge is compressing knowledge into language. Once a term is known and understood, it can be used and combined in new ways to make more complex terms easier to understand.
 
 Building the glossary should be done once you feel confident that the user understands the term. Use [GLOSSARY-FORMAT.md](references/GLOSSARY-FORMAT.md).
+
+**Done when**: every term this session established as understood is in `GLOSSARY.md`.
 
 ## Knowledge
 

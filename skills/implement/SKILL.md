@@ -39,7 +39,7 @@ Mechanical (missing install, stale generated file, cache): fix, say so, re-run v
 
 **Done when**: verify is green, or Proceed was accepted and `**Pre-existing failures:**` is on the ticket.
 
-Run typechecking regularly, single test files regularly, and the full test suite once at the end. An end-suite failure outside the `Baseline:` scope: check that test on a clean checkout (stash or worktree). Reproduces → append it to `**Pre-existing failures:**` (path + one-liner) and leave it. Does not → fix before close. **Done when**: the end suite is green except named `**Pre-existing failures:**`.
+Run typechecking regularly, single test files regularly, and the full test suite once at the end. An end-suite failure outside the `Baseline:` scope: check that test on a clean checkout (stash or worktree). Reproduces → append it to `**Pre-existing failures:**` (path + one-liner) and leave it. Does not → fix before close. **Done when**: every acceptance criterion on the ticket is checked, and the end suite is green except named `**Pre-existing failures:**`.
 
 Ticket work stays uncommitted. Baseline **Fix first** and mechanical file changes are the only commits, through `/commit-msg`. After the slice is done, run `/code-review` in a fresh turn (or ask for it explicitly).
 

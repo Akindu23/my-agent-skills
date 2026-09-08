@@ -24,7 +24,11 @@ Author **static** SVG diagrams (no animation in v1) for architecture, sequence, 
    - HTML embed / caller preset → [embed](references/embed.md)
    - Colors or `color-scheme` → [theme tokens](references/theme-tokens.md)
 
+   **Done when:** `craft-bar.md` is in context, and `diagram-types.md` / `embed.md` / `theme-tokens.md` are in context for every branch this run takes (type, HTML embed, colors).
+
 3. **Write** a self-contained static `.svg` (semantic shapes, system fonts, baked or `var()` colors per embed mode).
+
+   **Done when:** a self-contained static `.svg` exists for this diagram (semantic shapes, system fonts, colors baked or `var()` per the embed mode from step 1).
 
 4. **Checklist** - run [agent checklist](references/agent-checklist.md) (layout, labels, crossings, contrast/dual-encoding, type rules, earns-its-keep).
 

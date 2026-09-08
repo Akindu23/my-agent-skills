@@ -3,7 +3,7 @@ name: grilling
 description: Grill. Use when stress-testing a plan or design with a relentless frontier interview.
 ---
 
-Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
+Interview the user relentlessly until the **frontier** is empty. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 
 Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled - the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
 
@@ -13,7 +13,7 @@ Finding _facts_ is your job, never the user's. When a frontier question needs a 
 
 Probe Task/Agent enums; route per [task-workflow.md](../council/references/task-workflow.md).
 
-The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
+**Done when**: the frontier is empty - every branch of the design tree visited, nothing left silently assumed.
 
 ### Prefer one question at a time?
 

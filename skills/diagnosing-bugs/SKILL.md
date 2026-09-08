@@ -95,7 +95,7 @@ Once it's red, shrink the repro to the **smallest scenario that still goes red**
 
 Why bother: a minimal repro shrinks the hypothesis space in Phase 3 (fewer moving parts left to suspect) and becomes the clean regression test in Phase 5.
 
-Done when **every remaining element is load-bearing** - removing any one of them makes the loop go green.
+**Done when**: every remaining element is load-bearing - removing any one of them makes the loop go green.
 
 Do not proceed until you have reproduced **and** minimised.
 
@@ -111,6 +111,8 @@ If you cannot state the prediction, the hypothesis is a vibe - discard or sharpe
 
 **Show the ranked list to the user before testing.** They often have domain knowledge that re-ranks instantly ("we just deployed a change to #3"), or know hypotheses they've already ruled out. Cheap checkpoint, big time saver. Don't block on it - proceed with your ranking if the user is AFK.
 
+**Done when**: 3-5 ranked falsifiable hypotheses are shown (each with a prediction), and testing has not started.
+
 ## Phase 4 - Instrument
 
 Each probe must map to a specific prediction from Phase 3. **Change one variable at a time.**
@@ -124,6 +126,8 @@ Tool preference:
 **Tag every debug log** with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup at the end becomes a single grep. Untagged logs survive; tagged logs die.
 
 **Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
+
+**Done when**: every still-live hypothesis has at least one probe mapped to its prediction; probes change one variable at a time; every debug log uses a unique `[DEBUG-…]` prefix. Perf: a baseline number exists before any fix.
 
 ## Phase 5 - Fix + regression test
 
@@ -141,17 +145,19 @@ If a correct seam exists:
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
 
+**Done when**: the original (un-minimised) Phase 1 loop is green after the fix; a regression test at a correct seam is red-then-green, or no correct seam is documented.
+
 ## Phase 6 - Cleanup + post-mortem
 
-Required before declaring done:
+Ask: what would have prevented this bug? If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to `/improve-codebase-architecture` with the specifics. Make the recommendation after the fix is in, not before.
 
+**Done when**:
 - [ ] Original repro no longer reproduces (re-run the Phase 1 loop)
 - [ ] Regression test passes (or absence of seam is documented)
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix)
 - [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message - so the next debugger learns
-
-**Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the `/improve-codebase-architecture` skill with the specifics. Make the recommendation **after** the fix is in, not before - you have more information now than when you started.
+- [ ] Architecture follow-up handed to `/improve-codebase-architecture`, or stated as unneeded
 
 ## Output
 
@@ -162,6 +168,8 @@ Before declaring done, report:
 - Fix applied
 - Regression coverage added, skipped, or no correct seam documented
 - Validation run (original loop and test, if any)
+
+**Done when**: that report names the loop, the correct hypothesis, the fix, regression coverage (added / skipped / no seam), and the validation run.
 
 ## Guardrails
 

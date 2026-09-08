@@ -32,6 +32,8 @@ Identify which question is being answered - from the user's prompt, the surround
 
 The two branches produce very different artifacts - getting this wrong wastes the whole prototype. If the question is genuinely ambiguous and the user isn't reachable, default to whichever branch better matches the surrounding code (a backend module → logic; a page or component → UI) and state the assumption at the top of the prototype.
 
+**Done when**: the run is on LOGIC.md or UI.md (named from the user's question, surrounding code, or an explicit default with the assumption stated).
+
 ## Rules that apply to both
 
 1. **Throwaway from day one, and clearly marked as such.** Locate the prototype code close to where it will actually be used (next to the module or page it's prototyping for) so context is obvious - but name it so a casual reader can see it's a prototype, not production. For throwaway UI routes, obey whatever routing convention the project already uses; don't invent a new top-level structure.
@@ -40,3 +42,5 @@ The two branches produce very different artifacts - getting this wrong wastes th
 4. **Skip the polish.** No tests, no error handling beyond what makes the prototype _runnable_, no abstractions. The point is to learn something fast.
 5. **Surface the state.** After every action (logic) or on every variant switch (UI), print or render the full relevant state so the user can see what changed.
 6. **Capture it when done.** Fold any validated decision into the real code, then capture the prototype itself as a **primary source**: commit it to a throwaway branch, out of main, and leave a context pointer to that branch on the implementation issue. Capture the answer too - the verdict and the question it settled - in the issue or a commit. The main branch keeps only the validated decision.
+
+**Done when**: the artifact is marked throwaway, starts from one command (or a double-click HTML file), surfaces state after every action or variant switch, and the verdict is captured (issue or commit) with a pointer to the throwaway branch.

@@ -47,6 +47,8 @@ Gather raw signals about the project without reading every file. Run these check
      pytest.ini, jest.config.*, vitest.config.*
 ```
 
+**Done when**: each of the six recon checks has a result (found or absent).
+
 ### Phase 2: Architecture Mapping
 
 From the reconnaissance data, identify:
@@ -83,6 +85,8 @@ Trace one request from entry to response:
 - Where is business logic? (services, models, use cases)
 - How does it reach the database? (ORM, raw queries, repositories)
 
+**Done when**: tech stack, architecture pattern, key directories, and one request's data flow are named from Phase 1 evidence.
+
 ### Phase 3: Convention Detection
 
 Identify patterns the codebase already follows:
@@ -103,6 +107,8 @@ Identify patterns the codebase already follows:
 - Commit message style from recent commits
 - PR workflow (squash, merge, rebase)
 - If the repo has no commits yet or only a shallow history (e.g. `git clone --depth 1`), skip this section and note "Git history unavailable or too shallow to detect conventions"
+
+**Done when**: naming, code patterns, and git conventions are each a finding from the repo, or an explicit "could not determine".
 
 ### Phase 4: Generate Onboarding Artifacts
 
@@ -201,6 +207,8 @@ If the repository already uses **`CLAUDE.md`** for another tool or team conventi
 - [PR workflow if detectable]
 - [Error handling patterns]
 ```
+
+**Done when**: every artifact the user asked for is written (Onboarding Guide in the conversation unless they asked only for AGENTS.md; AGENTS.md at the repo root created or enhanced, existing instructions preserved, additions called out).
 
 ## Best Practices
 

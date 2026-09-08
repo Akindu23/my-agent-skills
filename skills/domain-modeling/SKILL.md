@@ -42,3 +42,5 @@ When a term is resolved, update that context's `CONTEXT.md` right there (root un
 Only offer an ADR when the [implicit-offer criteria](../architecture-decision-records/references/ADR-POLICY.md) in ADR-POLICY are met (all three must be true). Do not auto-write.
 
 **When the user accepts**, follow `/architecture-decision-records` with **`Captured via: domain-modeling`**. Shape expectations are in [ADR-FORMAT.md](./ADR-FORMAT.md).
+
+**Done when**: every term this session resolved is in that context's `CONTEXT.md`.
