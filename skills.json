@@ -26,7 +26,6 @@
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
     "skills/prototype",
-    "skills/recursive-decomposition",
     "skills/remove-slop",
     "skills/research",
     "skills/retro",
@@ -90,9 +89,6 @@
       "codebase-design",
       "grilling",
       "domain-modeling"
-    ],
-    "recursive-decomposition": [
-      "council"
     ],
     "research": [
       "council"
