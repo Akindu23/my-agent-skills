@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
@@ -29,6 +29,7 @@
     "skills/remove-slop",
     "skills/research",
     "skills/retro",
+    "skills/show-me",
     "skills/simplify-this",
     "skills/svg-diagrams",
     "skills/tdd",
