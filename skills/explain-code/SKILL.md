@@ -19,7 +19,7 @@ Read [`../simplify-this/references/ste.md`](../simplify-this/references/ste.md).
 - Each `##` section covers one idea and includes at least one fenced code block.
 - Keep snippets small.
 - Simplify code when useful, but stay faithful to behavior.
-- Do not invent intent that the code or prompt does not support.
+- State only intent the code or prompt supports.
 
 ## Format
 
@@ -73,11 +73,4 @@ Ask **one decision at a time** when this skill already sequences questions that 
 ## Scope fallback
 
 - If the user gives no scope and there are unstaged changes, default to the unstaged diff.
-- If the user gives no scope and there are no unstaged changes, do not guess what to explain; explicitly ask the user to identify the file, diff, or area they want explained.
-
-## Guardrails
-
-- Do not create prose-only `##` sections.
-- Do not add explanatory text after a section's code block.
-- Do not include long literals, secrets, or opaque blobs when a placeholder teaches the same point.
-- Do not turn the answer into a line-by-line transcript unless the user asked for that.
+- If the user gives no scope and there are no unstaged changes, ask the user to identify the file, diff, or area they want explained.

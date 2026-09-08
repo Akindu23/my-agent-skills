@@ -1,13 +1,13 @@
 ---
 name: simplify-this
-description: Re-pitch the last assistant message in ASD-STE100 with numbered steps and repo ubiquitous language.
+description: Re-pitch the last assistant message in pocket STE with numbered steps and repo ubiquitous language.
 disable-model-invocation: true
 license: MIT
 ---
 
 # simplify-this
 
-The last message did not land. Re-pitch that message. Do not start new work.
+The last message did not land. Re-pitch that message. Stay on it.
 
 ## 1. Terms
 
@@ -23,6 +23,6 @@ Restate only the last assistant message.
 
 Open with a short context: where the work stands, in one or two sentences.
 
-Then give the same findings and actions in ASD-STE100 Simplified Technical English. Read [`references/ste.md`](references/ste.md) and apply every rule.
+Then give the same findings and actions in ASD-STE100 Simplified Technical English. Read [`references/ste.md`](references/ste.md) as that file is the complete set and apply every rule.
 
 **Done when:** every finding and action from the last message is in the re-pitch, every STE rule is applied, and the user can act from the numbered steps.

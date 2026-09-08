@@ -25,7 +25,7 @@ If the prototype is for something that doesn't yet have a page but *would natura
 
 Only use this when the thing being prototyped genuinely has no existing page to live inside - e.g. an entirely new top-level surface, or a flow that can't be embedded anywhere sensible.
 
-Create a **throwaway route** following whatever routing convention the project already uses - don't invent a new top-level structure. Name it so it's obviously a prototype (e.g. include the word `prototype` in the path or filename). Same `?variant=` pattern.
+Create a **throwaway route** following whatever routing convention the project already uses. Name it so it's obviously a prototype (e.g. include the word `prototype` in the path or filename). Same `?variant=` pattern.
 
 Before committing to sub-shape B, sanity-check: is there really no existing page this could be embedded in? An empty route hides design problems that a populated one would expose.
 
@@ -51,7 +51,7 @@ Draft each variant. Hold each one to:
 - The project's component library / styling system (TailwindCSS, shadcn, MUI, plain CSS, whatever).
 - A clear exported component name, e.g. `VariantA`, `VariantB`, `VariantC`.
 
-Variants must be **structurally different** - different layout, different information hierarchy, different primary affordance, not just different colours. Three slightly-tweaked card grids isn't a UI prototype, it's wallpaper. If two drafts come out too similar, redo one with explicit "do not use a card grid" guidance.
+Variants must be **structurally different** - different layout, different information hierarchy, different primary affordance. If two drafts come out too similar, redo one with a different primary structure.
 
 ### 3. Wire them together
 
@@ -85,7 +85,7 @@ A small fixed-position bar at the bottom-centre of the screen with three pieces:
 Behaviour:
 
 - Clicking an arrow updates the URL search param (use the framework's router - `router.replace` on Next, `navigate` on React Router, etc) so the variant is shareable and reload-stable.
-- Keyboard: `←` and `→` arrow keys also cycle. Don't intercept arrow keys when an `<input>`, `<textarea>`, or `[contenteditable]` is focused.
+- Keyboard: `←` and `→` arrow keys also cycle when focus is not in an `<input>`, `<textarea>`, or `[contenteditable]`.
 - Visually distinct from the page (e.g. high-contrast pill, subtle shadow) so it's obviously not part of the design being evaluated.
 - Hidden in production builds - gate on `process.env.NODE_ENV !== 'production'` or an equivalent check, so a stray prototype merge can't ship the bar to users.
 
@@ -102,7 +102,7 @@ Once a variant has won, write down which one and why (commit message, ADR, issue
 - **Sub-shape A** - fold the winner into the existing page; drop the losing variants and the switcher from main.
 - **Sub-shape B** - promote the winning variant to a real route; drop the throwaway route and the switcher from main.
 
-The **full set** of variants is the primary source - the losers are the record of what was considered - so it lands on the throwaway branch, not the bin. What must not survive is variant components or the switcher left in **main**: those rot fast and confuse the next reader.
+The **full set** of variants is the primary source - the losers are the record of what was considered - so it lands on the throwaway branch, not the bin. Main keeps the folded winner only; variant components and the switcher stay on that branch.
 
 ## Anti-patterns
 

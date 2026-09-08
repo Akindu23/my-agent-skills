@@ -1,6 +1,6 @@
 # ASD-STE100 Simplified Technical English
 
-Apply every rule to the words this run produces. Use the same word for the same thing.
+This file is the complete set. Apply every rule to the words this run produces. Use the same word for the same thing.
 
 1. Short sentences. One idea in each sentence.
 2. Active voice. Name who does the action.
