@@ -78,12 +78,14 @@
       "karpathy-guidelines",
       "yagni",
       "tdd",
-      "code-review"
+      "code-review",
+      "commit-msg"
     ],
     "implement-plan": [
       "karpathy-guidelines",
       "best-practices-research",
-      "yagni"
+      "yagni",
+      "commit-msg"
     ],
     "improve-codebase-architecture": [
       "codebase-design",

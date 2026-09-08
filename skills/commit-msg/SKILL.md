@@ -1,12 +1,11 @@
 ---
 name: commit-msg
-description: Draft one-liner commit messages from staged changes and this repo's history, without the attributions; you pick one, it becomes the commit.
-disable-model-invocation: true
+description: Commit message. Use when committing staged changes with a one-liner in this repo's style, or when another skill needs a commit after a baseline repair.
 ---
 
 # Commit message
 
-Invoke with **`/commit-msg`**. Stage is the source of truth. History supplies *style*. The subject you pick is the commit, **without the attributions**.
+Stage is the source of truth. History supplies *style*. The subject you pick is the commit, **without the attributions**.
 
 ## 1. Gather
 
