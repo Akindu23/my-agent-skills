@@ -9,7 +9,7 @@ Design **deep modules**: a lot of behaviour behind a small interface, placed at 
 
 ## Glossary
 
-Use these terms exactly - don't substitute "component," "service," "API," or "boundary." Consistent language is the whole point.
+Use these terms exactly. Consistent language is the whole point.
 
 **Module** - anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice. _Avoid_: unit, component, service.
 
@@ -62,13 +62,14 @@ When designing an interface, ask:
 - **Depth is a property of the interface, not the implementation.** A deep module can be internally composed of small, mockable, swappable parts - they just aren't part of the interface. A module can have **internal seams** (private to its implementation, used by its own tests) as well as the **external seam** at its interface.
 - **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.
 - **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is probably the wrong shape.
-- **One adapter means a hypothetical seam. Two adapters means a real one.** Don't introduce a seam unless something actually varies across it.
+- **One adapter means a hypothetical seam. Two adapters means a real one.** A seam is real when two adapters are justified; one adapter stays concrete.
+- **Internal seams stay private.** Tests that need them live inside the module.
 
 ## Designing for testability
 
 Good interfaces make testing natural:
 
-1. **Accept dependencies, don't create them.**
+1. **Accept dependencies (inject).**
 
    ```typescript
    // Testable
@@ -80,7 +81,7 @@ Good interfaces make testing natural:
    }
    ```
 
-2. **Return results, don't produce side effects.**
+2. **Return results (pure).**
 
    ```typescript
    // Testable
@@ -110,5 +111,7 @@ Good interfaces make testing natural:
 
 ## Going deeper
 
-- **Deepening a cluster given its dependencies** - see [DEEPENING.md](DEEPENING.md): dependency categories, seam discipline, and replace-don't-layer testing.
+- **Deepening a cluster given its dependencies** - see [DEEPENING.md](DEEPENING.md): dependency categories and replace-at-the-interface testing. Adapter rule lives in Principles.
 - **Exploring alternative interfaces** - see [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
+
+**Done when**: every design claim this session is named with a glossary term (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**), and has been run through the deletion test and the adapter rule (hit, or explicit N/A).

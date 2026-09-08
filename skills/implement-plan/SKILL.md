@@ -28,7 +28,7 @@ Free-form answers stay in plain chat.
 2. Run `/council` scoped to every area the plan touches, to gather context and validate the plan's approach against the existing codebase. **Done when**: every file/area the plan will change has been explored.
 3. Run `/best-practices-research` on the domains the plan touches, before writing any code. **Done when**: every recommendation is incorporated into the plan or explicitly rejected.
 4. Implement the plan, following `/karpathy-guidelines`. Run the full test suite once at the end. An end-suite failure outside the `Baseline:` scope: check that test on a clean checkout (stash or worktree). Reproduces → append it to `**Pre-existing failures:**` (path + one-liner) and leave it. Does not → fix before close. **Done when**: every step in the plan is implemented, and the end suite is green except named `**Pre-existing failures:**`.
-5. Run a `/yagni` pass over the changes made in step 4, to simplify. **Done when**: the pass has reviewed every file changed in step 4.
+5. Run a `/yagni` **Review** over the changes made in step 4 (simplify misses). **Done when**: rungs 1-7 are each hit or miss on the step-4 diff, and misses are simplified.
 6. Close the plan **on disk**: mark the plan file's status `implemented / awaiting review` (whole plan - this path has no per-ticket order). Status line only; `**Pre-existing failures:**` stays if present. **Done when**: a fresh session reading only the plan file knows the work is built and pending review.
 
 Do **not** use this as the default executor for `/to-tickets` output - that is `/implement` (one ticket per session). `/to-spec` already runs council/BPR on the Matt path; this skill runs them on the attached plan - do not also re-prep a spec here.

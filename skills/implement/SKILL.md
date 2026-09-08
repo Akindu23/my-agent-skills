@@ -4,7 +4,7 @@ description: "Implement one ticket from a spec or tickets, following karpathy-gu
 disable-model-invocation: true
 ---
 
-Implement the work described by the user in the spec or tickets, following `/karpathy-guidelines` and `/yagni`.
+Implement the work described by the user in the spec or tickets, following `/karpathy-guidelines` and `/yagni` **Write**.
 
 Prefer **one ticket per session**; clear context between tickets.
 

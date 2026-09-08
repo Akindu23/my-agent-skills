@@ -8,45 +8,40 @@ license: MIT
 
 Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
 
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment (N/A a section with why).
+
+Surgical edits are this skill. Unrequested abstractions, speculative scope, and the stdlib/dependency ladder are `/yagni`.
 
 ## 1. Think Before Coding
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+**State assumptions. Surface interpretations and tradeoffs.**
 
 Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+- State your assumptions. If uncertain, ask.
+- When multiple interpretations exist, present them.
+- Name the simpler approach when one exists. Push back when warranted.
+- When something is unclear: stop, name it, ask.
 
 ## 2. Simplicity First
 
-**Minimum code that solves the problem. Nothing speculative.**
+**The change is the minimum that satisfies the request.**
 
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+`/yagni` owns the how (ladder, unrequested abstractions, speculative scope). When that skill is in session, climb it and treat this section as a hit. When it is not, rewrite until a senior engineer would not call the change overcomplicated.
 
 ## 3. Surgical Changes
 
-**Touch only what you must. Clean up only your own mess.**
+**Touch only what the request requires. Clean up only orphans this change created.**
 
 When editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
+- Edit the lines the request needs.
+- Match the file's existing style.
+- Mention unrelated dead code; leave it.
 
-When your changes create orphans:
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
+When this change creates orphans:
+- Remove imports, variables, and functions this change made unused.
+- Leave pre-existing dead code unless asked to remove it.
 
-The test: Every changed line should trace directly to the user's request.
+Every changed line traces to the request.
 
 ## 4. Goal-Driven Execution
 
@@ -65,3 +60,5 @@ For multi-step tasks, state a brief plan:
 ```
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+**Done when**: every §1-4 guideline is a hit on this change, or explicit N/A (section + why).

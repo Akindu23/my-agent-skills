@@ -35,7 +35,7 @@ Free-form answers stay in plain chat.
 
 4. **Specialists.** In **one** message, three parallel Task/Agent calls (each gets the package + council brief):
    - **Thermos** - heavy. `subagent_type` matching thermos review in the enum (`thermo-nuclear-review-subagent` preferred). Prompt with `### Git / diff output` and `### Changed file contents`. If no thermos type exists, say so and stop (Thermos plugin required).
-   - **YAGNI** - heavy. Portable role `general-purpose` (readonly). Run the `/yagni` skill (read [`../yagni/SKILL.md`](../yagni/SKILL.md) if not already loaded); review the change set; return findings only.
+   - **YAGNI** - heavy. Portable role `general-purpose` (readonly). Run the `/yagni` skill (read [`../yagni/SKILL.md`](../yagni/SKILL.md) if not already loaded); take the **Review** branch; every ladder rung hit or miss; return findings only.
    - **Slop report** - portable role `general-purpose` (readonly). Read [`../remove-slop/SKILL.md`](../remove-slop/SKILL.md); take the **Report** branch. Same review scope.
    Thermos and yagni return the **full** finding set. The [gate](references/REPORT.md) and [placement](references/REPORT.md) are merge jobs.
    **Done when**: all three have returned.
