@@ -14,6 +14,7 @@ The report **retains P0 and P1**. When the user asks for a wider audit, retain P
 
 ## Placement
 
+- Named `**Pre-existing failures:**` paths stay off Findings, even as P0/P1.
 - P0/P1 → **Findings** only (even when it is also a slop class).
 - Slop class and not a blocker → **Slop** only.
 - Neither → drop, unless a wider audit (then Findings as P2).
