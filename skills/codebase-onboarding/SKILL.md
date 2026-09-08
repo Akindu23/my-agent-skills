@@ -8,48 +8,22 @@ disable-model-invocation: true
 
 Systematically analyze an unfamiliar codebase and produce a structured onboarding guide. Designed for developers joining a new project or using Cursor (or similar agents) in an existing repo for the first time.
 
-## When to Use
+Which artifacts to produce: [references/examples.md](references/examples.md).
 
-- First time opening a project with an AI coding agent
-- Joining a new team or repository
-- User asks "help me understand this codebase"
-- User asks to generate **AGENTS.md** (or legacy `CLAUDE.md` if the team already standardizes on it)
-- User says "onboard me" or "walk me through this repo"
+## Phase 1: Reconnaissance
 
-## How It Works
+Gather raw signals about the project without reading every file. Glob these six checks in parallel at the **top two levels** of the tree (ignore `node_modules`, `vendor`, `.git`, `dist`, `build`, `__pycache__`, `.next`). Record found or absent. Do not invent ecosystems that are not on disk. Read a file only when a signal is ambiguous.
 
-### Phase 1: Reconnaissance
-
-Gather raw signals about the project without reading every file. Run these checks in parallel:
-
-```
-1. Package manifest detection
-   → package.json, go.mod, Cargo.toml, pyproject.toml, pom.xml, build.gradle,
-     Gemfile, composer.json, mix.exs, pubspec.yaml
-
-2. Framework fingerprinting
-   → next.config.*, nuxt.config.*, angular.json, vite.config.*,
-     django settings, flask app factory, fastapi main, rails config
-
-3. Entry point identification
-   → main.*, index.*, app.*, server.*, cmd/, src/main/
-
-4. Directory structure snapshot
-   → Top 2 levels of the directory tree, ignoring node_modules, vendor,
-     .git, dist, build, __pycache__, .next
-
-5. Config and tooling detection
-   → .eslintrc*, .prettierrc*, tsconfig.json, Makefile, Dockerfile,
-     docker-compose*, .github/workflows/, .env.example, CI configs
-
-6. Test structure detection
-   → tests/, test/, __tests__/, *_test.go, *.spec.ts, *.test.js,
-     pytest.ini, jest.config.*, vitest.config.*
-```
+1. **Package manifest** - `package.json`, `go.mod`, `Cargo.toml`, `pyproject.toml`, `pom.xml`, `build.gradle`, `Gemfile`, `composer.json`, `mix.exs`, `pubspec.yaml`
+2. **Framework fingerprint** - `next.config.*`, `nuxt.config.*`, `angular.json`, `vite.config.*`, django settings, flask app factory, fastapi main, rails config
+3. **Entry points** - `main.*`, `index.*`, `app.*`, `server.*`, `cmd/`, `src/main/`
+4. **Directory snapshot** - top 2 levels of the tree, same ignore list as above
+5. **Config and tooling** - `.eslintrc*`, `.prettierrc*`, `tsconfig.json`, `Makefile`, `Dockerfile`, `docker-compose*`, `.github/workflows/`, `.env.example`, CI configs
+6. **Test structure** - `tests/`, `test/`, `__tests__/`, `*_test.go`, `*.spec.ts`, `*.test.js`, `pytest.ini`, `jest.config.*`, `vitest.config.*`
 
 **Done when**: each of the six recon checks has a result (found or absent).
 
-### Phase 2: Architecture Mapping
+## Phase 2: Architecture Mapping
 
 From the reconnaissance data, identify:
 
@@ -66,17 +40,7 @@ From the reconnaissance data, identify:
 - API style: REST, GraphQL, gRPC, tRPC
 
 **Key Directories**
-Map the top-level directories to their purpose:
-
-<!-- Example for a React project - replace with detected directories -->
-```
-src/components/  → React UI components
-src/api/         → API route handlers
-src/lib/         → Shared utilities
-src/db/          → Database models and migrations
-tests/           → Test suites
-scripts/         → Build and deployment scripts
-```
+Map the top-level directories to their purpose (skip names that already explain themselves).
 
 **Data Flow**
 Trace one request from entry to response:
@@ -85,9 +49,11 @@ Trace one request from entry to response:
 - Where is business logic? (services, models, use cases)
 - How does it reach the database? (ORM, raw queries, repositories)
 
+If a framework is detected from config but the actual code uses something different, trust the code.
+
 **Done when**: tech stack, architecture pattern, key directories, and one request's data flow are named from Phase 1 evidence.
 
-### Phase 3: Convention Detection
+## Phase 3: Convention Detection
 
 Identify patterns the codebase already follows:
 
@@ -110,134 +76,11 @@ Identify patterns the codebase already follows:
 
 **Done when**: naming, code patterns, and git conventions are each a finding from the repo, or an explicit "could not determine".
 
-### Phase 4: Generate Onboarding Artifacts
+## Phase 4: Generate Onboarding Artifacts
 
-Produce two outputs:
+Produce the artifacts the user asked for ([references/examples.md](references/examples.md)).
 
-#### Output 1: Onboarding Guide
-
-```markdown
-# Onboarding Guide: [Project Name]
-
-## Overview
-[2-3 sentences: what this project does and who it serves]
-
-## Tech Stack
-<!-- Example for a Next.js project - replace with detected stack -->
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| Language | TypeScript | 5.x |
-| Framework | Next.js | 14.x |
-| Database | PostgreSQL | 16 |
-| ORM | Prisma | 5.x |
-| Testing | Jest + Playwright | - |
-
-## Architecture
-[Diagram or description of how components connect]
-
-## Key Entry Points
-<!-- Example for a Next.js project - replace with detected paths -->
-- **API routes**: `src/app/api/` - Next.js route handlers
-- **UI pages**: `src/app/(dashboard)/` - authenticated pages
-- **Database**: `prisma/schema.prisma` - data model source of truth
-- **Config**: `next.config.ts` - build and runtime config
-
-## Directory Map
-[Top-level directory → purpose mapping]
-
-## Request Lifecycle
-[Trace one API request from entry to response]
-
-## Conventions
-- [File naming pattern]
-- [Error handling approach]
-- [Testing patterns]
-- [Git workflow]
-
-## Common Tasks
-<!-- Example for a Node.js project - replace with detected commands -->
-- **Run dev server**: `npm run dev`
-- **Run tests**: `npm test`
-- **Run linter**: `npm run lint`
-- **Database migrations**: `npx prisma migrate dev`
-- **Build for production**: `npm run build`
-
-## Where to Look
-<!-- Example for a Next.js project - replace with detected paths -->
-| I want to... | Look at... |
-|--------------|-----------|
-| Add an API endpoint | `src/app/api/` |
-| Add a UI page | `src/app/(dashboard)/` |
-| Add a database table | `prisma/schema.prisma` |
-| Add a test | `tests/` matching the source path |
-| Change build config | `next.config.ts` |
-```
-
-#### Output 2: Starter AGENTS.md (primary)
-
-Generate or update a project-specific **AGENTS.md** at the repo root based on detected conventions. This file is the primary place for agent instructions in Cursor. If `AGENTS.md` already exists, read it first and enhance it - preserve existing project-specific instructions and clearly call out what was added or changed.
-
-If the repository already uses **`CLAUDE.md`** for another tool or team convention, you may add a short pointer in AGENTS.md or maintain CLAUDE.md in parallel - do not delete team-owned CLAUDE.md content without explicit user direction.
-
-```markdown
-# Project Instructions
-
-## Tech Stack
-[Detected stack summary]
-
-## Code Style
-- [Detected naming conventions]
-- [Detected patterns to follow]
-
-## Testing
-- Run tests: `[detected test command]`
-- Test pattern: [detected test file convention]
-- Coverage: [if configured, the coverage command]
-
-## Build & Run
-- Dev: `[detected dev command]`
-- Build: `[detected build command]`
-- Lint: `[detected lint command]`
-
-## Project Structure
-[Key directory → purpose map]
-
-## Conventions
-- [Commit style if detectable]
-- [PR workflow if detectable]
-- [Error handling patterns]
-```
+- Onboarding Guide: [references/onboarding-guide.md](references/onboarding-guide.md)
+- Starter AGENTS.md: [references/agents-md.md](references/agents-md.md)
 
 **Done when**: every artifact the user asked for is written (Onboarding Guide in the conversation unless they asked only for AGENTS.md; AGENTS.md at the repo root created or enhanced, existing instructions preserved, additions called out).
-
-## Best Practices
-
-1. **Don't read everything** - reconnaissance should use Glob and Grep, not Read on every file. Read selectively only for ambiguous signals.
-2. **Verify, don't guess** - if a framework is detected from config but the actual code uses something different, trust the code.
-3. **Respect existing AGENTS.md** (and any legacy `CLAUDE.md`) - enhance rather than blindly replacing. Call out what's new vs existing.
-4. **Stay concise** - the onboarding guide should be scannable in 2 minutes. Details belong in the code, not the guide.
-5. **Flag unknowns** - if a convention can't be confidently detected, say so rather than guessing. "Could not determine test runner" is better than a wrong answer.
-
-## Anti-Patterns to Avoid
-
-- Generating an AGENTS.md that's longer than 100 lines - keep it focused
-- Listing every dependency - highlight only the ones that shape how you write code
-- Describing obvious directory names - `src/` doesn't need an explanation
-- Copying the README - the onboarding guide adds structural insight the README lacks
-
-## Examples
-
-### Example 1: First time in a new repo
-**User**: "Onboard me to this codebase"
-**Action**: Run full 4-phase workflow → produce Onboarding Guide + Starter AGENTS.md
-**Output**: Onboarding Guide printed directly to the conversation, plus `AGENTS.md` written to the project root
-
-### Example 2: Generate agent instructions for an existing project
-**User**: "Generate an AGENTS.md for this project"
-**Action**: Run Phases 1-3, skip Onboarding Guide, produce only AGENTS.md
-**Output**: Project-specific `AGENTS.md` with detected conventions
-
-### Example 3: Enhance existing AGENTS.md
-**User**: "Update the AGENTS.md with current project conventions"
-**Action**: Read existing AGENTS.md, run Phases 1-3, merge new findings
-**Output**: Updated `AGENTS.md` with additions clearly marked

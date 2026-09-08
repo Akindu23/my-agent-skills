@@ -13,7 +13,7 @@ HTML lessons are self-contained teaching files saved inside a topic workspace. U
 - Create `docs/learning/<topic-slug>/lessons/` lazily (`mkdir -p "docs/learning/<topic-slug>/lessons"`).
 - `<lesson-slug>` is a short filesystem-safe hint from the lesson focus: lowercase, hyphens, ASCII, collapsed spaces, trimmed to about 40 characters.
 - Scan `lessons/` for the highest existing number and increment by one (same scheme as `learning-records/`).
-- Each lesson is one HTML file. Do not create a `scripts/` directory or arbitrary sidecar files. A lesson may link to shared widgets in `../assets/` (see the teach skill's Assets section).
+- Each lesson is one HTML file. Do not create a `scripts/` directory or arbitrary sidecar files. A lesson may link to shared widgets in `../assets/` (see [Assets](#assets)).
 
 Example:
 
@@ -89,3 +89,48 @@ CSS approach is open: plain CSS, a CDN utility framework, or embedded styles are
 ## Reference Sheets
 
 `reference/*.html` files follow the same design freedom as lessons: beautiful, print-friendly, quick to scan. No exercises. Layouts may be denser than lessons when the topic benefits from cheat-sheet compression.
+
+Lessons are mission-scoped and taught once; reference documents are compressed essence for repeat lookup. Create `reference/*.html` when the topic benefits from durable cheat-sheets (syntax, algorithms, poses, routines, glossary render). `GLOSSARY.md` is the canonical terminology source. Once it has **3+ defined terms** or a lesson adds or amends terms, generate or refresh `reference/glossary.html`.
+
+## Assets
+
+Lessons are built from reusable **interactive components**, stored in `assets/`: quiz and feedback widgets, simulators, diagram helpers - anything a second lesson in this topic could reuse.
+
+**Not for shared stylesheets.** Each lesson owns its own visual design. Assets are for behavior, not a house style.
+
+Before authoring a lesson, read `assets/` and build from components already there. When a lesson needs something new and reusable in principle, write it to `assets/` and link from the lesson HTML - do not inline code a future lesson would duplicate. Create `assets/` lazily on first write.
+
+## Fluency vs storage strength
+
+- **Fluency strength**: in-the-moment retrieval of knowledge
+- **Storage strength**: long-term retention of knowledge
+
+Fluency can give the user an illusory sense of mastery, but storage strength is the real goal. Design lessons that build long-term retention through desirable difficulty: **Retrieval practice** (recall from memory), **Spacing** (distributing practice over time), **Interleaving** (mixing related topics in practice - for skills practice only).
+
+## Zone of proximal development
+
+Each lesson, the user should always feel as if they are being challenged "just enough." Keep the scope tight and directly tied to their mission.
+
+The user may specify an exact thing they want to learn. If they don't, figure out their zone of proximal development by:
+
+- Reading their `learning-records/`
+- Reading their `MISSION.md`
+- Teaching the most relevant thing that fits their current understanding
+
+A user may tell you that they already know about a topic. If so, record the depth of that prior knowledge in `learning-records/` (see [LEARNING-RECORD-FORMAT.md](LEARNING-RECORD-FORMAT.md)).
+
+## Knowledge then skills
+
+Lessons should be designed around a skill the user is going to learn. The knowledge in the lesson should be only what's required to acquire that skill. Teach the knowledge first, then get the user to practice via an interactive feedback loop.
+
+Knowledge should first be gathered from verified resources in `RESOURCES.md`, then taught via HTML lessons. Litter lessons with citations - link only to entries in `RESOURCES.md`.
+
+For acquiring knowledge, difficulty is the enemy. It eats working memory you need for understanding. At this point, you can amend the glossary if it appears clear they understand a term.
+
+If knowledge is all about acquisition, skills are about durability and flexibility. Make the knowledge stick. For skill acquisition, difficulty is the tool. Effortful retrieval is what builds storage strength. Skills should be taught through interactive lessons:
+
+- Interactive lessons with quizzes and light in-browser tasks
+- Lessons that guide the user through real-world steps (for instance, yoga poses)
+- In-agent scenario quizzes when HTML isn't warranted
+
+Each approach should use a **feedback loop** - feedback as tight as possible, immediately and ideally automatically.

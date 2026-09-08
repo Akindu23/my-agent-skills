@@ -47,6 +47,8 @@ The enum is session- and plugin-dependent. Use values that appear in the current
 
 **Custom agents:** `.cursor/agents/` or `~/.cursor/agents/` - invoked by `name` when that name appears in the enum (e.g. `code-reviewer`). Not built-in.
 
+Plugin and other `subagent_type` values: use a slug only when it appears in this session's Task enum. Prefer portable roles from [`task-workflow.md`](task-workflow.md).
+
 ### Core (usually in enum)
 
 | `subagent_type` | `readonly` | Parallel OK? | Notes |
@@ -55,17 +57,3 @@ The enum is session- and plugin-dependent. Use values that appear in the current
 | `shell` | Usually `false` | Yes when independent | CLI, git, logs. Docs call this `bash`. |
 | `generalPurpose` | `false` when edits needed | Yes when partitions don't conflict | Implementation, multi-step work, custom prompts. |
 
-### Plugin-enabled (when installed)
-
-Probe the enum. Examples by role:
-
-| Role | Examples (if in enum) | `readonly` | Parallel OK? |
-|------|----------------------|------------|--------------|
-| Product / how-to | `cursor-guide` | `true` typical | Yes |
-| CI | `ci-watcher`, `ci-investigator` | `true` typical | Yes |
-| Library docs | `docs-researcher` | `true` typical | Yes; one lib per subagent when ambiguous |
-| Code review | `bugbot`, `security-review`, `security-auditor` | `true` typical | Yes per file/area |
-| Thermos audits | `thermo-nuclear-code-quality-review`, `thermo-nuclear-review-subagent`, `thermo-nuclear-code-quality-review-subagent` | `true` typical | Yes per area |
-| Repo probes | `compatibility-scan-review`, `docs-reliability-review`, `startup-review`, `validation-review` | `true` typical | Varies |
-| Variants | `best-of-n-runner` | `false` | Parallel variants OK; parent picks winner |
-| Memory | `agents-memory-updater` | `false` | Prefer serial; avoid concurrent `AGENTS.md` writers |

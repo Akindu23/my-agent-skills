@@ -35,10 +35,7 @@ Ask **one decision at a time**.
 
 ## Offer vs write
 
-| Mode | Behavior |
-|------|----------|
-| **Implicit** (you detect a decision moment) | **Offer** to record - only if [ADR-POLICY.md](references/ADR-POLICY.md) criteria are met. Do not auto-write. |
-| **Manual** (user asks to ADR) | If the decision seems too small, **challenge once**; on confirm, run the workflow below. |
+Offer vs write, challenge-once, and implicit-detection criteria: [ADR-POLICY.md](references/ADR-POLICY.md). Do not auto-write. Manual “ADR this” / `/architecture-decision-records` runs the workflow below (POLICY may challenge once).
 
 ## Workflow (canonical)
 
@@ -68,14 +65,6 @@ If the user declines, discard the draft without writing files.
 | [references/ADR-TEMPLATE.md](references/ADR-TEMPLATE.md) | Drafting the default ADR |
 | [references/ADR-EXPANDED-SECTIONS.md](references/ADR-EXPANDED-SECTIONS.md) | Status, Deciders, Considered Options, Consequences, Risks, Supersedes |
 | [references/ADR-INDEX.md](references/ADR-INDEX.md) | `README.md` table format and append rules |
-
-## Decision detection (implicit offer)
-
-**Explicit:** "Let's go with X", "Record this as an ADR", "We should use X instead of Y"
-
-**Implicit (suggest only):** framework/library conclusion with stated rationale; datastore or auth strategy choice; pattern choice (monolith vs services, REST vs GraphQL) after real comparison
-
-Apply the three criteria in [ADR-POLICY.md](references/ADR-POLICY.md) before offering.
 
 ## Satellite skills
 

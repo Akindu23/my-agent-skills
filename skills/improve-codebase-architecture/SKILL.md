@@ -67,25 +67,7 @@ Apply the **deletion test** to anything you suspect is shallow: would deleting i
 
 ### 2. Present candidates as an HTML report
 
-Write a self-contained HTML file under the **target project's workspace** (the repo being reviewed - not this skills collection repo when the skill runs elsewhere). See [HTML-REPORT.md](HTML-REPORT.md) → **Output location** for naming, co-located `report-init.mjs`, and preview.
-
-**Default path:** `docs/architecture-reviews/architecture-review-<slug>-<unique>.html` (create `docs/architecture-reviews/` lazily).
-
-**Preview:** Mermaid ESM fails under `file://`. After writing, start a local server in that directory (e.g. `python3 -m http.server 8765 --directory "docs/architecture-reviews"`) and open `http://127.0.0.1:8765/architecture-review-<slug>-<unique>.html`. Reply with the **workspace-relative path** plus absolute path if helpful. If open fails (sandbox, SSH, CI), path-only is fine - the user can `@` the file in a follow-up chat.
-
-The report uses **Tailwind via CDN** for layout and styling, and **Mermaid via CDN** for diagrams where a graph/flow/sequence reliably communicates the structure. Mix Mermaid with hand-crafted CSS/SVG visuals - use Mermaid when relationships are graph-shaped (call graphs, dependencies, sequences), and hand-built divs/SVG when you want something more editorial (mass diagrams, cross-sections, collapse animations). Each candidate gets a **before/after visualisation**. Be visual.
-
-For each candidate, render a card (see [HTML-REPORT.md](HTML-REPORT.md)):
-
-- **Files** - which files/modules are involved
-- **Problem** - why the current architecture is causing friction
-- **Solution** - plain English description of what would change
-- **Wins** - explained in terms of locality and leverage, and how tests would improve
-- **Before / After diagram** - side-by-side; custom-drawn or Mermaid per [HTML-REPORT.md](HTML-REPORT.md)
-- **Recommendation strength** - one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge
-- **Dependency badge** - per [DEEPENING.md](../codebase-design/DEEPENING.md): `in-process`, `local-substitutable`, `ports & adapters`, or `mock`
-
-End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
+Write a self-contained HTML file under the **target project's workspace** (the repo being reviewed - not this skills collection repo when the skill runs elsewhere). Follow [HTML-REPORT.md](HTML-REPORT.md) for output location, preview, scaffold, candidate cards, diagrams, and badges.
 
 **Use CONTEXT.md vocabulary for the domain, and the `/codebase-design` vocabulary for the architecture.** If `CONTEXT.md` defines "Order," talk about "the Order intake module" - not "the FooBarHandler," and not "the Order service."
 

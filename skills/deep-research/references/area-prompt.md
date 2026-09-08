@@ -32,7 +32,7 @@ Investigate the area below for topic "{{topic}}". Write findings only to the pat
 Read plan.md and SOURCES.md from disk as needed. Do not expect file bodies inlined in this prompt.
 
 ## Search (Exa-first, per-call fallback)
-1. Probe Exa MCP: GetMcpTools for server `plugin-exa-exa`. Use Exa only when serverStatus is "ready".
+1. Probe the session MCP namespaces for Exa search/fetch tools (`web_search_exa`, `web_fetch_exa` or equivalent). Use Exa only when that namespace is ready.
 2. Discover with `web_search_exa` via CallMcpTool when ready; otherwise built-in WebSearch.
 3. Verify before citing: `web_fetch_exa` (batch urls) when ready; otherwise WebFetch (one URL per call). Retry fetch once, then mark the claim `[uncertain]` or omit the source.
 4. On missing tools, auth errors, 429/rate limits, timeout/5xx, or repeated MCP failures: fall back to built-in WebSearch/WebFetch for **that call only**.

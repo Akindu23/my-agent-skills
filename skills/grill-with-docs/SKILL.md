@@ -39,7 +39,7 @@ Do **not** offer on hardness alone, or before the destination can be named.
 
 **Normal (not dumb-zoned)**
 
-- **Switch to `/wayfinder` now** (recommended)
+- **Invoke `/wayfinder` now** (recommended)
 - **Keep grilling**
 - **Stop**
 
@@ -47,8 +47,8 @@ Do **not** offer on hardness alone, or before the destination can be named.
 
 - **`/handoff` then fresh `/wayfinder`**: write `docs/handoffs/CURRENT.md` per `/handoff`; next session opens `@docs/handoffs/CURRENT.md` and charts the map
 
-**Handoff “For next session”** (when that option is chosen) must say: open as **`/wayfinder` Chart the map** mid-session entry from `/grill-with-docs`; link `CONTEXT.md` / notes. Then stop this session.
+**Handoff “For next session”** (when that option is chosen) must say: invoke **`/wayfinder` Chart the map** mid-session entry from `/grill-with-docs`; link `CONTEXT.md` / notes. Then stop this session.
 
-**On Switch to `/wayfinder` now:** continue in this chat under `/wayfinder` **Chart the map** mid-session entry. Do not restate charting steps here.
+**On Invoke `/wayfinder` now:** stop this skill. Tell the user to type `/wayfinder` in this chat (Chart the map, mid-session entry - destination already named).
 
-**Done when**: the user picked an option and this skill either returns to step 1, stops, handed off, or yielded to `/wayfinder` charting.
+**Done when**: the user picked an option and this skill either returns to step 1, stops, handed off, or stopped after telling the user to invoke `/wayfinder`.

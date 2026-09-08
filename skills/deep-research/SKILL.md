@@ -39,14 +39,7 @@ Do not invent a fifth option.
 
 ## Research pack
 
-```text
-docs/research/<topic-slug>/
-  plan.md
-  findings/<area-slug>.md
-  gaps.md
-  SOURCES.md
-  *.html + assets/   # full tree: references/PACK-HTML.md
-```
+Pack lives at `docs/research/<topic-slug>/`. Full tree (markdown SSOT + HTML): [references/PACK-HTML.md](references/PACK-HTML.md).
 
 Pick a short lowercase hyphenated ASCII slug from the topic, or ask when ambiguous. Create directories lazily on first write.
 
@@ -59,7 +52,7 @@ Pick a short lowercase hyphenated ASCII slug from the topic, or ask when ambiguo
 | [references/PACK-SCHEMAS.md](references/PACK-SCHEMAS.md) | Before writing or merging pack artifacts |
 | [references/area-prompt.md](references/area-prompt.md) | Before dispatching each area Task |
 | [references/synthesis-prompt.md](references/synthesis-prompt.md) | Before the synthesis Task |
-| [references/PACK-HTML.md](references/PACK-HTML.md) | Before the HTML render phase |
+| [references/PACK-HTML.md](references/PACK-HTML.md) | Pack layout (any write); HTML render phase |
 
 ## Evidenced claims
 

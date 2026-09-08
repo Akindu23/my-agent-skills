@@ -19,7 +19,8 @@ Author **static** SVG diagrams (no animation in v1) for architecture, sequence, 
    **Done when:** type, embed mode, and color-scheme are named (tokens noted if the caller supplied any).
 
 2. **Read references** for this run only:
-   - Always [craft bar](references/craft-bar.md)
+   - Always-on craft floor (every diagram): static SVG only; root `xmlns` + padded `viewBox` + non-empty child `<title>`; semantic primitives over hand `path`; system fonts; meaning encoded beyond color (label, dash, or marker); arrowheads in `<defs>` markers.
+   - Always [craft bar](references/craft-bar.md) for typography stacks, contrast ratios, embed extras, and the validate forbidden list
    - Diagram type → [diagram types](references/diagram-types.md)
    - HTML embed / caller preset → [embed](references/embed.md)
    - Colors or `color-scheme` → [theme tokens](references/theme-tokens.md)
