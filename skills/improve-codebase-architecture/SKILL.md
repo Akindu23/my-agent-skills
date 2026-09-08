@@ -84,7 +84,7 @@ Side effects happen inline as decisions crystallize - run the `/domain-modeling`
 - **Naming a deepened module after a concept not in `CONTEXT.md`?** Add the term to `CONTEXT.md`. Create the file lazily if it doesn't exist.
 - **Sharpening a fuzzy term during the conversation?** Update `CONTEXT.md` right there.
 - **User rejects the candidate with a load-bearing reason?** Offer an ADR, framed as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing - skip ephemeral reasons ("not worth it right now") and self-evident ones. **On acceptance**, follow `/architecture-decision-records` with **`Captured via: improve-codebase-architecture`**.
-- **Session is mostly terminology/ADR, not structural deepening?** Optionally hand off to `/grill-with-docs`.
+- **Session is mostly terminology/ADR, not structural deepening?** Offer the user `/grill-with-docs`.
 - **Want to explore alternative interfaces for the deepened module?** Run the `/codebase-design` skill and use its design-it-twice parallel sub-agent pattern ([DESIGN-IT-TWICE.md](../codebase-design/DESIGN-IT-TWICE.md)).
 
 **Done when:** the chosen candidate has an agreed interface shape, updated `CONTEXT.md` terms (if any), ADRs offered/recorded for load-bearing rejections, and a concrete next step (e.g. tracer-bullet issue, TDD starting point, or explicit "parked for later"). Stop the grilling loop - do not start implementing unless the user asks.

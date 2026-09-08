@@ -145,7 +145,7 @@ If a correct seam exists:
 
 ## Phase 6 - Cleanup + post-mortem
 
-Ask: what would have prevented this bug? If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to `/improve-codebase-architecture` with the specifics. Make the recommendation after the fix is in, not before.
+Ask: what would have prevented this bug? If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) recommend the user run `/improve-codebase-architecture`, stating the specifics. Make the recommendation after the fix is in, not before.
 
 **Done when**:
 - [ ] Original repro no longer reproduces (re-run the Phase 1 loop)
@@ -153,7 +153,7 @@ Ask: what would have prevented this bug? If the answer involves architectural ch
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix)
 - [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message - so the next debugger learns
-- [ ] Architecture follow-up handed to `/improve-codebase-architecture`, or stated as unneeded
+- [ ] Architecture follow-up recommended to the user (`/improve-codebase-architecture` with the specifics), or stated as unneeded
 
 ## Output
 

@@ -33,7 +33,7 @@ Record the command on the ticket as `Baseline: <command>`. Green: start the tick
 
 - **Fix first** - repair the baseline, run `/commit-msg` on that repair only, then re-run verify. Ticket work starts only when that re-run is green.
 - **Proceed** - write `**Pre-existing failures:**` on the ticket (each failing path + one-liner). The end suite may still fail those paths: leave them.
-- **Abort** - stop this run. Next hop: `/to-tickets` for the repair.
+- **Abort** - stop this run. Tell the user: run `/to-tickets` for the repair.
 
 Mechanical (missing install, stale generated file, cache): fix, say so, re-run verify. File changes from that fix go through `/commit-msg` before ticket work, same gate as Fix first.
 
@@ -41,8 +41,8 @@ Mechanical (missing install, stale generated file, cache): fix, say so, re-run v
 
 Run typechecking regularly, single test files regularly, and the full test suite once at the end. An end-suite failure outside the `Baseline:` scope: check that test on a clean checkout (stash or worktree). Reproduces → append it to `**Pre-existing failures:**` (path + one-liner) and leave it. Does not → fix before close. **Done when**: every acceptance criterion on the ticket is checked, and the end suite is green except named `**Pre-existing failures:**`.
 
-Ticket work stays uncommitted. Baseline **Fix first** and mechanical file changes are the only commits, through `/commit-msg`. After the slice is done, run `/code-review` in a fresh turn (or ask for it explicitly).
+Ticket work stays uncommitted. Baseline **Fix first** and mechanical file changes are the only commits, through `/commit-msg`. After the slice is done, end by telling the user: run `/code-review` in a fresh turn.
 
-Close the ticket **on disk**: in the `work/<feature-slug>/tickets/` file this session implemented (or the plan file on the `/to-plan` path), mark this ticket's status (implemented / awaiting review) and name the next ticket in order. Status line only; `**Pre-existing failures:**` stays if present. **Done when**: a fresh session reading only that file can answer "what's next?".
+Close the ticket **on disk**: in the `work/<feature-slug>/tickets/` file this session implemented (or the plan file on the `/to-plan` path), mark this ticket's status (implemented / awaiting review) and name the next ticket in order. Status line only; `**Pre-existing failures:**` stays if present. **Done when**: a fresh session reading only that file can answer "what's next?", and the user was told to run `/code-review`.
 
-For a whole attached plan with council / best-practices / YAGNI, use /implement-plan instead.
+For a whole attached plan with council / best-practices / YAGNI, tell the user to use /implement-plan instead.

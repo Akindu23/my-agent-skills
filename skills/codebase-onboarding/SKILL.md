@@ -6,9 +6,7 @@ disable-model-invocation: true
 
 # Codebase Onboarding
 
-Systematically analyze an unfamiliar codebase and produce a structured onboarding guide. Designed for developers joining a new project or using Cursor (or similar agents) in an existing repo for the first time.
-
-Which artifacts to produce: [references/examples.md](references/examples.md).
+Systematically analyze an unfamiliar codebase and produce a structured onboarding guide.
 
 ## Phase 1: Reconnaissance
 
@@ -78,9 +76,9 @@ Identify patterns the codebase already follows:
 
 ## Phase 4: Generate Onboarding Artifacts
 
-Produce the artifacts the user asked for ([references/examples.md](references/examples.md)).
+Produce the artifacts the user asked for; to map their request to artifacts, read [references/examples.md](references/examples.md).
 
-- Onboarding Guide: [references/onboarding-guide.md](references/onboarding-guide.md)
-- Starter AGENTS.md: [references/agents-md.md](references/agents-md.md)
+- Onboarding Guide: format in [references/onboarding-guide.md](references/onboarding-guide.md)
+- Starter AGENTS.md: template in [references/agents-md.md](references/agents-md.md)
 
 **Done when**: every artifact the user asked for is written (Onboarding Guide in the conversation unless they asked only for AGENTS.md; AGENTS.md at the repo root created or enhanced, existing instructions preserved, additions called out).
