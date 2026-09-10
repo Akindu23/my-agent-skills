@@ -25,6 +25,7 @@
     "skills/implement-plan",
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
+    "skills/mermaid-diagrams",
     "skills/prototype",
     "skills/remove-slop",
     "skills/research",
@@ -50,9 +51,16 @@
       "best-practices-research",
       "remove-slop"
     ],
+    "codebase-onboarding": [
+      "mermaid-diagrams"
+    ],
     "deep-research": [
       "council",
-      "svg-diagrams"
+      "svg-diagrams",
+      "mermaid-diagrams"
+    ],
+    "document": [
+      "mermaid-diagrams"
     ],
     "domain-modeling": [
       "architecture-decision-records"
@@ -61,18 +69,19 @@
       "simplify-this"
     ],
     "explain-code": [
-      "simplify-this"
+      "simplify-this",
+      "mermaid-diagrams"
     ],
-    "grilling": [
-      "council"
+    "grill-me": [
+      "grilling"
     ],
     "grill-with-docs": [
       "grilling",
       "domain-modeling",
       "wayfinder"
     ],
-    "grill-me": [
-      "grilling"
+    "grilling": [
+      "council"
     ],
     "implement": [
       "karpathy-guidelines",
@@ -90,13 +99,17 @@
     "improve-codebase-architecture": [
       "codebase-design",
       "grilling",
-      "domain-modeling"
+      "domain-modeling",
+      "mermaid-diagrams"
     ],
     "research": [
       "council"
     ],
     "retro": [
       "writing-for-agents"
+    ],
+    "show-me": [
+      "mermaid-diagrams"
     ],
     "teach": [
       "svg-diagrams"

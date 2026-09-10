@@ -103,7 +103,7 @@ Include a diagram only when it earns its keep (not mandatory). When you do, foll
 
 ### Authoring from markdown
 
-- Findings/`gaps.md` may sketch structure in prose, a list, or a fenced ` ```mermaid ` block as an **authoring draft**.
+- Findings/`gaps.md` may sketch structure in prose, a list, or a fenced ` ```mermaid ` block as an **authoring draft**; when drafting one, follow `/mermaid-diagrams`.
 - At HTML render, **do not** ship `pre.mermaid`, Mermaid CDN/ESM, or `pack-init.mjs`. Convert any diagram worth keeping into `assets/diagrams/*.svg` and embed with `<img>`.
 - If a Mermaid draft is too costly to convert and the diagram is not essential, drop it and keep the prose.
 

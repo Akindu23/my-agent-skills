@@ -10,7 +10,7 @@ license: MIT
 
 Author **static** SVG diagrams (no animation in v1) for architecture, sequence, and freeform visuals, plus HTML embed snippets when needed.
 
-**Lane:** Use the Mermaid skill for Mermaid source / markdown-native diagrams; use this skill for static SVG files and HTML embeds.
+**Lane:** Use `/mermaid-diagrams` for Mermaid source in a markdown fence; use this skill for static SVG files and HTML embeds.
 
 ## Workflow
 

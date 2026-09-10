@@ -31,7 +31,7 @@ One line naming the topic.
 
 Write 2-3 short sentences that give the gist to someone who did not write the code.
 
-Optional: include one small `mermaid` block only when the main story is easier to grasp as flow or handoff.
+Optional: include one small `mermaid` block only when the main story is easier to grasp as flow or handoff; follow `/mermaid-diagrams` when you include it.
 
 After the TL;DR section, add a horizontal rule: `---`.
 

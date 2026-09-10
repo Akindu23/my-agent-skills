@@ -55,7 +55,7 @@ src/
 └── transport/      # sends API requests
 ```
 
-Component interaction, control flow, or data flow with Mermaid:
+Component interaction, control flow, or data flow with Mermaid; follow `/mermaid-diagrams` (craft floor, plain fence):
 
 ```mermaid
 sequenceDiagram

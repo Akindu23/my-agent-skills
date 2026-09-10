@@ -18,7 +18,7 @@ Write this in the conversation unless the user asked only for `AGENTS.md`. Fill 
 | Testing | | |
 
 ## Architecture
-[Diagram or description of how components connect]
+[How components connect: prose, or a Mermaid fence following `/mermaid-diagrams`]
 
 ## Key Entry Points
 - **API routes**:
