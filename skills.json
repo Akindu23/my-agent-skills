@@ -26,6 +26,7 @@
     "skills/improve-codebase-architecture",
     "skills/karpathy-guidelines",
     "skills/mermaid-diagrams",
+    "skills/plain-ask",
     "skills/prototype",
     "skills/remove-slop",
     "skills/research",
@@ -102,6 +103,9 @@
       "domain-modeling",
       "mermaid-diagrams"
     ],
+    "plain-ask": [
+      "simplify-this"
+    ],
     "research": [
       "council"
     ],
@@ -122,7 +126,8 @@
       "domain-modeling",
       "prototype",
       "research",
-      "handoff"
+      "handoff",
+      "plain-ask"
     ]
   },
   "packCommit": "9e3195f92814693526f4088d24b9062591a5b0b8"
