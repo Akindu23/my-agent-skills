@@ -102,6 +102,6 @@ Avoid specific file paths or code snippets - they go stale fast. Exception: if a
 
 Publish the approved tickets, then stop - do not start implementation.
 
-Work the frontier **one ticket at a time** with `/implement`, clearing context between tickets. Do not run `/implement-plan` per ticket (that skill is for `/to-plan` / attached plans). Escalate to `/implement-plan` only if a ticket is still full of unknowns - treat that as a process smell.
+Work the frontier **one ticket at a time** with `/implement`, clearing context between tickets. To run the whole frontier unattended, the user runs `/afk` instead. Do not run `/implement-plan` per ticket (that skill is for `/to-plan` / attached plans). Escalate to `/implement-plan` only if a ticket is still full of unknowns - treat that as a process smell.
 
 **Done when**: one `work/<feature-slug>/tickets/<NN>-<slug>.md` per approved ticket exists, numbered from `01` in dependency order, each with What to build, Blocked by, and at least one checkable acceptance criterion; this session has stopped without `/implement`.

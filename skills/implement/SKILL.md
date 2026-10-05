@@ -46,3 +46,12 @@ Ticket work stays uncommitted. Baseline **Fix first** and mechanical file change
 Close the ticket **on disk**: in the `work/<feature-slug>/tickets/` file this session implemented (or the plan file on the `/to-plan` path), mark this ticket's status (implemented / awaiting review) and name the next ticket in order. Status line only; `**Pre-existing failures:**` stays if present. **Done when**: a fresh session reading only that file can answer "what's next?", and the user was told to run `/code-review`.
 
 For a whole attached plan with council / best-practices / YAGNI, tell the user to use /implement-plan instead.
+
+## Unattended
+
+When the caller says unattended (e.g. `/afk`), the caller owns questions, commits, and review. These replace the matching lines above:
+
+- **Baseline red**: Proceed when every failure is outside the edit targets, else Fix first. A Fix first that stays red parks the ticket.
+- **Any other choice**: take the reversible option and note it on the ticket. A question no experiment can settle parks the ticket.
+- **Park** = write `**Parked:** <question or failing paths>` on the ticket and return to the caller.
+- **Close**: stage the slice and commit it through `/commit-msg` unattended. Set the status line, then return the commit list to the caller instead of the `/code-review` hand-back.

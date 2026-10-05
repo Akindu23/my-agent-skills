@@ -50,6 +50,7 @@ flowchart TD
   spec["/to-spec"]
   tickets["/to-tickets"]
   impl["/implement"]
+  afk["/afk"]
   plan["/to-plan"]
   implPlan["/implement-plan"]
   review["/code-review"]
@@ -60,6 +61,7 @@ flowchart TD
   fog -->|yes| map --> size
   size -->|no / unsure| spec --> tickets --> impl --> review
   size -->|yes| plan --> implPlan --> review
+  tickets -->|unattended| afk --> retro
   review --> retro
 ```
 
@@ -69,6 +71,7 @@ flowchart TD
 | Front door               | `/wayfinder`                              | Default entry. Destination grill + breadth; no fog → size fork; fog → decision map. Resolved terms in `GLOSSARY.md`; ADRs on ticket close. See [Working a wayfinder map](#working-a-wayfinder-map). |
 | Optional sharpen         | `/grill-with-docs`                        | Depth + live ADR offers without a map. May offer `/wayfinder` when destination is nameable and fog appears.                                                                                         |
 | Spec path (default)      | `/to-spec` → `/to-tickets` → `/implement` | Multi-session / dumb-zone risk. One ticket per session; prefer `/tdd` at agreed seams.                                                                                                              |
+| AFK path                 | `/to-tickets` → `/afk`                    | Unattended: frontier waves of parallel `/implement` worktrees merge to `afk/<feature-slug>`, then `/code-review` until zero P0/P1. Commits via `/commit-msg`; push and merge to `main` stay yours. |
 | Plan path (escape hatch) | `/to-plan` → `/implement-plan`            | Only when the whole build fits one context window.                                                                                                                                                  |
 | Review                   | `/code-review`                            | After implementation. Report only. Reads `CODING_STANDARDS.md` when present; may nominate rules (writes only on accept). |
 | Environment              | `/retro`                                  | After a session (often after review). Propose pointers, checks, reviewer standards, tool economy; apply only accepted candidates.                                                                   |
@@ -112,6 +115,7 @@ Reach for `show-me` when you want the shape of this turn — and a shape-diff wh
 
 | Folder                                                                   | `name`                          | Call | Example                                                                                                     | One-line intent                                                                                                                                                                                                                              |
 | ------------------------------------------------------------------------ | ------------------------------- | ---- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [afk](./skills/afk/) | `afk` | user | `/afk` `@work/team-billing/tickets/` | Run approved tickets unattended: frontier waves of up to 3 parallel `/implement` worktrees, merged to an integration branch, then `/code-review` and fixes until zero P0/P1. Parks real questions instead of asking. |
 | [architecture-decision-records](./skills/architecture-decision-records/) | `architecture-decision-records` | both | `/architecture-decision-records` proration for Team billing                                                 | Owns lightweight ADRs with detailed rationale, optional expanded sections, scaffolding, and `docs/adr/README.md` index maintenance (draft → approval → write).                                                                               |
 | [best-practices-research](./skills/best-practices-research/)             | `best-practices-research`       | both | `/best-practices-research` Stripe seat billing                                                              | Recon current best practices per domain via live web search (Exa-first) before implementing; fans out one **Task** subagent per unrelated domain.                                                                                            |
 | [break-ui](./skills/break-ui/) | `break-ui` | user | `/break-ui` the members table | Worst-case data pass: realistic bad values behind a dev-only Demo / Worst case toggle, then a Broken / Ugly / Fragile report. Fixes only the rows you name. |

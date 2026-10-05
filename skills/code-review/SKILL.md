@@ -58,4 +58,6 @@ End the report turn before the nomination MCQ. Put every candidate's accept / sk
 
 **Done when**: stopped on blockers or empty slop, Skip, or the Edit Task has returned.
 
+**Unattended** (the caller says so, e.g. `/afk`): step 1 takes the caller's scope and work items. Step 8 lists candidates in the report and writes nothing. Step 9 picks Run `/remove-slop` - narration whenever its gate passes.
+
 Run council, BPR, yagni, and `/remove-slop` Edit in the parent. The merge Task is fresh-pass + merge only. Full BPR stays behind step 5.

@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "skills": [
+    "skills/afk",
     "skills/architecture-decision-records",
     "skills/best-practices-research",
     "skills/break-ui",
@@ -46,6 +47,12 @@
     "skills/yagni"
   ],
   "dependsOn": {
+    "afk": [
+      "implement",
+      "code-review",
+      "commit-msg",
+      "council"
+    ],
     "best-practices-research": [
       "council"
     ],

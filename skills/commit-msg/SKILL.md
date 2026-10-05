@@ -1,6 +1,6 @@
 ---
 name: commit-msg
-description: Commit message. Use when committing staged changes with a one-liner in this repo's style, or when another skill needs a commit after a baseline repair.
+description: Commit message. Use when committing staged changes with a one-liner in this repo's style, or when another skill needs a commit.
 ---
 
 # Commit message
@@ -23,7 +23,7 @@ Skip secrets (`.env`, credentials, keys). If a staged path looks secret, stop an
 
 ## 2. Draft
 
-Write **3-5 one-liners**. Each option is a distinct framing of the same staged change (why, scope, or verb), not a synonym of another.
+Write **3-5 one-liners**. Each option is a distinct framing of the same staged change (why, scope, or verb), not a synonym of another. Strongest first.
 
 Match *style* from those subjects: conventional vs freeform, tense, capitalization, punctuation. Empty history → imperative subject, no prefix invented.
 
@@ -49,7 +49,9 @@ Free-form answers stay in plain chat.
 
 One question; each option's label is the one-liner itself.
 
-**Done when**: the user has chosen one line (including a line they typed).
+**Unattended** (the caller says so, e.g. `/afk`): take the first option and skip the question. The caller staged the change.
+
+**Done when**: the user has chosen one line (including a line they typed), or, unattended, the first option is taken.
 
 ## 4. Commit
 
