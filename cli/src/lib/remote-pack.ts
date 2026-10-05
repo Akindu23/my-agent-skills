@@ -1,8 +1,10 @@
-import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { spawn, type ChildProcessByStdio } from 'node:child_process';
+import type { Stats } from 'node:fs';
 import { access, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { homedir, tmpdir } from 'node:os';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import path from 'node:path';
 import * as tar from 'tar';
 import { CliError } from './errors.js';
@@ -71,7 +73,8 @@ export function readPackCommit(manifest: { packCommit?: unknown }): string {
   return raw.toLowerCase();
 }
 
-function tarballFilter(_entryPath: string, entry: tar.ReadEntry): boolean {
+function tarballFilter(_entryPath: string, entry: tar.ReadEntry | Stats): boolean {
+  if (!('type' in entry)) return true;
   if (entry.type === 'SymbolicLink' || entry.type === 'Link') return false;
   if (entry.type === 'File' && entry.size > 50 * 1024 * 1024) return false;
   return true;
@@ -101,7 +104,7 @@ async function extractTarballBodyToDir(
 
   try {
     await pipeline(
-      Readable.fromWeb(body),
+      Readable.fromWeb(body as NodeReadableStream<Uint8Array>),
       tar.x({
         cwd: targetDir,
         strip: 1,
@@ -171,11 +174,11 @@ export function resolveHeadViaLsRemote(
   const repoUrl = `https://github.com/${owner}/${repo}.git`;
 
   return new Promise((resolve, reject) => {
-    let child: ChildProcessWithoutNullStreams;
+    let child: ChildProcessByStdio<null, Readable, Readable>;
     try {
       child = spawnFn('git', ['ls-remote', repoUrl, 'HEAD'], {
         stdio: ['ignore', 'pipe', 'pipe'],
-      }) as ChildProcessWithoutNullStreams;
+      });
     } catch (err) {
       const code = (err as NodeJS.ErrnoException).code;
       if (code === 'ENOENT') {
