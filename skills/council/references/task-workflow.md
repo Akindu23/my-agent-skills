@@ -29,7 +29,7 @@ Put complexity tokens in the Task/Agent **`description`** (not the worker prompt
 
 | Token | Effect |
 |-------|--------|
-| `[opus]` or `[complex]` | Force **complex** lane (Claude Code: opus when in enum; Cursor: falls through to heavy). Ignored on partition workers. |
+| `[opus]` or `[complex]` | Force **complex** lane (slugs per the harness file). Ignored on partition workers. |
 | `[heavy]` | Force **heavy** lane (unless this call is a partition worker) |
 | `[medium]` | Force **medium** lane (unless this call is a partition worker) |
 | `[light]` or `[standard]` | Force **light** lane even if the role is presumed-heavy |
@@ -40,7 +40,7 @@ A **partition worker** is an explore/survey slice of a fan-out (paths or concern
 
 A **specialist** (review, yagni, thermos, judge) is not a partition worker even when several launch in one message. Lane follows presumed-heavy / `[heavy]` / the dependent skill.
 
-**Presumed-heavy** jobs default to the heavy lane when they are not partition workers (match the delegate’s job, not `subagent_type` alone): `synthesis` (post-fan-out merge), `conflict-resolution` (dedupe / contradiction follow-up), `judge` / `critique`, `architecture-review`. Review plugin types (`bugbot`, `security-review`, thermos auditors, …) are not auto-heavy unless the parent assigns one of those jobs or marks `[heavy]`.
+**Presumed-heavy** jobs default to the heavy lane when they are not partition workers (match the delegate’s job, not `subagent_type` alone): `synthesis` (post-fan-out merge), `conflict-resolution` (dedupe / contradiction follow-up), `judge` / `critique`, `architecture-review`. Review plugin types (`bugbot`, `security-review`, …) are not auto-heavy unless the parent assigns one of those jobs or marks `[heavy]`.
 
 1. If the user requested a specific slug and it is in the enum → use it.
 2. Else classify the Task/Agent call (first match):

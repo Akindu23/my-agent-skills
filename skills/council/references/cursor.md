@@ -8,9 +8,14 @@ Docs: [Subagents](https://cursor.com/docs/subagents), [Models and pricing](https
 
 Lane classification lives in [`task-workflow.md`](task-workflow.md). This file only resolves slugs and types.
 
-Each row is a family glob. First enum slug that matches wins. Effort suffixes (`-high`, `-medium`, `-fast`, thinking, and similar) are not ranked.
+Each row is a family glob. Effort ceiling is `-high` in every lane: skip slugs ending `-xhigh` or `-max`. Among the rest, the first enum slug that matches wins; other effort suffixes (`-high`, `-medium`, `-fast`, thinking, and similar) are not ranked.
 
-`[opus]` / `[complex]` have no Cursor opus equivalent: fall through to **heavy**.
+## Complex
+
+`[opus]` / `[complex]` resolve here.
+
+1. `gpt-5.6-sol-*` (never `gpt-5.6-sol-fast`)
+2. Fall through to **heavy**
 
 ## Heavy
 
@@ -36,7 +41,7 @@ The same light slug applies to every partition worker.
 
 ## Notes
 
-- Auto-pick Composer, Grok, or Gemini Flash per the lanes above. Claude or GPT only when the user requested that slug and it appears in the enum.
+- Auto-pick GPT 5.6 Sol (complex lane only), Composer, Grok, or Gemini Flash per the lanes above. Claude or any other GPT only when the user requested that slug and it appears in the enum.
 - Plugin agent markdown under `plugins/**/agents/*.md` may use `inherit`, `sonnet`, `haiku`, or `fast` for other harnesses - those are not Task `model` values.
 
 ## Task `subagent_type` orientation (probe enum)

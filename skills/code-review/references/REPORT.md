@@ -16,7 +16,8 @@ The report **retains P0 and P1**. When the user asks for a wider audit, retain P
 
 - Named `**Pre-existing failures:**` paths stay off Findings, even as P0/P1.
 - P0/P1 → **Findings** only (even when it is also a slop class).
-- Slop class and not a blocker → **Slop** only.
+- Slop class and not a blocker → **Slop** only (even when `thermos-quality` also flagged it).
+- `thermos-quality` finding and not a blocker → **Structure** only.
 - Neither → drop, unless a wider audit (then Findings as P2).
 
 ```markdown
@@ -26,7 +27,7 @@ The report **retains P0 and P1**. When the user asks for a wider audit, retain P
 ## Findings
 | Severity | Location | Lens | Finding |
 |----------|----------|------|---------|
-| P0/P1 | `path:line` | thermos / yagni / bpr / standards / fresh | … |
+| P0/P1 | `path:line` | thermos-deep / thermos-quality / yagni / bpr / standards / fresh | … |
 
 Sort P0 then P1 (then P2 when retained). Dedupe overlapping items into one row; list every contributing lens.
 
@@ -38,6 +39,13 @@ Snapshot of this diff. A later Run `/remove-slop` scans the tree as it is.
 | narration / over-defense / hatches / nesting / prose | `path:line` | … |
 
 Omit this section when the scan missed every class. Tests are **code** (narration at `*_test.*` is comments).
+
+## Structure
+Non-blocking `thermos-quality` findings, in that rubric's priority order. Omit when it returned none.
+
+| Location | Finding | Remedy |
+|----------|---------|--------|
+| `path:line` | … | … |
 
 ## Skipped
 - Delta BPR: <ran scoped to X | skipped - reason>

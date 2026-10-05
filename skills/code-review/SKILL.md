@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Diff/PR review: council → thermos/yagni/slop-report → delta BPR → merge. P0/P1 + slop table; may nominate; may Run /remove-slop when the gate is empty."
+description: "Diff/PR review: council → thermos deep + quality/yagni/slop-report → delta BPR → merge. P0/P1 + slop and structure tables; may nominate; may Run /remove-slop when the gate is empty."
 disable-model-invocation: true
 ---
 
@@ -10,7 +10,8 @@ Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../
 
 | Role | Model |
 |------|--------|
-| Thermos, `/yagni` | heavy lane / `[heavy]` |
+| Thermos deep | complex lane / `[complex]` |
+| Thermos quality, `/yagni` | heavy lane / `[heavy]` |
 | Fresh pass + merge | **Cursor:** heavy. **Claude Code:** `opus` |
 
 Delta `/best-practices-research` runs as that skill is written (it owns its Task fan-out and model picks).
@@ -33,16 +34,17 @@ Free-form answers stay in plain chat.
 
 3. **Council.** Run `/council` scoped only to areas the change touches - context brief for specialists, not the review itself. Attach that brief to later Task prompts. **Done when**: every touched area has been explored enough to brief steps 4-6.
 
-4. **Specialists.** In **one** message, three parallel Task/Agent calls (each gets the package + council brief):
-   - **Thermos** - heavy. `subagent_type` matching thermos review in the enum (`thermo-nuclear-review-subagent` preferred). Prompt with `### Git / diff output` and `### Changed file contents`. If no thermos type exists, say so and stop (Thermos plugin required).
+4. **Specialists.** In **one** message, four parallel Task/Agent calls (each gets the package + council brief):
+   - **Thermos deep** - complex. Portable role `general-purpose` (readonly). Read [`references/thermos-deep.md`](references/thermos-deep.md) and apply it in full. Prompt with `### Git / diff output` and `### Changed file contents`.
+   - **Thermos quality** - heavy. Portable role `general-purpose` (readonly). Read [`references/thermos-quality.md`](references/thermos-quality.md) and apply it in full. Same prompt sections.
    - **YAGNI** - heavy. Portable role `general-purpose` (readonly). Run the `/yagni` skill (read [`../yagni/SKILL.md`](../yagni/SKILL.md) if not already loaded); take the **Review** branch; every ladder rung hit or miss; return findings only.
    - **Slop report** - portable role `general-purpose` (readonly). Read [`../remove-slop/SKILL.md`](../remove-slop/SKILL.md); take the **Report** branch. Same review scope.
-   Thermos and yagni return the **full** finding set. The [gate](references/REPORT.md) and [placement](references/REPORT.md) are merge jobs.
-   **Done when**: all three have returned.
+   Both Thermos passes and yagni return the **full** finding set. The [gate](references/REPORT.md) and [placement](references/REPORT.md) are merge jobs.
+   **Done when**: all four have returned.
 
 5. **Delta BPR.** Run `/best-practices-research` only when the diff adds a new domain/library/API surface not covered by an earlier recon artifact, **or** thermos/yagni flags uncertain conventions. Reuse prior recon; research only what's new. Otherwise skip with a one-line reason. **Done when**: skipped with reason, or delta findings are in the package.
 
-6. **Fresh pass + merge.** One Task/Agent (portable role `general-purpose`, or a review/judge type if in the enum; readonly). Prompt must include the package, council brief, full thermos / yagni / BPR / slop-report outputs, and [`references/REPORT.md`](references/REPORT.md). Worker: (1) independent **fresh pass** over the package, (2) apply **every** rule in `CODING_STANDARDS.md` when that file is in the package (lens: `standards`), (3) merge - dedupe, calibrate onto the scale, attribute each finding's lens, apply the **gate** and **placement**. Model per the table above. **Done when**: a single report matching that file is ready, and every standards rule was applied or the file was omitted.
+6. **Fresh pass + merge.** One Task/Agent (portable role `general-purpose`, or a review/judge type if in the enum; readonly). Prompt must include the package, council brief, full thermos-deep / thermos-quality / yagni / BPR / slop-report outputs, and [`references/REPORT.md`](references/REPORT.md). Worker: (1) independent **fresh pass** over the package, (2) apply **every** rule in `CODING_STANDARDS.md` when that file is in the package (lens: `standards`), (3) merge - dedupe, calibrate onto the scale, attribute each finding's lens, apply the **gate** and **placement**. Model per the table above. **Done when**: a single report matching that file is ready, and every standards rule was applied or the file was omitted.
 
 7. **Report.** Give the user the merged report ([shape](references/REPORT.md)). Do not fix. When step 1 found work items, update each status line: `reviewed: clean` or `reviewed: N findings` with a one-liner per open P0/P1. Status line only; `**Pre-existing failures:**` stays if present. **Done when**: the report matches that file and each work item's file alone tells the next session whether it is commit-ready or needs fixes; or empty diff was already stated.
 
