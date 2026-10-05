@@ -172,6 +172,26 @@ export async function promptDependencyInstall(
   return selected as string[];
 }
 
+export async function promptNewSkillInstall(names: string[]): Promise<string[]> {
+  if (names.length === 0) {
+    return [];
+  }
+
+  const selected = await multiselect({
+    message: 'New skills in the pack since your last update: (deselect to skip)',
+    options: names.map((name) => ({ value: name, label: name })),
+    initialValues: names,
+    required: false,
+  });
+
+  if (isCancel(selected)) {
+    cancel('Cancelled.');
+    throw new CliCancel();
+  }
+
+  return selected as string[];
+}
+
 export type ConfirmAction = 'install' | 'update';
 
 const CONFIRM_MESSAGES: Record<ConfirmAction, string> = {

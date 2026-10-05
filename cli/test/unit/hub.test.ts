@@ -63,7 +63,12 @@ vi.mock('../../src/lib/run-command.js', () => ({
 const { isCancel, outro } = await import('@clack/prompts');
 const { showTTYIntro } = await import('../../src/lib/banner.js');
 const { installCtrlCGuard } = await import('../../src/lib/keypress-guard.js');
-const { runHub } = await import('../../src/commands/hub.js');
+const { runHub, renderHubFarewell } = await import('../../src/commands/hub.js');
+const { stripAnsi } = await import('../../src/lib/theme.js');
+
+function outroText(): string {
+  return stripAnsi(String(vi.mocked(outro).mock.calls.at(-1)?.[0]));
+}
 
 /** Drive the menu from a scripted list of choices, defaulting to quit. */
 function scriptMenu(choices: HubChoiceLike[]): void {
@@ -91,6 +96,7 @@ describe('runHub', () => {
   });
 
   afterEach(() => {
+    process.exitCode = undefined;
     vi.clearAllMocks();
   });
 
@@ -111,7 +117,7 @@ describe('runHub', () => {
     expect(mocks.runAddMock).toHaveBeenCalledWith({ skipIntro: true });
     expect(mocks.textMock).toHaveBeenCalledTimes(1); // pause after the action
     expect(mocks.selectMock).toHaveBeenCalledTimes(2);
-    expect(outro).toHaveBeenCalledWith('Goodbye.');
+    expect(outroText()).toContain('Ran add');
   });
 
   it('passes offerUpdateOnDrift and returns to the menu after check', async () => {
@@ -124,7 +130,7 @@ describe('runHub', () => {
       offerUpdateOnDrift: true,
     });
     expect(mocks.selectMock).toHaveBeenCalledTimes(2);
-    expect(outro).toHaveBeenCalledWith('Goodbye.');
+    expect(outroText()).toContain('Ran check');
   });
 
   it('Esc mid-action returns to the menu with no failure and no pause', async () => {
@@ -135,7 +141,7 @@ describe('runHub', () => {
 
     expect(mocks.runAddMock).toHaveBeenCalledTimes(1);
     expect(mocks.textMock).not.toHaveBeenCalled(); // abandoned: nothing to read
-    expect(outro).toHaveBeenCalledWith('Goodbye.'); // clean exit, no throw
+    expect(outroText()).toContain('Nothing run this session.'); // clean exit, no throw
   });
 
   it('Esc at the menu quits cleanly via the shared quit path', async () => {
@@ -143,25 +149,29 @@ describe('runHub', () => {
 
     await expect(runHub()).resolves.toBeUndefined();
 
-    expect(outro).toHaveBeenCalledWith('Goodbye.');
+    expect(outroText()).toContain('Nothing run this session.');
   });
 
   it('records failure on a CliError and exits non-zero at quit', async () => {
     mocks.runAddMock.mockRejectedValueOnce(new CliError('install failed'));
     scriptMenu(['add', 'list', 'quit']);
 
-    await expect(runHub()).rejects.toThrow('One or more hub actions failed.');
+    await runHub();
 
+    expect(process.exitCode).toBe(1);
     expect(mocks.runAddMock).toHaveBeenCalledTimes(1);
     expect(mocks.runListMock).toHaveBeenCalledWith({ skipIntro: true });
-    expect(outro).toHaveBeenCalledWith('Goodbye.');
+    expect(outroText()).toContain('Ran list');
+    expect(outroText()).toContain('Failed add');
   });
 
   it('exits non-zero when Esc-at-menu follows a failed action', async () => {
     mocks.runAddMock.mockRejectedValueOnce(new CliError('install failed'));
     scriptMenu(['add', Symbol.for('cancel')]);
 
-    await expect(runHub()).rejects.toThrow('One or more hub actions failed.');
+    await runHub();
+
+    expect(process.exitCode).toBe(1);
   });
 
   it('removes the guard on teardown', async () => {
@@ -172,5 +182,13 @@ describe('runHub', () => {
     await runHub();
 
     expect(remove).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('renderHubFarewell', () => {
+  it('lists each action once, in first-run order, plus the come-back hint', () => {
+    expect(stripAnsi(renderHubFarewell(['add', 'check', 'add'], ['update']))).toBe(
+      'Ran add, check\nFailed update\nRun `my-agent-skills` anytime to manage your skills.\n\nBwoah... Happy Coding :)',
+    );
   });
 });

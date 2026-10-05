@@ -3,7 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { applyDriftPlan } from '../../src/lib/apply-drift-plan.js';
+import { applyDriftPlan, planInstalls } from '../../src/lib/apply-drift-plan.js';
+import type { DriftPlan } from '../../src/lib/drift-plan.js';
 import { resolveBundle } from '../../src/lib/bundle.js';
 import { planDriftFromBundles } from '../../src/lib/drift-plan.js';
 import { computeSkillFolderHash } from '../../src/lib/hash.js';
@@ -15,6 +16,7 @@ import { DEFAULT_GITHUB_SOURCE } from '../../src/lib/constants.js';
 const cliRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const bundleMini = path.join(cliRoot, 'test/fixtures/bundle-mini/skills');
 const bundleMiniV2 = path.join(cliRoot, 'test/fixtures/bundle-mini-v2/skills');
+const bundleMiniV3 = path.join(cliRoot, 'test/fixtures/bundle-mini-v3/skills');
 const tmpDirs: string[] = [];
 
 async function tempScope(): Promise<ScopePaths> {
@@ -30,6 +32,20 @@ async function tempScope(): Promise<ScopePaths> {
     skillsDir,
     lockPath: path.join(agentsDir, 'cursor-skills-lock.json'),
   };
+}
+
+/** Resolve the install set from the chosen names, then apply, as runUpdate does. */
+async function applyChoices(
+  plan: DriftPlan,
+  opts: {
+    orphansToRemove: ReadonlySet<string>;
+    dependenciesToInstall: ReadonlySet<string>;
+    newSkillsToInstall: ReadonlySet<string>;
+  },
+) {
+  const installs = await planInstalls(plan, opts);
+  const result = await applyDriftPlan(plan, { orphansToRemove: opts.orphansToRemove, installs: installs.items });
+  return { ...result, unmanaged: installs.unmanaged };
 }
 
 afterEach(async () => {
@@ -88,9 +104,10 @@ describe('applyDriftPlan commit advance', () => {
 
     const pruneSpy = vi.spyOn(remotePack, 'pruneCommitCache').mockResolvedValue(undefined);
 
-    const result = await applyDriftPlan(plan, {
+    const result = await applyChoices(plan, {
       orphansToRemove: new Set(),
       dependenciesToInstall: new Set(),
+      newSkillsToInstall: new Set(),
     });
 
     expect(result.updated).toEqual(['alpha', 'beta']);
@@ -156,7 +173,11 @@ describe('applyDriftPlan commit advance', () => {
     const pruneSpy = vi.spyOn(remotePack, 'pruneCommitCache').mockResolvedValue(undefined);
 
     await expect(
-      applyDriftPlan(plan, { orphansToRemove: new Set(), dependenciesToInstall: new Set() }),
+      applyChoices(plan, {
+        orphansToRemove: new Set(),
+        dependenciesToInstall: new Set(),
+        newSkillsToInstall: new Set(),
+      }),
     ).rejects.toThrow('Update failed');
 
     expect(await readFile(scope.lockPath, 'utf8')).toBe(lockBefore);
@@ -208,9 +229,10 @@ describe('applyDriftPlan orphan handling', () => {
       commitDrift: false,
     });
 
-    const result = await applyDriftPlan(plan, {
+    const result = await applyChoices(plan, {
       orphansToRemove: new Set(['ghost']),
       dependenciesToInstall: new Set(),
+      newSkillsToInstall: new Set(),
     });
 
     expect(result.orphansRemoved).toEqual(['ghost']);
@@ -260,9 +282,10 @@ describe('applyDriftPlan orphan handling', () => {
       commitDrift: false,
     });
 
-    const result = await applyDriftPlan(plan, {
+    const result = await applyChoices(plan, {
       orphansToRemove: new Set(),
       dependenciesToInstall: new Set(),
+      newSkillsToInstall: new Set(),
     });
 
     expect(result.orphansRemoved).toEqual([]);
@@ -305,9 +328,10 @@ describe('applyDriftPlan missing dependency handling', () => {
     const scope = await tempScope();
     const plan = await planWithMissingAlpha(scope);
 
-    const result = await applyDriftPlan(plan, {
+    const result = await applyChoices(plan, {
       orphansToRemove: new Set(),
       dependenciesToInstall: new Set(['alpha']),
+      newSkillsToInstall: new Set(),
     });
 
     expect(result.dependenciesAdded).toEqual(['alpha']);
@@ -324,9 +348,10 @@ describe('applyDriftPlan missing dependency handling', () => {
     const scope = await tempScope();
     const plan = await planWithMissingAlpha(scope);
 
-    const result = await applyDriftPlan(plan, {
+    const result = await applyChoices(plan, {
       orphansToRemove: new Set(),
       dependenciesToInstall: new Set(),
+      newSkillsToInstall: new Set(),
     });
 
     expect(result.dependenciesAdded).toEqual([]);
@@ -378,9 +403,10 @@ describe('applyDriftPlan missing dependency handling', () => {
       .mockRejectedValueOnce(new Error('second target fail'));
 
     await expect(
-      applyDriftPlan(plan, {
+      applyChoices(plan, {
         orphansToRemove: new Set(),
         dependenciesToInstall: new Set(['alpha']),
+        newSkillsToInstall: new Set(),
       }),
     ).rejects.toThrow('Update failed');
 
@@ -432,9 +458,10 @@ describe('applyDriftPlan missing dependency handling', () => {
 
     const pruneSpy = vi.spyOn(remotePack, 'pruneCommitCache').mockResolvedValue(undefined);
 
-    const result = await applyDriftPlan(plan, {
+    const result = await applyChoices(plan, {
       orphansToRemove: new Set(),
       dependenciesToInstall: new Set(['alpha']),
+      newSkillsToInstall: new Set(),
     });
 
     expect(result.updated).toEqual(['beta']);
@@ -443,5 +470,149 @@ describe('applyDriftPlan missing dependency handling', () => {
     expect(after?.commit).toBe(remoteBundle.commit);
     expect(after?.skills.alpha).toBeDefined();
     expect(pruneSpy).toHaveBeenCalledWith(DEFAULT_GITHUB_SOURCE, 'pin-old-sha');
+  });
+});
+
+describe('applyDriftPlan new pack skills', () => {
+  async function planAlphaOnlyAgainstV3(scope: ScopePaths) {
+    const pinBundle = await resolveBundle({ source: bundleMini });
+    const remoteBundle = await resolveBundle({ source: bundleMiniV3 });
+    const alphaHash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
+    await symlink(path.join(bundleMini, 'alpha'), path.join(scope.skillsDir, 'alpha'), 'dir');
+    await writeFile(scope.lockPath, JSON.stringify({
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: 'pin-old-sha',
+      defaultLinkType: 'symlink',
+      package: { name: 'bundle-mini', version: pinBundle.packageVersion },
+      skills: {
+        alpha: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: alphaHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }));
+    const lock = (await readLockfile(scope.lockPath))!;
+    vi.spyOn(remotePack, 'pruneCommitCache').mockResolvedValue(undefined);
+    return planDriftFromBundles({
+      scope,
+      lock,
+      bundle: pinBundle,
+      remoteBundle,
+      commitDrift: true,
+      remoteCommit: remoteBundle.commit,
+    });
+  }
+
+  it('installs a chosen new skill plus every unlocked dependency it needs', async () => {
+    const scope = await tempScope();
+    const plan = await planAlphaOnlyAgainstV3(scope);
+
+    const result = await applyChoices(plan, {
+      orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(),
+      newSkillsToInstall: new Set(['gamma']),
+    });
+
+    expect(result.updated).toEqual(['alpha']);
+    expect(result.newSkillsAdded).toEqual(['gamma']);
+    // delta is new but unticked; beta predates the pin but was never added.
+    expect(result.dependenciesAdded).toEqual(['delta', 'beta']);
+    expect(result.requiredBy).toEqual({ delta: 'gamma', beta: 'gamma' });
+    expect(result.newSkillsSkipped).toEqual([]);
+    const after = await readLockfile(scope.lockPath);
+    expect(Object.keys(after!.skills).sort()).toEqual(['alpha', 'beta', 'delta', 'gamma']);
+    expect(after?.commit).toBe(plan.remoteBundle!.commit);
+  });
+
+  it('skips declined new skills and leaves them out of the lock', async () => {
+    const scope = await tempScope();
+    const plan = await planAlphaOnlyAgainstV3(scope);
+
+    const result = await applyChoices(plan, {
+      orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(),
+      newSkillsToInstall: new Set(),
+    });
+
+    expect(result.newSkillsAdded).toEqual([]);
+    expect(result.newSkillsSkipped).toEqual(['delta', 'gamma']);
+    const after = await readLockfile(scope.lockPath);
+    expect(Object.keys(after!.skills)).toEqual(['alpha']);
+  });
+
+  it('leaves an unmanaged dir with a new skill name untouched and skips that skill', async () => {
+    const scope = await tempScope();
+    const plan = await planAlphaOnlyAgainstV3(scope);
+    const foreign = path.join(scope.skillsDir, 'gamma');
+    await mkdir(foreign, { recursive: true });
+    await writeFile(path.join(foreign, 'KEEP.md'), 'not ours');
+
+    const result = await applyChoices(plan, {
+      orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(),
+      newSkillsToInstall: new Set(['gamma']),
+    });
+
+    expect(result.unmanaged).toEqual(['gamma']);
+    expect(result.newSkillsAdded).toEqual([]);
+    expect(result.dependenciesAdded).toEqual([]);
+    expect(result.newSkillsSkipped).toEqual(['delta', 'gamma']);
+    expect(await readFile(path.join(foreign, 'KEEP.md'), 'utf8')).toBe('not ours');
+    const after = await readLockfile(scope.lockPath);
+    expect(Object.keys(after!.skills)).toEqual(['alpha']);
+  });
+
+  it('skips an unmanaged dependency dir but still installs the chosen skill', async () => {
+    const scope = await tempScope();
+    const plan = await planAlphaOnlyAgainstV3(scope);
+    const foreign = path.join(scope.skillsDir, 'beta');
+    await mkdir(foreign, { recursive: true });
+    await writeFile(path.join(foreign, 'KEEP.md'), 'not ours');
+
+    const result = await applyChoices(plan, {
+      orphansToRemove: new Set(),
+      dependenciesToInstall: new Set(),
+      newSkillsToInstall: new Set(['gamma']),
+    });
+
+    expect(result.unmanaged).toEqual(['beta']);
+    expect(result.newSkillsAdded).toEqual(['gamma']);
+    expect(result.dependenciesAdded).toEqual(['delta']);
+    expect(await readFile(path.join(foreign, 'KEEP.md'), 'utf8')).toBe('not ours');
+    const after = await readLockfile(scope.lockPath);
+    expect(Object.keys(after!.skills).sort()).toEqual(['alpha', 'delta', 'gamma']);
+  });
+
+  it('rolls back new skill dirs and keeps the lock when a later install fails', async () => {
+    const scope = await tempScope();
+    const plan = await planAlphaOnlyAgainstV3(scope);
+    const lockBefore = await readFile(scope.lockPath, 'utf8');
+
+    const install = await import('../../src/lib/install.js');
+    const realMaterialize = install.materializeFromLockEntry;
+    // alpha refresh and delta install succeed; beta fails.
+    vi.spyOn(install, 'materializeFromLockEntry')
+      .mockImplementationOnce(realMaterialize)
+      .mockImplementationOnce(realMaterialize)
+      .mockRejectedValueOnce(new Error('beta fail'));
+
+    await expect(
+      applyChoices(plan, {
+        orphansToRemove: new Set(),
+        dependenciesToInstall: new Set(),
+        newSkillsToInstall: new Set(['gamma']),
+      }),
+    ).rejects.toThrow('Update failed');
+
+    expect(await readFile(scope.lockPath, 'utf8')).toBe(lockBefore);
+    for (const name of ['delta', 'gamma']) {
+      await expect(readFile(path.join(scope.skillsDir, name, 'SKILL.md'), 'utf8')).rejects.toThrow();
+    }
   });
 });

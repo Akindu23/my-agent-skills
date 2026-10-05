@@ -3,8 +3,10 @@ import { showTTYIntro } from '../lib/banner.js';
 import { CliCancel, CliError } from '../lib/errors.js';
 import { installCtrlCGuard } from '../lib/keypress-guard.js';
 import { runCommand, type CommandId } from '../lib/run-command.js';
+import { brand, muted, success } from '../lib/theme.js';
 
 type HubChoice = 'add' | 'update' | 'remove' | 'list' | 'sync' | 'check' | 'quit';
+type HubAction = Exclude<HubChoice, 'quit'>;
 
 const HUB_MENU_MESSAGE = 'What do you want to do? (↑ or ↓ to move, enter to select)';
 
@@ -34,7 +36,7 @@ async function pickHubAction(): Promise<HubChoice | 'cancel'> {
   return choice as HubChoice;
 }
 
-const hubCommandOpts: Record<Exclude<HubChoice, 'quit'>, Record<string, unknown>> = {
+const hubCommandOpts: Record<HubAction, Record<string, unknown>> = {
   add: skipIntro,
   update: skipIntro,
   remove: skipIntro,
@@ -43,7 +45,26 @@ const hubCommandOpts: Record<Exclude<HubChoice, 'quit'>, Record<string, unknown>
   check: { ...skipIntro, offerUpdateOnDrift: true },
 };
 
-async function runHubAction(choice: Exclude<HubChoice, 'quit'>): Promise<void> {
+const SIGN_OFF = 'Bwoah... Happy Coding :)';
+
+/** Session recap printed on quit: what ran, what failed, how to come back, and a sign-off. */
+export function renderHubFarewell(completed: HubAction[], failed: HubAction[]): string {
+  const ran = [...new Set(completed)];
+  const broke = [...new Set(failed)];
+  const lines: string[] = [];
+  if (ran.length === 0 && broke.length === 0) {
+    lines.push('Nothing run this session.');
+  } else {
+    if (ran.length > 0) lines.push(`${success('Ran')} ${ran.join(', ')}`);
+    if (broke.length > 0) lines.push(`Failed ${broke.join(', ')}`);
+  }
+  lines.push(muted('Run `my-agent-skills` anytime to manage your skills.'));
+  lines.push('');
+  lines.push(brand(SIGN_OFF));
+  return lines.join('\n');
+}
+
+async function runHubAction(choice: HubAction): Promise<void> {
   await runCommand(choice as CommandId, hubCommandOpts[choice]);
 }
 
@@ -69,7 +90,8 @@ async function pauseForMenu(): Promise<void> {
  */
 export async function runHub(): Promise<void> {
   let showIntro = true;
-  let hadFailure = false;
+  const completed: HubAction[] = [];
+  const failed: HubAction[] = [];
 
   const removeGuard = installCtrlCGuard();
   try {
@@ -82,22 +104,24 @@ export async function runHub(): Promise<void> {
       const choice = await pickHubAction();
 
       if (choice === 'cancel' || choice === 'quit') {
-        outro('Goodbye.');
-        if (hadFailure) {
-          throw new CliError('One or more hub actions failed.');
+        outro(renderHubFarewell(completed, failed));
+        if (failed.length > 0) {
+          // The recap already names what failed; just exit non-zero.
+          process.exitCode = 1;
         }
         return;
       }
 
       try {
         await runHubAction(choice);
+        completed.push(choice);
       } catch (err) {
         if (err instanceof CliCancel) {
           // Esc inside an action: abandon it and return to the menu.
           continue;
         }
         if (err instanceof CliError) {
-          hadFailure = true;
+          failed.push(choice);
           console.error(err.message);
         } else {
           throw err;

@@ -17,7 +17,7 @@ import { resolveLatestPackCommit } from './remote-pack.js';
 import { resolveSkillDestDir } from './skill-paths.js';
 import type { ScopePaths } from './scope.js';
 
-export type DriftStatus = 'ok' | 'hashDrift' | 'orphan' | 'missingDependency';
+export type DriftStatus = 'ok' | 'hashDrift' | 'orphan' | 'missingDependency' | 'newSkill';
 
 export interface DriftSkillEntry {
   name: string;
@@ -54,14 +54,19 @@ export interface DriftSummaryCounts {
   orphans: number;
   willRelink: number;
   newDependencies: number;
+  newSkills: number;
+}
+
+/** Entries backed by a lock entry: the ones a pin advance relinks. */
+export function isLockedEntry(entry: DriftSkillEntry): boolean {
+  return entry.status === 'ok' || entry.status === 'hashDrift';
 }
 
 export function classifyDriftSummary(plan: DriftPlan): DriftSummaryCounts {
   const orphans = plan.entries.filter((e) => e.status === 'orphan').length;
   const newDependencies = plan.entries.filter((e) => e.status === 'missingDependency').length;
-  const nonOrphans = plan.entries.filter(
-    (e) => e.status !== 'orphan' && e.status !== 'missingDependency',
-  );
+  const newSkills = plan.entries.filter((e) => e.status === 'newSkill').length;
+  const nonOrphans = plan.entries.filter(isLockedEntry);
   const pinDrift = plan.entries.filter((e) => e.status === 'hashDrift').length;
 
   if (plan.commitDrift) {
@@ -78,6 +83,7 @@ export function classifyDriftSummary(plan: DriftPlan): DriftSummaryCounts {
       orphans,
       willRelink: nonOrphans.length,
       newDependencies,
+      newSkills,
     };
   }
 
@@ -90,6 +96,7 @@ export function classifyDriftSummary(plan: DriftPlan): DriftSummaryCounts {
     orphans,
     willRelink: drifted,
     newDependencies,
+    newSkills,
   };
 }
 
@@ -167,6 +174,18 @@ export async function planDriftFromBundles(opts: {
       destDir: resolveSkillDestDir(opts.scope.skillsDir, name),
       dependencyOf,
     });
+  }
+
+  // New pack skills: published since the pin, so diff the two manifests rather
+  // than the lock (which would re-offer every skill the user never picked).
+  // Only emitted on commit drift; consumers rely on newSkill implying it.
+  if (opts.commitDrift && opts.remoteBundle && opts.lock.commit) {
+    const pinnedNames = new Set(skillNamesFromManifest(opts.bundle.manifest));
+    const planned = new Set(entries.map((e) => e.name));
+    for (const name of [...manifestNames].sort()) {
+      if (pinnedNames.has(name) || planned.has(name)) continue;
+      entries.push({ name, status: 'newSkill' });
+    }
   }
 
   return {
@@ -321,6 +340,7 @@ export function buildDriftReport(
       e.status === 'hashDrift' ||
       e.status === 'orphan' ||
       e.status === 'missingDependency' ||
+      e.status === 'newSkill' ||
       e.remoteChanged === true,
   );
   const hasUnhealthyTargets = Object.values(targetHealth).some((t) => !t.healthy);

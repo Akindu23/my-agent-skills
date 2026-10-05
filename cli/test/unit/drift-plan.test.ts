@@ -10,6 +10,7 @@ import {
   createDriftPlan,
   planDriftFromBundles,
 } from '../../src/lib/drift-plan.js';
+import { resolveInstallSet } from '../../src/lib/apply-drift-plan.js';
 import { computeSkillFolderHash } from '../../src/lib/hash.js';
 import { LOCK_VERSION, readLockfile } from '../../src/lib/lockfile.js';
 import type { ScopePaths } from '../../src/lib/scope.js';
@@ -17,6 +18,7 @@ import type { ScopePaths } from '../../src/lib/scope.js';
 const cliRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const bundleMini = path.join(cliRoot, 'test/fixtures/bundle-mini/skills');
 const bundleMiniV2 = path.join(cliRoot, 'test/fixtures/bundle-mini-v2/skills');
+const bundleMiniV3 = path.join(cliRoot, 'test/fixtures/bundle-mini-v3/skills');
 const tmpDirs: string[] = [];
 
 async function tempScope(): Promise<ScopePaths> {
@@ -194,5 +196,50 @@ describe('buildDriftReport', () => {
     expect(report.jsonPayload.inSync).toBe(false);
     expect(report.jsonPayload.hasContentDrift).toBe(true);
     expect(report.jsonPayload.skills[0]?.status).toBe('hashDrift');
+  });
+});
+
+describe('new pack skills', () => {
+  async function planAgainstV3(commitDrift: boolean) {
+    const scope = await tempScope();
+    const hash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
+    await writeLock(scope, { alpha: { computedHash: hash } });
+    const lock = (await readLockfile(scope.lockPath))!;
+    const bundle = await resolveBundle({ source: bundleMini });
+    const remoteBundle = await resolveBundle({ source: bundleMiniV3 });
+    return planDriftFromBundles({
+      scope,
+      lock,
+      bundle,
+      remoteBundle: commitDrift ? remoteBundle : undefined,
+      commitDrift,
+      remoteCommit: commitDrift ? 'remote-sha' : undefined,
+    });
+  }
+
+  it('offers only skills absent from the pinned manifest, not old unpicked ones', async () => {
+    const plan = await planAgainstV3(true);
+
+    const newNames = plan.entries.filter((e) => e.status === 'newSkill').map((e) => e.name);
+    expect(newNames).toEqual(['delta', 'gamma']);
+    expect(plan.entries.some((e) => e.name === 'beta')).toBe(false);
+    expect(buildDriftReport(plan).jsonPayload.summary.newSkills).toBe(2);
+  });
+
+  it('detects nothing without pack commit drift', async () => {
+    const plan = await planAgainstV3(false);
+    expect(plan.entries.some((e) => e.status === 'newSkill')).toBe(false);
+  });
+
+  it('resolves unlocked dependencies of chosen new skills with attribution', async () => {
+    const plan = await planAgainstV3(true);
+
+    const none = new Set<string>();
+    expect(resolveInstallSet(plan, { dependenciesToInstall: none, newSkillsToInstall: new Set(['gamma']) })).toEqual([
+      { name: 'delta', role: 'dependency', requiredBy: 'gamma' },
+      { name: 'beta', role: 'dependency', requiredBy: 'gamma' },
+      { name: 'gamma', role: 'root' },
+    ]);
+    expect(resolveInstallSet(plan, { dependenciesToInstall: none, newSkillsToInstall: none })).toEqual([]);
   });
 });

@@ -45,6 +45,8 @@ my-agent-skills
 
 Interactive `update` prompts to remove orphaned skills with a pre-selected multiselect; `update -y` prunes all orphans automatically.
 
+`update` also offers skills published to the pack since your pinned commit, in a pre-selected multiselect (deselect to skip). Each chosen skill brings any `dependsOn` skills you don't have yet, and every one is printed as `Added <dep> (required by <skill>)`. `update -y` installs all new skills and their dependencies; without `-y`, non-interactive runs warn and skip them. A skipped skill isn't offered again once the pin advances: use `add` for one-by-one picks. If a skills directory with a new skill's name already exists and isn't in the lock, `update` leaves it alone and warns; remove it or run `add --skill <name>` to replace it.
+
 Full flags: `**my-agent-skills --help**` and `**my-agent-skills <command> --help**`.
 
 ---

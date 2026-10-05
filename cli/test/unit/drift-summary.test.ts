@@ -139,4 +139,20 @@ describe('renderDriftSummary', () => {
     expect(body).toContain('Changed on remote: 1');
     expect(body).toContain('Will relink: 2 skills');
   });
+
+  it('labels new pack skills as new in check mode and counts them', () => {
+    const plan: DriftPlan = {
+      ...basePlan,
+      commitDrift: true,
+      remoteCommit: 'def5678',
+      entries: [
+        { name: 'alpha', status: 'ok' },
+        { name: 'gamma', status: 'newSkill' },
+      ],
+    };
+    const body = stripAnsi(renderDriftSummary(plan, { mode: 'check' }));
+
+    expect(body).toMatch(/new\s+gamma/);
+    expect(body).toContain('New skills: 1');
+  });
 });

@@ -1,8 +1,12 @@
 import { note, outro } from '@clack/prompts';
 import {
   applyDriftPlan,
+  describeInstall,
   formatUpdateConfirmMessage,
   planHasWork,
+  planInstalls,
+  type ApplyDriftResult,
+  type InstallSet,
 } from '../lib/apply-drift-plan.js';
 import { createDriftPlan } from '../lib/drift-plan.js';
 import { renderDriftSummary } from '../lib/drift-summary.js';
@@ -11,7 +15,12 @@ import {
   resolveTargetSkillsDir,
 } from '../lib/install-targets.js';
 import { printJson } from '../lib/output.js';
-import { confirmProceed, promptDependencyInstall, promptOrphanRemoval } from '../lib/prompts.js';
+import {
+  confirmProceed,
+  promptDependencyInstall,
+  promptNewSkillInstall,
+  promptOrphanRemoval,
+} from '../lib/prompts.js';
 import { runScopedCommand } from '../lib/run-scoped-command.js';
 
 export interface UpdateOptions {
@@ -32,6 +41,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
   const drifted = plan.entries.filter((e) => e.status === 'hashDrift');
   const orphans = plan.entries.filter((e) => e.status === 'orphan');
   const missingDeps = plan.entries.filter((e) => e.status === 'missingDependency');
+  const newSkills = plan.entries.filter((e) => e.status === 'newSkill');
   const emptyPlan =
     drifted.length === 0 &&
     !plan.commitDrift &&
@@ -63,39 +73,39 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     note(renderDriftSummary(plan, { mode: 'update' }), 'Update summary');
   }
 
-  const orphanNames = orphans.map((e) => e.name);
-  let orphansToRemove: ReadonlySet<string>;
-  if (orphanNames.length === 0) {
-    orphansToRemove = new Set();
-  } else if (opts.yes === true) {
-    orphansToRemove = new Set(orphanNames);
-  } else if (isInteractive) {
-    orphansToRemove = new Set(await promptOrphanRemoval(orphanNames));
-  } else {
-    for (const name of orphanNames) {
-      console.warn(`Skipping orphan skill "${name}" (not in remote pack).`);
-    }
-    orphansToRemove = new Set();
-  }
+  const gate = { yes: opts.yes === true, isInteractive };
+  const orphansToRemove = await chooseAll({
+    ...gate,
+    candidates: orphans.map((e) => e.name),
+    prompt: promptOrphanRemoval,
+    skipWarning: (name) => `Skipping orphan skill "${name}" (not in remote pack).`,
+  });
+  const dependenciesToInstall = await chooseAll({
+    ...gate,
+    candidates: missingDeps.map((e) => e.name),
+    prompt: () =>
+      promptDependencyInstall(missingDeps.map((e) => ({ name: e.name, dependencyOf: e.dependencyOf }))),
+    skipWarning: (name) => {
+      const owner = missingDeps.find((e) => e.name === name)?.dependencyOf ?? 'installed skill';
+      return `Skipping new dependency "${name}" (required by ${owner}); run add to install.`;
+    },
+  });
+  const newSkillsToInstall = await chooseAll({
+    ...gate,
+    candidates: newSkills.map((e) => e.name),
+    prompt: promptNewSkillInstall,
+    skipWarning: (name) =>
+      `Skipping new skill "${name}" (new in pack); it will not be offered again, run add --skill ${name} to install.`,
+  });
 
-  let dependenciesToInstall: ReadonlySet<string>;
-  if (missingDeps.length === 0) {
-    dependenciesToInstall = new Set();
-  } else if (opts.yes === true) {
-    dependenciesToInstall = new Set(missingDeps.map((e) => e.name));
-  } else if (isInteractive) {
-    dependenciesToInstall = new Set(
-      await promptDependencyInstall(
-        missingDeps.map((e) => ({ name: e.name, dependencyOf: e.dependencyOf })),
-      ),
+  const installs = await planInstalls(plan, { dependenciesToInstall, newSkillsToInstall });
+  for (const name of installs.unmanaged) {
+    console.warn(
+      `Skipping "${name}": a skills directory with that name already exists and is not in the lock; remove it or run add --skill ${name} to replace it.`,
     );
-  } else {
-    for (const dep of missingDeps) {
-      console.warn(
-        `Skipping new dependency "${dep.name}" (required by ${dep.dependencyOf ?? 'installed skill'}); run add to install.`,
-      );
-    }
-    dependenciesToInstall = new Set();
+  }
+  if (isInteractive && installs.items.length > 0) {
+    note(installs.items.map((item) => `  + ${describeInstall(item)}`).join('\n'), 'New skills');
   }
 
   const hasApplyWork =
@@ -103,13 +113,13 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     plan.manifestDrift ||
     drifted.length > 0 ||
     orphansToRemove.size > 0 ||
-    dependenciesToInstall.size > 0;
+    installs.items.length > 0;
 
   if (isInteractive && hasApplyWork) {
     const proceed = await confirmProceed({
       action: 'update',
       autoYes: opts.yes ?? false,
-      message: formatUpdateConfirmMessage(plan),
+      message: formatUpdateConfirmMessage(plan, installs.items),
     });
     if (!proceed) {
       outro('Cancelled. No changes made.');
@@ -117,30 +127,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     }
   }
 
-  const result = await applyDriftPlan(plan, {
-    orphansToRemove,
-    dependenciesToInstall,
-  });
-
-  if (!planHasWork(plan, result)) {
-    if (opts.json) {
-      printJson({
-        scope: scope.scope,
-        updated: [],
-        contentChanged: [],
-        orphansRemoved: result.orphansRemoved,
-        orphansSkipped: result.orphansSkipped,
-        dependenciesAdded: result.dependenciesAdded,
-        dependenciesSkipped: result.dependenciesSkipped,
-        lockPath: scope.lockPath,
-      });
-      return;
-    }
-    if (isInteractive) {
-      outro('No changes made.');
-    }
-    return;
-  }
+  const result = await applyDriftPlan(plan, { orphansToRemove, installs: installs.items });
 
   if (opts.json) {
     printJson({
@@ -151,12 +138,28 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
       orphansSkipped: result.orphansSkipped,
       dependenciesAdded: result.dependenciesAdded,
       dependenciesSkipped: result.dependenciesSkipped,
+      newSkillsAdded: result.newSkillsAdded,
+      newSkillsSkipped: result.newSkillsSkipped,
+      requiredBy: result.requiredBy,
+      unmanaged: installs.unmanaged,
       lockPath: scope.lockPath,
     });
     return;
   }
 
+  if (!planHasWork(plan, result)) {
+    if (isInteractive) {
+      outro('No changes made.');
+    }
+    return;
+  }
+
+  const addedLines = formatAddedLines(result, installs);
+
   if (isInteractive) {
+    if (addedLines.length > 0) {
+      note(addedLines.join('\n'), 'Added');
+    }
     if (result.updated.length > 0) {
       const changed = result.contentChanged.length;
       if (plan.commitDrift && changed > 0) {
@@ -164,8 +167,8 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
       } else if (result.updated.length > 0) {
         outro(`Updated ${result.updated.length} skill(s).`);
       }
-    } else if (result.dependenciesAdded.length > 0) {
-      outro(`Added ${result.dependenciesAdded.length} new dependency skill(s).`);
+    } else if (addedLines.length > 0) {
+      outro(`Added ${addedLines.length} skill(s).`);
     } else if (result.orphansRemoved.length > 0) {
       outro(`Removed ${result.orphansRemoved.length} orphan(s).`);
     } else {
@@ -189,8 +192,28 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
   } else if (plan.commitDrift || plan.manifestDrift) {
     console.log(`Synced lock with remote pack (${scope.scope})`);
   }
-  if (result.dependenciesAdded.length > 0) {
-    console.log(`Added new dependency skill(s): ${result.dependenciesAdded.join(', ')}`);
+  for (const line of addedLines) {
+    console.log(line);
   }
   console.log(`Lockfile: ${scope.lockPath}`);
+}
+
+async function chooseAll(opts: {
+  candidates: string[];
+  yes: boolean;
+  isInteractive: boolean;
+  prompt: (candidates: string[]) => Promise<string[]>;
+  skipWarning: (name: string) => string;
+}): Promise<ReadonlySet<string>> {
+  if (opts.candidates.length === 0 || opts.yes) return new Set(opts.candidates);
+  if (opts.isInteractive) return new Set(await opts.prompt(opts.candidates));
+  for (const name of opts.candidates) console.warn(opts.skipWarning(name));
+  return new Set();
+}
+
+function formatAddedLines(result: ApplyDriftResult, installs: InstallSet): string[] {
+  const installed = new Set([...result.newSkillsAdded, ...result.dependenciesAdded]);
+  return installs.items
+    .filter((item) => installed.has(item.name))
+    .map((item) => `Added ${describeInstall(item)}`);
 }

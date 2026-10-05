@@ -19,6 +19,7 @@ function shortSha(sha: string): string {
 function driftRowLabel(entry: DriftSkillEntry, plan: DriftPlan, mode: DriftSummaryMode): string {
   if (entry.status === 'orphan') return 'orphan';
   if (entry.status === 'missingDependency') return mode === 'check' ? 'missing' : 'new';
+  if (entry.status === 'newSkill') return 'new';
   if (plan.commitDrift) {
     if (entry.status === 'hashDrift') return 'pin drift';
     if (entry.remoteChanged) return mode === 'check' ? 'changed' : 'update';
@@ -61,7 +62,10 @@ export function renderDriftSummary(plan: DriftPlan, opts: { mode: DriftSummaryMo
     extraLines: [remoteLine, manifestLine],
   });
 
-  const newDepsSuffix = counts.newDependencies > 0 ? `  New deps: ${counts.newDependencies}` : '';
+  const newDepsSuffix = [
+    counts.newDependencies > 0 ? `  New deps: ${counts.newDependencies}` : '',
+    counts.newSkills > 0 ? `  New skills: ${counts.newSkills}` : '',
+  ].join('');
 
   const countsLine = plan.commitDrift
     ? opts.mode === 'check'

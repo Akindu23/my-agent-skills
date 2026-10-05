@@ -140,10 +140,10 @@ program
 
 program
   .command('update')
-  .description('Refresh locked skills when bundle content drifted')
+  .description('Refresh locked skills and offer skills new to the pack since the pin')
   .option('-g, --global', 'Global scope')
   .option('-p, --project', 'Project scope')
-  .option('-y, --yes', 'Skip Proceed? prompt in TTY')
+  .option('-y, --yes', 'Accept all prompts: remove orphans, install new skills and dependencies')
   .option('--source <path>', 'Override skills bundle directory')
   .option('--json', 'Machine-readable output')
   .action(async (opts) => {

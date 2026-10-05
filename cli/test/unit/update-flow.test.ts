@@ -12,6 +12,8 @@ const mocks = vi.hoisted(() => ({
   confirmProceed: vi.fn(),
   promptOrphanRemoval: vi.fn(),
   promptDependencyInstall: vi.fn(),
+  promptNewSkillInstall: vi.fn(),
+  planInstalls: vi.fn(),
 }));
 
 vi.mock('@clack/prompts', () => ({
@@ -31,8 +33,10 @@ vi.mock('../../src/lib/drift-summary.js', () => ({
   renderDriftSummary: vi.fn(() => 'summary'),
 }));
 
-vi.mock('../../src/lib/apply-drift-plan.js', () => ({
+vi.mock('../../src/lib/apply-drift-plan.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../src/lib/apply-drift-plan.js')>()),
   applyDriftPlan: mocks.applyDriftPlan,
+  planInstalls: mocks.planInstalls,
   planHasWork: mocks.planHasWork,
   formatUpdateConfirmMessage: mocks.formatUpdateConfirmMessage,
 }));
@@ -41,6 +45,7 @@ vi.mock('../../src/lib/prompts.js', () => ({
   confirmProceed: mocks.confirmProceed,
   promptOrphanRemoval: mocks.promptOrphanRemoval,
   promptDependencyInstall: mocks.promptDependencyInstall,
+  promptNewSkillInstall: mocks.promptNewSkillInstall,
 }));
 
 const { runUpdate } = await import('../../src/commands/update.js');
@@ -89,8 +94,12 @@ describe('runUpdate orphan flow', () => {
       orphansSkipped: [],
       dependenciesAdded: [],
       dependenciesSkipped: [],
+      newSkillsAdded: [],
+      newSkillsSkipped: [],
+      requiredBy: {},
     });
     mocks.planHasWork.mockReturnValue(true);
+    mocks.planInstalls.mockResolvedValue({ items: [], unmanaged: [] });
   });
 
   it('asks orphan selection before final proceed confirmation', async () => {
@@ -118,5 +127,92 @@ describe('runUpdate orphan flow', () => {
     expect(mocks.promptOrphanRemoval).not.toHaveBeenCalled();
     const [, opts] = mocks.applyDriftPlan.mock.calls[0]!;
     expect([...opts.orphansToRemove]).toEqual(['ghost']);
+  });
+});
+
+describe('runUpdate new pack skills', () => {
+  const scope = {
+    scope: 'project',
+    cwd: '/repo',
+    agentsDir: '/repo/.agents',
+    skillsDir: '/repo/.agents/skills',
+    lockPath: '/repo/.agents/cursor-skills-lock.json',
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.runScopedCommand.mockResolvedValue({ isInteractive: true, scope });
+    mocks.createDriftPlan.mockResolvedValue({
+      entries: [
+        { name: 'alpha', status: 'ok' },
+        { name: 'gamma', status: 'newSkill' },
+      ],
+      lock: { targets: ['cursor'] },
+      commitDrift: true,
+      manifestDrift: false,
+    });
+    mocks.confirmProceed.mockResolvedValue(true);
+    mocks.formatUpdateConfirmMessage.mockReturnValue('Proceed with update?');
+    mocks.planInstalls.mockResolvedValue({
+      items: [
+        { name: 'beta', role: 'dependency', requiredBy: 'gamma' },
+        { name: 'gamma', role: 'root' },
+      ],
+      unmanaged: [],
+    });
+    mocks.applyDriftPlan.mockResolvedValue({
+      updated: ['alpha'],
+      contentChanged: [],
+      orphansRemoved: [],
+      orphansSkipped: [],
+      dependenciesAdded: ['beta'],
+      dependenciesSkipped: [],
+      newSkillsAdded: ['gamma'],
+      newSkillsSkipped: [],
+      requiredBy: { beta: 'gamma' },
+    });
+    mocks.planHasWork.mockReturnValue(true);
+  });
+
+  it('prompts for new skills and discloses their dependencies before confirm', async () => {
+    mocks.promptNewSkillInstall.mockResolvedValue(['gamma']);
+
+    await runUpdate({ project: true });
+
+    expect(mocks.promptNewSkillInstall).toHaveBeenCalledWith(['gamma']);
+    const disclosure = mocks.note.mock.calls.find(([, title]) => title === 'New skills');
+    expect(disclosure?.[0]).toContain('+ beta (required by gamma)');
+    const [, chosen] = mocks.planInstalls.mock.calls[0]!;
+    expect([...chosen.newSkillsToInstall]).toEqual(['gamma']);
+    const [, opts] = mocks.applyDriftPlan.mock.calls[0]!;
+    expect(opts.installs.map((i: { name: string }) => i.name)).toEqual(['beta', 'gamma']);
+  });
+
+  it('-y installs all new skills and logs each dependency with its reason', async () => {
+    mocks.runScopedCommand.mockResolvedValue({ isInteractive: false, scope });
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await runUpdate({ project: true, yes: true });
+
+    expect(mocks.promptNewSkillInstall).not.toHaveBeenCalled();
+    const [, chosen] = mocks.planInstalls.mock.calls[0]!;
+    expect([...chosen.newSkillsToInstall]).toEqual(['gamma']);
+    const lines = log.mock.calls.map(([line]) => line);
+    expect(lines).toContain('Added gamma (new skill)');
+    expect(lines).toContain('Added beta (required by gamma)');
+    log.mockRestore();
+  });
+
+  it('non-interactive without -y warns and skips new skills', async () => {
+    mocks.runScopedCommand.mockResolvedValue({ isInteractive: false, scope });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await runUpdate({ project: true });
+
+    expect(warn.mock.calls.map(([line]) => line).join('\n')).toContain('Skipping new skill "gamma"');
+    const [, chosen] = mocks.planInstalls.mock.calls[0]!;
+    expect([...chosen.newSkillsToInstall]).toEqual([]);
+    vi.restoreAllMocks();
   });
 });
