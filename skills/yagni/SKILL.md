@@ -28,6 +28,7 @@ If both could apply, Review: the diff is already there.
 Stop at the first rung that holds (Write). Evaluate every rung (Review).
 
 1. **Does this need to exist at all?** Speculative scope, whether the whole request or a piece riding along with it ("while we're here"), gets flagged in one line every time: what's speculative, why it's probably unneeded, and what happens if you skip it. Flag it, and still ship the smallest valid version. (YAGNI)
+   Speculative *states* count too. Only live callers (app routes, wired components, package exports) set a contract; tests, stories, mocks, and fixtures adapt to it. An optional prop or param, a `?? []` / `onX?.()` fallback, or a union variant no live caller needs → make it required or delete it. Always passed but sometimes empty → required nullable (`x: T | null`).
 2. **Already in this codebase?** A helper, util, type, or pattern that already lives here → reuse it. Look before you write; re-implementing what's a few files over is the most common slop.
 3. **Stdlib does it?** Use it.
 4. **Native platform feature covers it?** `<input type="date">` over a picker lib, CSS over JS, DB constraint over app code.

@@ -5,6 +5,7 @@
   "skills": [
     "skills/architecture-decision-records",
     "skills/best-practices-research",
+    "skills/break-ui",
     "skills/code-review",
     "skills/codebase-design",
     "skills/codebase-onboarding",
@@ -47,6 +48,9 @@
   "dependsOn": {
     "best-practices-research": [
       "council"
+    ],
+    "break-ui": [
+      "prototype"
     ],
     "code-review": [
       "yagni",
