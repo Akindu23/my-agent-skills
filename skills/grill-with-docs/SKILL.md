@@ -47,7 +47,7 @@ Do **not** offer on hardness alone, or before the destination can be named.
 
 - **`/handoff` then fresh `/wayfinder`**: write `docs/handoffs/CURRENT.md` per `/handoff`; next session opens `@docs/handoffs/CURRENT.md` and charts the map
 
-**Handoff “For next session”** (when that option is chosen) must say: invoke **`/wayfinder` Chart the map** mid-session entry from `/grill-with-docs`; link `CONTEXT.md` / notes. Then stop this session.
+**Handoff “For next session”** (when that option is chosen) must say: invoke **`/wayfinder` Chart the map** mid-session entry from `/grill-with-docs`; link the glossary (`GLOSSARY.md`, or legacy `CONTEXT.md`) / notes. Then stop this session.
 
 **On Invoke `/wayfinder` now:** stop this skill. Tell the user to type `/wayfinder` in this chat (Chart the map, mid-session entry - destination already named).
 

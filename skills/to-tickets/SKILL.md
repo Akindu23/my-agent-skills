@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Break a plan, spec, or conversation into a set of **tickets** - tracer-bullet vertical slices, each declaring the tickets that **block** it.
 
-Build tickets live as markdown under `work/<feature-slug>/tickets/`. Commit them - they are in-flight product work, not disposable scratch. The map's decision children stay in `issues/`.
+Build tickets live as markdown under `work/<feature-slug>/tickets/`. Leave them untracked: `work/` is gitignored or deleted once the feature ships. The map's decision children stay in `issues/`.
 
 ## User clarifications
 

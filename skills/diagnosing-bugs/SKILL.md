@@ -7,7 +7,7 @@ description: Diagnose. Use for hard bugs or performance regressions that need a 
 
 A discipline for hard bugs. Skip phases only when explicitly justified.
 
-When exploring the codebase, read `CONTEXT.md` (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching. If `CONTEXT-MAP.md` exists, follow it to the right glossary.
+When exploring the codebase, read `GLOSSARY.md` (or legacy `CONTEXT.md`) if it exists to get a clear mental model of the relevant modules, and check ADRs in the area you're touching. If `GLOSSARY-MAP.md` (or legacy `CONTEXT-MAP.md`) exists, follow it to the right glossary.
 
 ## User clarifications
 

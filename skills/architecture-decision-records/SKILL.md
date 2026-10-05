@@ -39,7 +39,7 @@ Offer vs write, challenge-once, and implicit-detection criteria: [ADR-POLICY.md]
 
 ## Workflow (canonical)
 
-1. **Pick target directory** - `docs/adr/` for system-wide; `src/<context>/docs/adr/` when `CONTEXT-MAP.md` scopes the decision. See [ADR-POLICY.md](references/ADR-POLICY.md).
+1. **Pick target directory** - `docs/adr/` for system-wide; `src/<context>/docs/adr/` when `GLOSSARY-MAP.md` (or legacy `CONTEXT-MAP.md`) scopes the decision. See [ADR-POLICY.md](references/ADR-POLICY.md).
 2. **Initialize (first time only)** - if the directory is missing, ask consent; then create `README.md` with the index header per [ADR-INDEX.md](references/ADR-INDEX.md) and optional `template.md` from [ADR-TEMPLATE.md](references/ADR-TEMPLATE.md).
 3. **Draft** - use the default template in [ADR-TEMPLATE.md](references/ADR-TEMPLATE.md). Add sections from [ADR-EXPANDED-SECTIONS.md](references/ADR-EXPANDED-SECTIONS.md) only when needed.
 4. **Number** - next `NNNN` in that directory ([ADR-POLICY.md](references/ADR-POLICY.md)).

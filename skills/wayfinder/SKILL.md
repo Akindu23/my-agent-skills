@@ -8,7 +8,7 @@ A loose idea has arrived - too big for one agent session, and wrapped in fog: th
 
 The destination varies per effort, and naming it is the first act of charting - it shapes every ticket. It might be a spec to hand off and iterate on, a decision to lock before planning starts, or a change made in place like a data-structure migration. The map is domain-agnostic - engineering work, course content, whatever fits the shape.
 
-Maps live at `work/<feature-slug>/map.md` with children in `issues/`. Commit them. The map is an **index**, not a store: gist-and-link resolved tickets; the answer lives on the ticket. Live tickets are not listed in the map body - scan `issues/` for the **frontier**.
+Maps live at `work/<feature-slug>/map.md` with children in `issues/`. Leave them untracked: `work/` is gitignored or deleted once the feature ships. The map is an **index**, not a store: gist-and-link resolved tickets; the answer lives on the ticket. Live tickets are not listed in the map body - scan `issues/` for the **frontier**.
 
 ## User clarifications
 
@@ -34,7 +34,7 @@ Every map and ticket has a **name** - its title. In everything the human reads -
 
 ## Resolved terms
 
-`/domain-modeling` owns glossary format and lazy create. A charting pass or ticket pass that resolves a term is not done until that term is in `CONTEXT.md`. Language still in play stays a ticket or **Not yet specified**.
+`/domain-modeling` owns glossary format and lazy create. The **glossary** is `GLOSSARY.md` (or legacy `CONTEXT.md`). A charting pass or ticket pass that resolves a term is not done until that term is in the glossary. Language still in play stays a ticket or **Not yet specified**.
 
 ## ADR offers
 
@@ -108,7 +108,7 @@ Two modes. **Chart the map** stops after creating the map (and firing any parall
 5. **Fire research.** For each `research` ticket you just created, invoke `/research` in parallel (background Tasks). The findings **Markdown file** is the SSOT - add a context pointer from the ticket to that file. Only ask `/research` for a throwaway `research/<name>` branch when isolation is needed; otherwise leave the branch alone.
 6. Stop - charting is one session's work; it hand-resolves nothing. **Do not offer ADRs while charting** (see [ADR offers](#adr-offers)).
 
-**Done when (chart):** every term resolved this charting session is in `CONTEXT.md`, and either the no-fog exit was offered and the user chose a path, or the map exists with wired tickets (plus any imported resolves), any research Tasks launched, and this session has stopped without hand-resolving HITL tickets.
+**Done when (chart):** every term resolved this charting session is in the glossary, and either the no-fog exit was offered and the user chose a path, or the map exists with wired tickets (plus any imported resolves), any research Tasks launched, and this session has stopped without hand-resolving HITL tickets.
 
 ### Work through the map
 
@@ -136,7 +136,7 @@ User invokes with a map path (`work/<feature-slug>/map.md`). A ticket is **optio
 
 The user may run unblocked tickets in parallel, so expect other sessions to be editing files under `work/<feature-slug>/` concurrently.
 
-**Done when (one pass):** exactly one ticket was claimed and resolved (or ruled out of scope), every term this ticket resolved is in `CONTEXT.md`, any ADR offer for that answer was handled (accepted → written and dual-linked, declined → discarded, or criteria not met → no offer), the map's Decisions-so-far / fog / out-of-scope sections reflect that outcome, any newly graduated tickets are created and wired, and the step-7 structured MCQ was answered - Continue starts another pass in this session; Handoff or Stop ends the session.
+**Done when (one pass):** exactly one ticket was claimed and resolved (or ruled out of scope), every term this ticket resolved is in the glossary, any ADR offer for that answer was handled (accepted → written and dual-linked, declined → discarded, or criteria not met → no offer), the map's Decisions-so-far / fog / out-of-scope sections reflect that outcome, any newly graduated tickets are created and wired, and the step-7 structured MCQ was answered - Continue starts another pass in this session; Handoff or Stop ends the session.
 
 ## When the map is clear
 

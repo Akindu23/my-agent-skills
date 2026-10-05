@@ -11,7 +11,7 @@ The last message did not land. Re-pitch that message. Stay on it.
 
 ## 1. Terms
 
-Read `CONTEXT.md` at the repo root. If the repo has `CONTEXT-MAP.md`, follow it to the right glossary.
+Read `GLOSSARY.md` (or legacy `CONTEXT.md`) at the repo root. If the repo has `GLOSSARY-MAP.md` (or legacy `CONTEXT-MAP.md`), follow it to the right glossary.
 
 Use those terms for the things the last message named.
 

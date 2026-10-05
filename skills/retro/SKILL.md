@@ -37,8 +37,8 @@ Read the session the user names. If they name none, use the current conversation
 Scan the session for candidates. A candidate is a concrete change to the environment, not a recap of the work. Use every category that fired; skip the rest.
 
 - **Navigation** - a **navigation pointer** (usually one line in `AGENTS.md` / `CLAUDE.md`) would have found the file or dependency faster. Use when the session spent a long time locating information.
-- **Automated checks** - a linter, typecheck, test, or filesystem check would have caught the agent's mistake. Use when the mistake is mechanically detectable.
-- **Coding standards** - a this-repo rule for the **reviewer** (`CODING_STANDARDS.md`). Membership is the preamble of that file, or the seed at [`../code-review/references/coding-standards.md`](../code-review/references/coding-standards.md) if the file is missing. Use when a missed convention belongs in **Rules**.
+- **Automated checks** - a linter, typecheck, test, or filesystem check would have caught the agent's mistake. Read the repo's own check commands first (`package.json` / build-tool `lint` and `check` scripts, the CI workflow): a check that exists but is unwired or silently broken is the finding. A repo with no **guardrail** (no pre-commit hook and no CI job running lint, typecheck, or tests) is a finding on its own. Use when the mistake is mechanically detectable, or the repo has no guardrail.
+- **Coding standards** - a convention the reviewer missed. Classify it first. **Mechanical** (a fixed syntactic pattern, a banned API, an import shape, a file-location rule) becomes an **Automated checks** candidate: a custom lint rule, a pre-commit hook, or a CI job, whichever the repo's guardrail makes cheapest. **Judgement call** (cross-file consistency, matching the surrounding style) becomes a reviewer rule in `CODING_STANDARDS.md`. Membership is the preamble of that file, or the seed at [`../code-review/references/coding-standards.md`](../code-review/references/coding-standards.md) if the file is missing. Use when the reviewer missed a convention.
 - **Steering load** - a line in `AGENTS.md` / `CLAUDE.md` (repo or user-global) should move to coding standards, an automated check, or a skill. Use when those files are large.
 - **Tool economy** - an expensive or token-heavy tool/MCP/CLI call has a tighter path. Use when the session paid that cost.
 - **No-ops** - a steering instruction that does not change behaviour vs the model's default. Use when steering files are large.
@@ -73,6 +73,6 @@ The implementer carries exploration, writing, and debug - **context pressure**. 
 
 - `AGENTS.md` / `CLAUDE.md` - always-loaded; **navigation pointers** and almost nothing else. This skill may edit them on accept.
 - `CODING_STANDARDS.md` - reviewer-owned. Seed: [`../code-review/references/coding-standards.md`](../code-review/references/coding-standards.md).
-- `CONTEXT.md` / `CONTEXT-MAP.md` / `docs/adr/` - domain layout.
+- `GLOSSARY.md` / `GLOSSARY-MAP.md` (or legacy `CONTEXT.md` / `CONTEXT-MAP.md`) / `docs/adr/` - domain layout.
 - `work/` - local maps, specs, plans, and tickets.
 - Skills - `/writing-for-agents` is the style guide.

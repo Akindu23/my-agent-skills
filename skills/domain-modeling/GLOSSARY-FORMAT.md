@@ -1,4 +1,6 @@
-# CONTEXT.md Format
+# GLOSSARY.md Format
+
+Legacy `CONTEXT.md` / `CONTEXT-MAP.md` take the same format; [SKILL.md](./SKILL.md) (File structure) says which name to write.
 
 ## Structure
 
@@ -31,40 +33,40 @@ _Avoid_: Client, buyer, account
 
 ## Single vs multi-context repos
 
-**Single context (most repos):** One `CONTEXT.md` at the repo root.
+**Single context (most repos):** One `GLOSSARY.md` at the repo root.
 
 ```
 /
-├── CONTEXT.md
+├── GLOSSARY.md
 ├── docs/adr/
 └── src/
 ```
 
-**Multiple contexts:** A `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate. That file is the layout.
+**Multiple contexts:** A `GLOSSARY-MAP.md` at the repo root lists the contexts, where they live, and how they relate. That file is the layout.
 
 ```
 /
-├── CONTEXT-MAP.md
+├── GLOSSARY-MAP.md
 ├── docs/adr/                 ← system-wide decisions
 └── src/
     ├── ordering/
-    │   ├── CONTEXT.md
+    │   ├── GLOSSARY.md
     │   └── docs/adr/         ← context-specific decisions
     └── billing/
-        ├── CONTEXT.md
+        ├── GLOSSARY.md
         └── docs/adr/
 ```
 
 Map shape:
 
 ```md
-# Context Map
+# Glossary Map
 
 ## Contexts
 
-- [Ordering](./src/ordering/CONTEXT.md) - receives and tracks customer orders
-- [Billing](./src/billing/CONTEXT.md) - generates invoices and processes payments
-- [Fulfillment](./src/fulfillment/CONTEXT.md) - manages warehouse picking and shipping
+- [Ordering](./src/ordering/GLOSSARY.md) - receives and tracks customer orders
+- [Billing](./src/billing/GLOSSARY.md) - generates invoices and processes payments
+- [Fulfillment](./src/fulfillment/GLOSSARY.md) - manages warehouse picking and shipping
 
 ## Relationships
 
@@ -77,10 +79,10 @@ Paths in the map follow the repo: `src/<context>/` or `packages/<name>/`, whiche
 
 ### Which layout
 
-- If `CONTEXT-MAP.md` exists, read it and write that context's `CONTEXT.md`. If which context is unclear, ask (structured MCQ if the session has `AskQuestion` / `AskUserQuestion`).
-- If only a root `CONTEXT.md` exists, single context.
-- If neither exists, create a root `CONTEXT.md` when the first term is resolved.
+- If `GLOSSARY-MAP.md` exists, read it and write that context's `GLOSSARY.md`. If which context is unclear, ask (structured MCQ if the session has `AskQuestion` / `AskUserQuestion`).
+- If only a root `GLOSSARY.md` exists, single context.
+- If neither exists, create a root `GLOSSARY.md` when the first term is resolved.
 
-**Monorepo first write.** Offer a per-package glossary only when exploration found real multi-package signals (`pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or populated `packages/*` with its own `src/`). Their absence is single-context - do not ask. When signals are present, ask once: whole repo vs this package. This package → write `CONTEXT-MAP.md` plus `<package-root>/CONTEXT.md`. Whole repo → root `CONTEXT.md`.
+**Monorepo first write.** Offer a per-package glossary only when exploration found real multi-package signals (`pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or populated `packages/*` with its own `src/`). Their absence is single-context - do not ask. When signals are present, ask once: whole repo vs this package. This package → write `GLOSSARY-MAP.md` plus `<package-root>/GLOSSARY.md`. Whole repo → root `GLOSSARY.md`.
 
-**Promote.** When a resolved term belongs to a second bounded context, ask. On yes: write `CONTEXT-MAP.md`, place this term in that context's `CONTEXT.md`, and move the existing root glossary onto its context path (ask which context it belongs to). Leave system-wide ADRs in `docs/adr/`.
+**Promote.** When a resolved term belongs to a second bounded context, ask. On yes: write `GLOSSARY-MAP.md`, place this term in that context's `GLOSSARY.md`, and move the existing root glossary onto its context path (ask which context it belongs to). Leave system-wide ADRs in `docs/adr/`.

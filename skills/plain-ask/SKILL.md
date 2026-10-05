@@ -31,7 +31,7 @@ Two branches. Use the matching shape.
 For every branch, write four fields:
 
 1. **Ask** — the choice, one idea.
-2. **Gloss** — numbered steps: what the question means, why a choice is needed now, what happens after a choice. Everyday words first. Then the name from `CONTEXT.md` when that file exists.
+2. **Gloss** — numbered steps: what the question means, why a choice is needed now, what happens after a choice. Everyday words first. Then the name from `GLOSSARY.md` (or legacy `CONTEXT.md`) when that file exists.
 3. **Options** — one STE line per option. Put that option's gloss in the option text (MCQ clients hide preamble). Keep identifiers the choice is *about* (paths, skill names, type names); gloss them on the same line.
 4. **Recommend** — the same recommended answer, in STE.
 

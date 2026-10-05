@@ -32,7 +32,7 @@ When the user says **"ADR this"**, **"record this decision"**, or explicitly inv
 | Scope | Path |
 |-------|------|
 | System-wide | `docs/adr/` |
-| Bounded context (when `CONTEXT-MAP.md` exists) | `src/<context>/docs/adr/` |
+| Bounded context (when `GLOSSARY-MAP.md` (or legacy `CONTEXT-MAP.md`) exists) | `src/<context>/docs/adr/` |
 
 Create directories **lazily** on first ADR, with user consent for scaffolding.
 
