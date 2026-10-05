@@ -16,14 +16,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Akindu23/my-agent-skills"
+    "url": "git+https://github.com/Akindu23/my-agent-skills.git"
   },
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "my-agent-skills": "./dist/cli.js"
+    "my-agent-skills": "dist/cli.js"
   },
   "files": [
     "dist",
