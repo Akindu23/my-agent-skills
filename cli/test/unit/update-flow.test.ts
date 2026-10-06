@@ -14,6 +14,8 @@ const mocks = vi.hoisted(() => ({
   promptDependencyInstall: vi.fn(),
   promptNewSkillInstall: vi.fn(),
   planInstalls: vi.fn(),
+  promptAddClaudeTarget: vi.fn(),
+  pathExists: vi.fn(),
 }));
 
 vi.mock('@clack/prompts', () => ({
@@ -46,6 +48,11 @@ vi.mock('../../src/lib/prompts.js', () => ({
   promptOrphanRemoval: mocks.promptOrphanRemoval,
   promptDependencyInstall: mocks.promptDependencyInstall,
   promptNewSkillInstall: mocks.promptNewSkillInstall,
+  promptAddClaudeTarget: mocks.promptAddClaudeTarget,
+}));
+
+vi.mock('../../src/lib/install.js', () => ({
+  pathExists: mocks.pathExists,
 }));
 
 const { runUpdate } = await import('../../src/commands/update.js');
@@ -75,6 +82,7 @@ describe('runUpdate orphan flow', () => {
         { name: 'alpha', status: 'hashDrift' },
         { name: 'ghost', status: 'orphan' },
       ],
+      lock: { skills: { alpha: {}, ghost: {} } },
       commitDrift: false,
       manifestDrift: false,
     });
@@ -97,6 +105,7 @@ describe('runUpdate orphan flow', () => {
       newSkillsAdded: [],
       newSkillsSkipped: [],
       requiredBy: {},
+      targetsAdded: [],
     });
     mocks.planHasWork.mockReturnValue(true);
     mocks.planInstalls.mockResolvedValue({ items: [], unmanaged: [] });
@@ -147,7 +156,7 @@ describe('runUpdate new pack skills', () => {
         { name: 'alpha', status: 'ok' },
         { name: 'gamma', status: 'newSkill' },
       ],
-      lock: { targets: ['cursor'] },
+      lock: { targets: ['cursor'], skills: { alpha: {} } },
       commitDrift: true,
       manifestDrift: false,
     });
@@ -170,6 +179,7 @@ describe('runUpdate new pack skills', () => {
       newSkillsAdded: ['gamma'],
       newSkillsSkipped: [],
       requiredBy: { beta: 'gamma' },
+      targetsAdded: [],
     });
     mocks.planHasWork.mockReturnValue(true);
   });
@@ -214,5 +224,75 @@ describe('runUpdate new pack skills', () => {
     const [, chosen] = mocks.planInstalls.mock.calls[0]!;
     expect([...chosen.newSkillsToInstall]).toEqual([]);
     vi.restoreAllMocks();
+  });
+});
+
+describe('runUpdate Claude Code offer', () => {
+  const scope = {
+    scope: 'global',
+    cwd: '/repo',
+    agentsDir: '/home/.agents',
+    skillsDir: '/home/.agents/skills',
+    lockPath: '/home/.agents/cursor-skills-lock.json',
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.runScopedCommand.mockResolvedValue({ isInteractive: true, scope });
+    mocks.createDriftPlan.mockResolvedValue({
+      entries: [{ name: 'alpha', status: 'ok' }],
+      lock: { skills: { alpha: {} } },
+      commitDrift: false,
+      manifestDrift: false,
+    });
+    mocks.pathExists.mockResolvedValue(true);
+    mocks.confirmProceed.mockResolvedValue(true);
+    mocks.planInstalls.mockResolvedValue({ items: [], unmanaged: [] });
+    mocks.planHasWork.mockReturnValue(true);
+    mocks.applyDriftPlan.mockResolvedValue({
+      updated: ['alpha'],
+      contentChanged: [],
+      orphansRemoved: [],
+      orphansSkipped: [],
+      dependenciesAdded: [],
+      dependenciesSkipped: [],
+      newSkillsAdded: [],
+      newSkillsSkipped: [],
+      requiredBy: {},
+      targetsAdded: ['claude'],
+    });
+  });
+
+  it('adds Claude Code to an up-to-date Cursor-only lock when accepted', async () => {
+    mocks.promptAddClaudeTarget.mockResolvedValue(true);
+
+    await runUpdate({ global: true });
+
+    expect(mocks.promptAddClaudeTarget).toHaveBeenCalled();
+    const [, opts] = mocks.applyDriftPlan.mock.calls[0]!;
+    expect(opts.addTargets).toEqual(['claude']);
+  });
+
+  it('stays up to date without applying when declined', async () => {
+    mocks.promptAddClaudeTarget.mockResolvedValue(false);
+
+    await runUpdate({ global: true });
+
+    expect(mocks.applyDriftPlan).not.toHaveBeenCalled();
+    expect(mocks.outro).toHaveBeenCalledWith('All skills up to date.');
+  });
+
+  it('does not offer when no Claude Code dir exists', async () => {
+    mocks.pathExists.mockResolvedValue(false);
+
+    await runUpdate({ global: true });
+
+    expect(mocks.promptAddClaudeTarget).not.toHaveBeenCalled();
+  });
+
+  it('does not offer with -y', async () => {
+    await runUpdate({ global: true, yes: true });
+
+    expect(mocks.promptAddClaudeTarget).not.toHaveBeenCalled();
   });
 });

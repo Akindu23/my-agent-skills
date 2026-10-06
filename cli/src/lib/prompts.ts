@@ -12,6 +12,19 @@ import {
 import type { Lockfile } from './lockfile.js';
 import { failNonInteractive } from './output.js';
 
+/** `update` offer to start installing a Cursor-only lock into Claude Code too. */
+export async function promptAddClaudeTarget(claudeSkillsDir: string): Promise<boolean> {
+  const answer = await confirm({
+    message: `Also install your skills to Claude Code (${claudeSkillsDir})?`,
+    initialValue: true,
+  });
+  if (isCancel(answer)) {
+    cancel('Cancelled.');
+    throw new CliCancel();
+  }
+  return answer;
+}
+
 /**
  * Resolve install targets for `add`. Interactive: picker or Cursor-only upgrade offer.
  * Non-TTY / flagged: `--target` or lock effective (omit ⇒ cursor).

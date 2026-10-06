@@ -1,4 +1,5 @@
 import { note, outro } from '@clack/prompts';
+import path from 'node:path';
 import {
   applyDriftPlan,
   describeInstall,
@@ -8,20 +9,24 @@ import {
   type ApplyDriftResult,
   type InstallSet,
 } from '../lib/apply-drift-plan.js';
-import { createDriftPlan } from '../lib/drift-plan.js';
+import { createDriftPlan, type DriftPlan } from '../lib/drift-plan.js';
 import { renderDriftSummary } from '../lib/drift-summary.js';
 import {
   resolveEffectiveTargets,
   resolveTargetSkillsDir,
+  type InstallTarget,
 } from '../lib/install-targets.js';
+import { pathExists } from '../lib/install.js';
 import { printJson } from '../lib/output.js';
 import {
   confirmProceed,
+  promptAddClaudeTarget,
   promptDependencyInstall,
   promptNewSkillInstall,
   promptOrphanRemoval,
 } from '../lib/prompts.js';
 import { runScopedCommand } from '../lib/run-scoped-command.js';
+import type { ScopePaths } from '../lib/scope.js';
 
 export interface UpdateOptions {
   global?: boolean;
@@ -42,12 +47,15 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
   const orphans = plan.entries.filter((e) => e.status === 'orphan');
   const missingDeps = plan.entries.filter((e) => e.status === 'missingDependency');
   const newSkills = plan.entries.filter((e) => e.status === 'newSkill');
+  const addTargets =
+    isInteractive && !opts.yes ? await offerClaudeTarget(plan, scope) : [];
   const emptyPlan =
     drifted.length === 0 &&
     !plan.commitDrift &&
     !plan.manifestDrift &&
     orphans.length === 0 &&
-    missingDeps.length === 0;
+    missingDeps.length === 0 &&
+    addTargets.length === 0;
 
   if (emptyPlan) {
     if (opts.json) {
@@ -113,7 +121,8 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     plan.manifestDrift ||
     drifted.length > 0 ||
     orphansToRemove.size > 0 ||
-    installs.items.length > 0;
+    installs.items.length > 0 ||
+    addTargets.length > 0;
 
   if (isInteractive && hasApplyWork) {
     const proceed = await confirmProceed({
@@ -127,7 +136,11 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     }
   }
 
-  const result = await applyDriftPlan(plan, { orphansToRemove, installs: installs.items });
+  const result = await applyDriftPlan(plan, {
+    orphansToRemove,
+    installs: installs.items,
+    addTargets,
+  });
 
   if (opts.json) {
     printJson({
@@ -141,6 +154,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
       newSkillsAdded: result.newSkillsAdded,
       newSkillsSkipped: result.newSkillsSkipped,
       requiredBy: result.requiredBy,
+      targetsAdded: result.targetsAdded,
       unmanaged: installs.unmanaged,
       lockPath: scope.lockPath,
     });
@@ -157,6 +171,12 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
   const addedLines = formatAddedLines(result, installs);
 
   if (isInteractive) {
+    if (result.targetsAdded.length > 0) {
+      note(
+        result.targetsAdded.map((t) => `  + ${resolveTargetSkillsDir(scope, t)}`).join('\n'),
+        'New install target',
+      );
+    }
     if (addedLines.length > 0) {
       note(addedLines.join('\n'), 'Added');
     }
@@ -196,6 +216,18 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     console.log(line);
   }
   console.log(`Lockfile: ${scope.lockPath}`);
+}
+
+/**
+ * Cursor-only lock + an existing Claude Code dir (~/.claude or <cwd>/.claude):
+ * ask once per run whether to start installing there too.
+ */
+async function offerClaudeTarget(plan: DriftPlan, scope: ScopePaths): Promise<InstallTarget[]> {
+  const targets = resolveEffectiveTargets(plan.lock);
+  if (targets.includes('claude') || Object.keys(plan.lock.skills).length === 0) return [];
+  const claudeSkillsDir = resolveTargetSkillsDir(scope, 'claude');
+  if (!(await pathExists(path.dirname(claudeSkillsDir)))) return [];
+  return (await promptAddClaudeTarget(claudeSkillsDir)) ? ['claude'] : [];
 }
 
 async function chooseAll(opts: {

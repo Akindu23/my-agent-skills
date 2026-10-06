@@ -63,7 +63,7 @@ Pass **exactly one** of `**-p` / `--project`** or `**-g` / `--global**` in scrip
 
 ## Install target
 
-Use `**--target cursor|claude|both**` on `add` / `remove` (scripts). Interactive `add` asks after scope. `sync` / `update` / `check` use recorded lock `targets` (omit ⇒ Cursor only). One lock under `.agents/` covers all targets.
+Use `**--target cursor|claude|both**` on `add` / `remove` (scripts). Interactive `add` asks after scope. `sync` / `update` / `check` use recorded lock `targets` (omit ⇒ Cursor only). Interactive `update` on a Cursor-only lock offers to add Claude Code when `.claude/` exists for that scope; accepting installs every locked skill there and records both targets. One lock under `.agents/` covers all targets.
 
 ---
 

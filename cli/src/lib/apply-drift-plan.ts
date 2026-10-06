@@ -10,7 +10,9 @@ import {
 import { computeSkillFolderHash } from './hash.js';
 import { materializeFromLockEntry, pathExists } from './install.js';
 import {
+  applyTargetsToLock,
   ensureTargetSkillsDirs,
+  mergeLockTargets,
   resolveEffectiveTargets,
   resolveTargetSkillsDir,
   type InstallTarget,
@@ -48,6 +50,8 @@ export interface ApplyDriftResult {
   newSkillsSkipped: string[];
   /** For each added dependency: the skill that required it. */
   requiredBy: Record<string, string>;
+  /** Targets newly recorded in the lock; every locked skill was materialized into them. */
+  targetsAdded: InstallTarget[];
 }
 
 export function describeInstall(item: InstallItem): string {
@@ -132,7 +136,8 @@ export function planHasWork(plan: DriftPlan, result: ApplyDriftResult): boolean 
     plan.manifestDrift ||
     plan.entries.some((e) => e.status === 'hashDrift') ||
     result.orphansRemoved.length > 0 ||
-    result.dependenciesAdded.length > 0
+    result.dependenciesAdded.length > 0 ||
+    result.targetsAdded.length > 0
   );
 }
 
@@ -173,8 +178,18 @@ async function materializeAcrossTargets(opts: {
 
 export async function applyDriftPlan(
   plan: DriftPlan,
-  opts: { orphansToRemove: ReadonlySet<string>; installs: InstallItem[] },
+  opts: {
+    orphansToRemove: ReadonlySet<string>;
+    installs: InstallItem[];
+    /** Targets to start materializing into (e.g. Claude Code on a Cursor-only lock). */
+    addTargets?: readonly InstallTarget[];
+  },
 ): Promise<ApplyDriftResult> {
+  const priorTargets = resolveEffectiveTargets(plan.lock);
+  const targetsAdded = (opts.addTargets ?? []).filter((t) => !priorTargets.includes(t));
+  if (targetsAdded.length > 0) {
+    applyTargetsToLock(plan.lock, mergeLockTargets(priorTargets, targetsAdded));
+  }
   const targets = resolveEffectiveTargets(plan.lock);
   const orphans = plan.entries.filter((e) => e.status === 'orphan');
   const orphansToRemoveList = orphans.filter((o) => opts.orphansToRemove.has(o.name));
@@ -184,7 +199,7 @@ export async function applyDriftPlan(
 
   const bundle = plan.remoteBundle ?? plan.bundle;
   const previousCommit = plan.lock.commit;
-  const toRefresh = plan.commitDrift
+  const toRefresh = plan.commitDrift || targetsAdded.length > 0
     ? plan.entries.filter(isLockedEntry)
     : plan.entries.filter((e) => e.status === 'hashDrift');
 
@@ -272,7 +287,8 @@ export async function applyDriftPlan(
     plan.manifestDrift ||
     updated.length > 0 ||
     orphansRemoved.length > 0 ||
-    dependenciesAdded.length > 0;
+    dependenciesAdded.length > 0 ||
+    targetsAdded.length > 0;
 
   if (shouldSyncLockRoot) {
     syncLockRootFromBundle(plan.lock, bundle);
@@ -309,6 +325,7 @@ export async function applyDriftPlan(
     newSkillsAdded,
     newSkillsSkipped: skippedNames(plan, 'newSkill', installed),
     requiredBy,
+    targetsAdded,
   };
 }
 

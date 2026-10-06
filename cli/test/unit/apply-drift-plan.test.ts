@@ -616,3 +616,45 @@ describe('applyDriftPlan new pack skills', () => {
     }
   });
 });
+
+describe('applyDriftPlan adding a target', () => {
+  it('materializes every locked skill into Claude Code and records both targets', async () => {
+    const scope = await tempScope();
+    const bundle = await resolveBundle({ source: bundleMini });
+    const alphaHash = await computeSkillFolderHash(path.join(bundleMini, 'alpha'));
+    await symlink(path.join(bundleMini, 'alpha'), path.join(scope.skillsDir, 'alpha'), 'dir');
+    await writeFile(scope.lockPath, JSON.stringify({
+      version: LOCK_VERSION,
+      source: DEFAULT_GITHUB_SOURCE,
+      sourceType: 'github',
+      commit: bundle.commit,
+      defaultLinkType: 'symlink',
+      package: { name: 'bundle-mini', version: '0.0.0' },
+      skills: {
+        alpha: {
+          source: DEFAULT_GITHUB_SOURCE,
+          sourceType: 'github',
+          computedHash: alphaHash,
+          linkType: 'symlink',
+          installedAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      },
+    }));
+
+    const lock = (await readLockfile(scope.lockPath))!;
+    const plan = await planDriftFromBundles({ scope, lock, bundle, commitDrift: false });
+    const result = await applyDriftPlan(plan, {
+      orphansToRemove: new Set(),
+      installs: [],
+      addTargets: ['claude'],
+    });
+
+    expect(result.targetsAdded).toEqual(['claude']);
+    await expect(
+      readFile(path.join(scope.cwd, '.claude/skills/alpha/SKILL.md'), 'utf8'),
+    ).resolves.toBeTruthy();
+    const after = await readLockfile(scope.lockPath);
+    expect(after?.targets).toEqual(['claude', 'cursor']);
+  });
+});
