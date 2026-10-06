@@ -32,9 +32,11 @@ Load when creating `work/<feature-slug>/map.md` or a new `issues/` child. If `.s
 
 ## Ticket fence
 
-Each ticket is `issues/NN-<slug>.md` (numbered from `01`). `Type:` is `research` / `prototype` / `grilling` / `task`. Add `Blocked by: NN, NN` under `Type:` in the wiring pass when it has blockers.
+Each ticket is `issues/NN-<slug>.md` (numbered from `01`). The `# ` title is the ticket's name; `map.html` shows it on the card. `Type:` is `research` / `prototype` / `grilling` / `task`. Add `Blocked by: NN, NN` under `Type:` in the wiring pass when it has blockers.
 
 ```markdown
+# <ticket title>
+
 Type: grilling
 
 ## Question

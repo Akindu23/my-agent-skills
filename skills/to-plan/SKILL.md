@@ -37,7 +37,8 @@ Ask **one decision at a time** when this skill already sequences questions that 
    **Done when**: seams are agreed or accepted.
 
 4. Write and publish the plan to `work/<feature-slug>/plan.md`.
-   **Done when**: `work/<feature-slug>/plan.md` exists with the template sections filled.
+   If `work/<feature-slug>/map.md` and `<skill-dir>/../wayfinder/scripts/render_map.py` both exist, rerender the map (otherwise skip): `python3 <skill-dir>/../wayfinder/scripts/render_map.py work/<feature-slug>` (on Windows: `py` or `python`).
+   **Done when**: `work/<feature-slug>/plan.md` exists with the template sections filled, and `map.html` is rerendered when the map and script exist.
 
 5. **HTML (optional):** If the user already said “with HTML,” write `plan.html` beside the plan per [references/PLAN-HTML.md](references/PLAN-HTML.md). Otherwise structured MCQ - write HTML review companion? - default **No**.
    **Done when**: HTML written if requested/accepted, or skipped.

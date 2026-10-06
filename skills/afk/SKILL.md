@@ -34,6 +34,7 @@ The **frontier** is every open ticket whose blockers are all merged. A **wave** 
 2. One message, one implementer per ticket, in parallel. Prompt: the worktree path (work only there), absolute paths in this checkout to the ticket, spec, and notes (`work/` is absent from worktrees), and "Read `<absolute path to ../implement/SKILL.md>` and run it unattended on this ticket. Return ready or parked, and the commit list."
 3. One merger Task in this checkout with the ready branches and their ticket paths. It merges each into `afk/<feature-slug>` with `git merge --no-ff --no-edit`, lowest number first, resolving conflicts. Then it typechecks and runs the full suite, fixes red and commits, and returns the merged list and verify state.
 4. `git worktree remove` and `git branch -d` each merged ticket; parked tickets keep their worktree.
+5. If `work/<feature-slug>/map.md` and `<skill-dir>/../wayfinder/scripts/render_map.py` both exist, rerender the map (otherwise skip): `python3 <skill-dir>/../wayfinder/scripts/render_map.py work/<feature-slug>` (on Windows: `py` or `python`). Run it here, not in a worktree: `work/` is only in this checkout.
 
 **Done when**: the frontier is empty, so every ticket is merged, parked, or waiting on a parked one.
 

@@ -31,7 +31,8 @@ Ask **one decision at a time** when this skill already sequences questions that 
    **Done when**: user has confirmed the seams (or accepted the default).
 
 3. Write the spec with the template below; publish to `work/<feature-slug>/spec.md`.
-   **Done when**: `work/<feature-slug>/spec.md` exists with the template sections filled.
+   If `work/<feature-slug>/map.md` and `<skill-dir>/../wayfinder/scripts/render_map.py` both exist, rerender the map (otherwise skip): `python3 <skill-dir>/../wayfinder/scripts/render_map.py work/<feature-slug>` (on Windows: `py` or `python`).
+   **Done when**: `work/<feature-slug>/spec.md` exists with the template sections filled, and `map.html` is rerendered when the map and script exist.
 
 4. Run `/council` scoped to every area the spec touches.
    **Done when**: every file/area the spec will change has been explored.

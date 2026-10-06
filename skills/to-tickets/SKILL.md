@@ -100,8 +100,8 @@ Write only under `tickets/`. Leave the parent spec, map, and `issues/` unchanged
 
 Avoid specific file paths or code snippets - they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts - not a working demo, just the important bits.
 
-Publish the approved tickets, then stop - do not start implementation.
+Publish the approved tickets. If `work/<feature-slug>/map.md` and `<skill-dir>/../wayfinder/scripts/render_map.py` both exist, rerender the map (otherwise skip): `python3 <skill-dir>/../wayfinder/scripts/render_map.py work/<feature-slug>` (on Windows: `py` or `python`). Then stop - do not start implementation.
 
 Work the frontier **one ticket at a time** with `/implement`, clearing context between tickets. To run the whole frontier unattended, the user runs `/afk` instead. Do not run `/implement-plan` per ticket (that skill is for `/to-plan` / attached plans). Escalate to `/implement-plan` only if a ticket is still full of unknowns - treat that as a process smell.
 
-**Done when**: one `work/<feature-slug>/tickets/<NN>-<slug>.md` per approved ticket exists, numbered from `01` in dependency order, each with What to build, Blocked by, and at least one checkable acceptance criterion; this session has stopped without `/implement`.
+**Done when**: one `work/<feature-slug>/tickets/<NN>-<slug>.md` per approved ticket exists, numbered from `01` in dependency order, each with What to build, Blocked by, and at least one checkable acceptance criterion; `map.html` is rerendered when the map and script exist; this session has stopped without `/implement`.

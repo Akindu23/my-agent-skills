@@ -1,0 +1,756 @@
+<!doctype html>
+<!-- Template for render_map.py. It fills in the data; everything else runs in the page. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wayfinder map</title>
+<style>
+:root{
+  --bg:#070a10;--panel:#0a0f17;--panel-2:#0e1520;--line:#1a2331;--line-2:#263246;
+  --text:#e6ebf2;--text-2:#c3ccd9;--muted:#8a96a8;--faint:#5d687a;
+  --ready:#3dffb5;--active:#b28cff;--review:#f5b041;--warn:#f5b041;--blocked:#f0647d;--done:#4a8cff;--doc:#dbe3ee;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;--mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --next:var(--ready);--lit:var(--ready);--edge-met:#33435e;--edge-open:#4a5672;--r:9px;--cmd-bg:#05080d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;font-size:14px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.st-ready{--c:var(--ready)}.st-active{--c:var(--active)}.st-review{--c:var(--review)}.st-blocked{--c:var(--blocked)}.st-done{--c:var(--done)}
+
+#app{position:fixed;inset:0;display:grid;grid-template-columns:280px 1fr 360px;grid-template-rows:60px 1fr}
+#app.rc{grid-template-columns:280px 1fr 44px}
+aside.left{grid-column:1}main{grid-column:2}aside.right{grid-column:3}
+.rail{width:100%;height:100%;display:flex;justify-content:center;padding-top:16px;color:var(--muted);font-size:13px}
+.rail span{writing-mode:vertical-rl;letter-spacing:.02em}
+.rail:hover{color:var(--text);background:var(--panel-2)}
+#app.rc aside.right{padding:0;overflow:hidden}
+
+/* header: calm, one line */
+header{grid-column:1/-1;display:flex;align-items:center;gap:20px;padding:0 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+.logo{font:600 11px var(--mono);letter-spacing:.12em;color:var(--ready);white-space:nowrap}
+.mt{flex:1;min-width:0;display:flex;align-items:baseline;gap:12px}
+.mt h1{margin:0;font-size:15px;font-weight:600;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto}
+.ring,.phases,.logo{flex:none}
+.mt .dest{flex:1 1 0;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.mt .dest:hover{color:var(--text)}
+.phases{display:flex;align-items:center;gap:6px}
+.ph{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;border:1px solid transparent;font-size:13px;color:var(--muted);position:relative;white-space:nowrap}
+.ph:hover{background:var(--panel-2);color:var(--text)}
+.ph.on{border-color:var(--line-2);background:var(--panel-2);color:var(--text)}
+.ph .no{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font:600 10px var(--mono);border:1px solid var(--line-2);color:var(--muted)}
+.ph.complete .no{background:var(--done);border-color:var(--done);color:#fff}
+.ph.current .no{border-color:var(--ready);color:var(--ready)}
+.ph .ct{font:11px var(--mono);color:var(--faint)}
+.ph .pb{position:absolute;left:10px;right:10px;bottom:2px;height:2px;border-radius:2px;background:var(--line)}
+.ph .pb i{display:block;height:100%;border-radius:2px;background:var(--done)}
+.ph.current .pb i{background:var(--ready)}
+.sep{color:var(--faint);font-size:12px}
+.ph-all{margin-left:6px}
+.ph.focus{border-color:var(--line-2);background:var(--panel-2);color:var(--text)}
+/* phase ring: one arc per phase, so the ring and the stepper read as the same thing */
+.ring{display:flex;align-items:center;gap:9px;padding-right:14px;margin-right:4px;border-right:1px solid var(--line)}
+.ring svg{width:34px;height:34px;display:block}
+.ring circle{fill:none;stroke-width:3.2;stroke-linecap:butt}
+.ring .trk{stroke:var(--line-2)}
+.ring .seg.complete{stroke:var(--done)}
+.ring .seg.current{stroke:var(--ready);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--ready) 60%,transparent))}
+.ring b{font:600 17px/1 var(--sans);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.ring b small{font-size:11px;font-weight:500;color:var(--muted);margin-left:1px}
+
+/* side panels */
+aside{overflow:auto;padding:16px 14px 24px;background:var(--panel)}
+aside.left{border-right:1px solid var(--line)}
+aside.right{border-left:1px solid var(--line);padding:0 0 24px}
+.grp{margin-bottom:18px}
+.grp h3{display:flex;align-items:center;gap:6px;margin:0 0 6px;padding:0 8px;font:600 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.grp h3 span{font-family:var(--mono);color:var(--muted);margin-left:auto}
+.grp h3.fold{cursor:pointer}
+.grp h3.fold::after{content:'▸';margin-left:6px;color:var(--faint)}
+.grp.open h3.fold::after{content:'▾'}
+.grp.closed .li{display:none}
+.li{display:flex;gap:8px;align-items:center;padding:7px 8px;border-radius:7px;border:1px solid transparent;font-size:13px;cursor:pointer;transition:background .15s,border-color .15s,opacity .2s}
+.li:hover,.li.lit{background:var(--panel-2);border-color:var(--line-2)}
+.li.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 8%,transparent)}
+.li .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--c)}
+.li.st-blocked .dot{background:none;border:1.5px solid var(--c)}
+.li.st-blocked .aux{color:color-mix(in srgb,var(--blocked) 80%,var(--faint))}
+.li.st-ready .dot{box-shadow:0 0 8px var(--c)}
+.li .num{font:11px var(--mono);color:var(--faint);min-width:26px}
+.li .tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-2)}
+.li.st-done .tt{color:var(--muted)}
+.li .aux{font:11px var(--mono);color:var(--faint)}
+.empty{font-size:12px;color:var(--faint);padding:0 8px;margin:0}
+
+/* canvas */
+main{position:relative;overflow:hidden;background:var(--bg)}
+/* star field from v1 variant A, on the console black; drifts slower than the map when you pan */
+.stars{position:absolute;inset:-60%;pointer-events:none;will-change:transform}
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--sc,#fff);transform:scale(var(--s));opacity:var(--o);animation:twinkle var(--d) ease-in-out infinite;animation-delay:var(--dl)}
+@keyframes twinkle{50%{opacity:calc(var(--o) * .2)}}
+.vp{position:absolute;inset:0;overflow:hidden;cursor:grab;touch-action:none}
+.vp.grabbing{cursor:grabbing}
+.content{position:absolute;left:0;top:0;transform-origin:0 0}
+.edges{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
+.edges path{fill:none;stroke-width:1.5;transition:opacity .2s,stroke .2s}
+.edges path.met{stroke:var(--edge-met)}
+.edges path.open{stroke:var(--edge-open);stroke-dasharray:5 5}
+.edges path.lit{stroke:var(--lit);stroke-width:2;stroke-dasharray:6 6;animation:flow 1s linear infinite;filter:drop-shadow(0 0 4px var(--lit))}
+@keyframes flow{to{stroke-dashoffset:-24}}
+.focus .dim [data-k]:not(.lit),.focus .dim path:not(.lit){opacity:.12}
+.zone{position:absolute;font:600 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.zone span{text-transform:none;letter-spacing:0;font-weight:400;margin-left:8px}
+.zline{position:absolute;width:1px;background:repeating-linear-gradient(var(--line-2) 0 6px,transparent 6px 12px)}
+
+.card{position:absolute;width:220px;height:84px;padding:10px 12px;border-radius:var(--r);background:var(--panel-2);border:1px solid var(--line-2);cursor:pointer;transition:transform .15s,box-shadow .2s,border-color .2s,opacity .2s}
+.card:hover,.card.lit{transform:translateY(-2px);border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 8px 24px color-mix(in srgb,var(--c) 22%,transparent)}
+.card .top{display:flex;align-items:center;gap:6px;font:500 10px var(--mono);color:var(--faint)}
+.card .top .st{margin-left:auto;color:var(--c);font-weight:600;letter-spacing:.04em}
+.badge{padding:1px 5px;border-radius:4px;font:600 10px var(--mono);color:var(--tc);background:color-mix(in srgb,var(--tc) 14%,transparent);border:1px solid color-mix(in srgb,var(--tc) 35%,transparent)}
+.card .title{margin-top:8px;font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .bar{position:absolute;left:12px;right:12px;bottom:10px;height:2px;border-radius:2px;background:var(--c);opacity:.6}
+.card .prog{position:absolute;left:12px;right:12px;bottom:8px;display:flex;align-items:center;gap:8px}
+.card .prog b{flex:1;height:3px;border-radius:2px;background:var(--line-2);overflow:hidden}
+.card .prog b i{display:block;height:100%;background:var(--c)}
+.card .prog span{font:10px var(--mono);color:var(--faint)}
+.card.st-ready{border-color:color-mix(in srgb,var(--ready) 45%,transparent);box-shadow:0 0 18px color-mix(in srgb,var(--ready) 12%,transparent)}
+.card.st-done{opacity:.55}
+.card.st-blocked{border-style:dashed;border-color:color-mix(in srgb,var(--blocked) 45%,transparent)}
+.card.has-problem{border-style:solid;border-color:color-mix(in srgb,var(--blocked) 75%,transparent)}
+.card.has-problem .top .st{color:var(--blocked)}
+.li .aux:empty{display:none}
+.more{margin-top:6px;padding:6px 10px;border-radius:7px;font-size:12px;color:var(--muted);border:1px solid var(--line-2)}
+.more:hover{color:var(--text)}
+.blank{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:min(380px,90%);text-align:center}
+.blank h2{margin:0 0 6px;font-size:18px;font-weight:600}
+.blank p{margin:0 0 14px;font-size:14px;line-height:1.5;color:var(--muted)}
+.card.st-review{border-color:color-mix(in srgb,var(--review) 55%,transparent);box-shadow:0 0 18px color-mix(in srgb,var(--review) 14%,transparent)}
+/* hover tag: says how a lit card relates to the one under the pointer */
+.card[data-rel]::after{content:attr(data-rel);position:absolute;left:10px;top:-19px;font:600 10px var(--mono);letter-spacing:.04em;color:var(--lit);white-space:nowrap}
+.li[data-rel] .aux{display:none}
+.li[data-rel]::after{content:attr(data-rel);font:600 10px var(--mono);color:var(--lit)}
+.hint-row{font-size:12px;line-height:1.45;color:var(--muted);padding:2px 8px 6px}
+/* rounds: each column is one round; every ticket in a round can run at the same time */
+.round{position:absolute;width:220px;white-space:nowrap}
+.round b{display:block;font:600 12px var(--sans);color:var(--text-2)}
+.round span{font:11px var(--mono);color:var(--faint)}
+.round.now b{color:var(--ready)}
+.round.now span{color:color-mix(in srgb,var(--ready) 75%,var(--muted))}
+.band{position:absolute;border-radius:14px;background:color-mix(in srgb,var(--ready) 4%,transparent);border:1px dashed color-mix(in srgb,var(--ready) 22%,transparent)}
+.card.is-next{border-color:var(--next);box-shadow:0 0 0 1px var(--next),0 0 26px color-mix(in srgb,var(--next) 28%,transparent)}
+.card.is-next .top .st{color:var(--next)}
+.card.sel{outline:2px solid var(--c);outline-offset:4px}
+.card.k-handoff{background:linear-gradient(180deg,color-mix(in srgb,var(--panel-2) 80%,#fff 4%),var(--panel-2))}
+.card.k-handoff .title::before{content:'▤ ';color:var(--doc)}
+.card.k-handoff.st-blocked .title{color:var(--muted)}
+.card.ping{animation:ping 1.1s ease-out 2}
+@keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--lit) 70%,transparent)}100%{box-shadow:0 0 0 22px transparent}}
+
+
+.legend{position:absolute;left:14px;bottom:14px;max-width:calc(100% - 28px);display:flex;gap:16px;align-items:center;padding:7px 12px;border-radius:8px;background:color-mix(in srgb,var(--panel) 90%,transparent);border:1px solid var(--line);font-size:11px;color:var(--muted)}
+.legend i{display:inline-block;width:22px;height:0;border-top:1.5px solid var(--edge-met);vertical-align:middle;margin-right:6px}
+.legend i.o{border-top:1.5px dashed var(--edge-open)}
+.legend.live{color:var(--text-2);font-size:12px}
+.legend.live b{color:var(--text);font-weight:600}
+.tools{position:absolute;right:14px;top:14px;display:flex;gap:6px}
+.tools button{padding:5px 10px;border-radius:6px;border:1px solid var(--line-2);background:var(--panel);font:500 11px var(--mono);color:var(--muted)}
+.tools button:hover{color:var(--text);border-color:var(--ready)}
+.tools button.on{color:var(--ready);border-color:color-mix(in srgb,var(--ready) 50%,transparent)}
+
+/* right panel */
+.rtabs{display:flex;gap:4px;padding:10px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);z-index:1}
+.rtabs button{padding:6px 12px;border-radius:7px;font-size:13px;color:var(--muted)}
+.rtabs .x{margin-left:auto;width:30px;color:var(--faint)}
+.rtabs .x + .x{margin-left:0}
+.rtabs .x:hover{color:var(--text);background:var(--panel-2)}
+.rtabs button.on{background:var(--panel-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+.rbody{padding:16px 18px}
+.path{font:11px var(--mono);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbody h2{margin:6px 0 10px;font-size:20px;font-weight:600;line-height:1.25}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{font:500 11px var(--mono);color:var(--muted)}
+.stx{font:600 10px var(--mono);letter-spacing:.04em;color:var(--c);padding:2px 6px;border-radius:4px;border:1px solid color-mix(in srgb,var(--c) 50%,transparent);background:color-mix(in srgb,var(--c) 10%,transparent)}
+.sec{margin-top:20px}
+.sec h4{margin:0 0 6px;font:600 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.sec p{margin:0;font-size:14px;line-height:1.6;color:var(--text-2)}
+.sec p+p{margin-top:8px}
+.link{display:inline-flex;align-items:center;gap:6px;margin:0 6px 6px 0;padding:3px 8px;border-radius:6px;font-size:12px;color:var(--text-2);border:1px solid var(--line-2);background:var(--panel-2);cursor:pointer}
+.link:hover{border-color:var(--c)}
+.link i{width:6px;height:6px;border-radius:50%;background:var(--c)}
+.none{font-size:13px;color:var(--faint)}
+.run{margin-top:22px;padding:12px;border-radius:10px;border:1px solid var(--line-2);background:var(--panel-2)}
+.run h4{margin:0 0 8px;font:600 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.cmd{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;background:var(--cmd-bg);border:1px solid var(--line);font:12px/1.5 var(--mono);color:var(--text-2);cursor:pointer}
+.cmd:hover{border-color:var(--ready)}
+.cmd span{flex:1}
+.cmd em{font-style:normal;font-size:11px;color:var(--ready);white-space:nowrap}
+.warn{margin-top:8px;font-size:12px;line-height:1.5;color:var(--warn)}
+.hint{margin-top:8px;font-size:12px;line-height:1.5;color:var(--muted)}
+.alt{margin-top:8px}
+.meter{display:flex;align-items:center;gap:8px;margin-top:6px}
+.meter b{flex:1;height:4px;border-radius:2px;background:var(--line-2);overflow:hidden}
+.meter b i{display:block;height:100%;background:var(--c)}
+.meter span{font:11px var(--mono);color:var(--muted)}
+.outline{margin:0;padding-left:18px;color:var(--text-2);line-height:1.7;font-size:13px}
+.dec{padding:8px 10px;border-radius:7px;margin-bottom:4px;cursor:pointer;border:1px solid transparent}
+.dec:hover{background:var(--panel-2);border-color:var(--line-2)}
+.dec b{display:block;font-size:13px;font-weight:600;color:var(--text)}
+.dec span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:1.5;color:var(--muted);margin-top:2px}
+.fog{font-size:13px;line-height:1.5;color:var(--muted);padding:4px 0 4px 10px;border-left:2px dashed var(--line-2);margin-bottom:6px}
+.oos{font-size:13px;line-height:1.5;color:var(--faint);margin-bottom:6px}
+
+#toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-160%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.9,.3,1.1),visibility .35s;z-index:101;max-width:min(680px,92vw);background:color-mix(in srgb,var(--panel-2) 95%,transparent);border:1px solid var(--line-2);box-shadow:0 12px 40px #000a;padding:12px 16px;border-radius:10px}
+#toast.show{transform:translate(-50%,0);visibility:visible}
+#toast b{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+#toast code{display:block;font:12px var(--mono);color:var(--ready);overflow-wrap:anywhere}
+#toast .note{font-size:12px;color:var(--muted);margin-top:6px}
+#toast .note.w{color:var(--warn)}
+/* desktop only, but it has to survive 200% zoom on a laptop: drop the left list, then the extras in the header */
+@media (max-width:1100px){#app{grid-template-columns:0 1fr 320px}#app.rc{grid-template-columns:0 1fr 44px}aside.left{display:none}.mt .dest,.ph .ct{display:none}}
+@media (max-width:800px){.logo,.ph-all{display:none}header{gap:12px;padding:0 12px}.ph{padding:6px 6px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<script>
+const DATA = /*DATA*/null;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const pad = n => String(n).padStart(2, '0');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
+const TYPE = {research:{ab:'RSCH', c:'#22d3ee'}, prototype:{ab:'PROTO', c:'#f472b6'}, grilling:{ab:'GRILL', c:'#fbbf24'}, task:{ab:'TASK', c:'#a3e635'}};
+const WORD = {
+  decision: {ready:'FRONTIER', active:'CLAIMED', blocked:'BLOCKED', done:'RESOLVED'},
+  ticket: {ready:'READY', review:'NEEDS REVIEW', blocked:'BLOCKED', done:'DONE'},
+  handoff: {ready:'READY', review:'NEEDS REVIEW', blocked:'WAITING', done:'WRITTEN'},
+};
+
+// ---------- model: decisions -> spec or plan -> build tickets ----------
+// number -> node. A second file with the same number gets its own key, and both get a problem.
+function indexNodes(items, pre, kind) {
+  const by = {};
+  const list = items.map(i => {
+    const dup = by[i.n], n = {...i, key: pre + i.n + (dup ? '~' + i.file : ''), kind, id: pad(i.n), problems: []};
+    if (dup) { const msg = `Two files share #${n.id}: ${dup.file} and ${n.file}. Renumber one.`; dup.problems.push(msg); n.problems.push(msg); }
+    else by[i.n] = n;
+    return n;
+  });
+  list.forEach(n => n.blockedBy.filter(b => !by[b]).forEach(b =>
+    n.problems.push(`Blocked by #${pad(b)}, but there is no #${pad(b)}. Fix the Blocked by line.`)));
+  list.forEach(n => n.blockers = n.blockedBy.filter(b => by[b]).map(b => by[b].key));
+  breakLoops(list);
+  return {list, by};
+}
+// a blocker loop would hang the layout: drop the edge that closes it and flag both ends
+function breakLoops(list) {
+  const by = Object.fromEntries(list.map(n => [n.key, n])), mark = {};
+  const visit = n => {
+    mark[n.key] = 1;
+    n.blockers = n.blockers.filter(b => {
+      if (mark[b] === 1) {
+        const msg = b === n.key ? `#${n.id} is blocked by itself. Fix its Blocked by line.`
+          : `#${n.id} and #${by[b].id} block each other, directly or through other tickets. Remove one Blocked by line to break the loop.`;
+        n.problems.push(msg); if (b !== n.key) by[b].problems.push(msg);
+        return false;
+      }
+      if (!mark[b]) visit(by[b]);
+      return true;
+    });
+    mark[n.key] = 2;
+  };
+  list.forEach(n => mark[n.key] || visit(n));
+}
+
+function model(raw) {
+  const base = `work/${raw.slug}`, N = {}, DEP = {};
+  const {list: dec, by: decBy} = indexNodes(raw.issues, 'd', 'decision');
+  dec.forEach(d => {
+    d.open = d.blockedBy.filter(b => decBy[b] && decBy[b].status !== 'resolved').map(b => decBy[b].key);
+    d.state = d.status === 'resolved' ? 'done' : d.status === 'claimed' ? 'active' : d.open.length || d.problems.length ? 'blocked' : 'ready';
+  });
+  const decideDone = dec.length > 0 && dec.every(d => d.state === 'done');
+  const path = raw.spec ? 'spec' : raw.plan ? 'plan' : null, doc = raw.spec || raw.plan;
+  const {list: tk, by: tBy} = indexNodes(raw.tickets, 't', 'ticket');
+  const h = {key: 'h', kind: 'handoff', path, doc, id: '', blockers: [], open: [], problems: []};
+  if (path === 'spec') { h.title = 'Spec'; h.state = tk.length ? 'done' : 'ready'; h.cmd = tk.length ? null : `/to-tickets ${base}/spec.md`; }
+  else if (path === 'plan') {
+    const s = doc.status.toLowerCase();
+    h.title = 'Plan'; h.state = /reviewed:\s*\d+\s+findings?/.test(s) ? 'review' : /(?<!not )\b(done|reviewed)\b/.test(s) ? 'done' : /implemented|awaiting/.test(s) ? 'review' : 'ready';
+    h.cmd = h.state === 'ready' ? `/implement-plan ${base}/plan.md` : h.state === 'review' ? `/code-review ${base}/plan.md` : null;
+  } else { h.title = 'Spec or plan'; h.state = decideDone ? 'ready' : 'blocked'; h.cmd = decideDone ? `/to-spec ${base}/map.md` : null; h.alt = decideDone ? `/to-plan ${base}/map.md` : null; }
+  h.open = decideDone ? [] : dec.filter(d => d.state !== 'done').map(d => d.key);
+  // the gate hangs off the end of every decision chain; standalone decisions stay in their own grid,
+  // unless there are no chains at all, when every decision feeds the gate directly
+  const blocksSome = d => dec.some(o => o.blockers.includes(d.key));
+  const sinks = dec.filter(d => d.blockers.length && !blocksSome(d)).map(d => d.key);
+  h.blockers = sinks.length ? sinks : dec.map(d => d.key);
+  tk.forEach(t => {
+    if (!t.blockers.length) t.blockers = ['h'];
+    t.open = t.blockedBy.filter(b => tBy[b] && tBy[b].stage === 'todo').map(b => tBy[b].key);
+    t.state = t.stage === 'done' ? 'done' : t.stage === 'review' ? 'review' : t.open.length || t.problems.length ? 'blocked' : 'ready';
+  });
+  [...dec, h, ...tk].forEach(n => { N[n.key] = n; DEP[n.key] = []; });
+  [...dec, h, ...tk].forEach(n => n.blockers.forEach(b => DEP[b].push(n.key)));
+  const next = dec.find(d => d.state === 'ready') || (h.state === 'ready' ? h : null) || tk.find(t => t.state === 'ready') || null;
+  const tDone = tk.filter(t => t.state === 'done').length;
+  return {
+    raw, base, N, DEP, dec, tk, h, next, decideDone,
+    empty: !dec.length && !tk.length && !doc,
+    phase: !decideDone ? 'decide' : 'build',
+    counts: {dDone: dec.filter(d => d.state === 'done').length, dTotal: dec.length, tDone, tTotal: tk.length},
+  };
+}
+
+function phases() {
+  const c = D.counts, h = D.h;
+  const decide = c.dTotal ? c.dDone / c.dTotal : 0, gate = h.doc ? 1 : 0;
+  const build = h.path === 'plan' ? (h.state === 'done' ? 1 : h.state === 'review' ? .8 : 0) : (c.tTotal ? c.tDone / c.tTotal : 0);
+  return [decide, gate, build];
+}
+
+function cmdOf(n) {
+  if (!n || n.state === 'done' && n.kind !== 'handoff' || n.problems?.length) return null;
+  if (n.kind === 'decision') return `/wayfinder ${D.base}/map.md ${n.file}`;
+  if (n.kind === 'ticket') return n.state === 'review' ? `/code-review ${D.base}/${n.file}` : `/implement ${D.base}/${n.file}`;
+  return n.cmd;
+}
+const wrapCmd = c => esc(c).replace(/\//g, '/<wbr>').replace(/-/g, '-<wbr>');
+const names = keys => keys.map(k => D.N[k].title).join(', ');
+function noteOf(n) {
+  if (n.problems?.length) return {w: true, t: n.problems.join(' ')};
+  if (n.state === 'review' && /reviewed:\s*\d+\s+findings?/i.test(n.statusText || n.doc?.status || ''))
+    return {w: true, t: 'The review left open findings. Fix them, then run the review again until it says clean.'};
+  if (n.kind === 'handoff') {
+    if (n.state === 'blocked' && !D.dec.length) return {w: true, t: 'Waits on the map: no decisions yet.'};
+    if (n.state === 'blocked') return {w: true, t: `Waits on the map: ${n.open.length} decision${n.open.length > 1 ? 's' : ''} still open.`};
+    if (!n.path) return {t: 'The map is clear. Use /to-spec for a multi-session build, /to-plan if it fits one session.'};
+    if (n.path === 'spec' && n.state === 'ready') return {t: 'Spec is written. Break it into build tickets next.'};
+    if (n.state === 'review') return {t: 'Run it in a fresh turn on the plan’s diff.'};
+    return null;
+  }
+  if (n.state === 'active') return {w: true, t: 'Another session has claimed this ticket.'};
+  if (n.state === 'blocked') return {w: true, t: `Still blocked by ${names(n.open)}.`};
+  if (n.state === 'review') return {t: 'Run it in a fresh turn on this ticket’s diff, then mark the ticket reviewed.'};
+  if (n.kind === 'ticket' && n.checks[1] && n.checks[0] === n.checks[1])
+    return {t: 'Every box is ticked, but the status line still says to do. If it is built, update the status so it moves to Needs review.'};
+  const reviewing = (n.blockers || []).filter(k => D.N[k].state === 'review');
+  if (reviewing.length) return {w: true, t: `Can start, but ${names(reviewing)} is still awaiting review.`};
+  return null;
+}
+
+// ---------- copy + toast ----------
+function copy(text) {
+  const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).catch(fallback); else fallback();
+}
+let toastTimer;
+function toast(title, code, note) {
+  const el = $('#toast');
+  el.innerHTML = `<b>${esc(title)}</b>${code ? `<code>${esc(code)}</code>` : ''}${note ? `<div class="note ${note.w ? 'w' : ''}">${esc(note.t)}</div>` : ''}`;
+  el.classList.add('show'); clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3400);
+}
+function run(n, cmd = cmdOf(n)) {
+  if (!cmd) { const note = noteOf(n); if (note) toast(n.title, '', note); return; }
+  copy(cmd); toast(`Copied · ${n.title}`, cmd, noteOf(n) || {t: 'Paste it into your prompt.'});
+}
+
+// ---------- layout: columns by dependency depth, isolated decisions in a grid ----------
+function layout(nodes, W, H, CX, RY) {
+  const inView = new Set(nodes.map(n => n.key));
+  const ins = n => n.blockers.filter(k => inView.has(k));
+  const outs = n => D.DEP[n.key].filter(k => inView.has(k));
+  const hasDec = nodes.some(n => n.kind === 'decision');
+  const isolated = nodes.filter(n => n.kind === 'decision' && !ins(n).length && !outs(n).length);
+  const linked = nodes.filter(n => !isolated.includes(n));
+  const depth = {};
+  const decDepth = n => depth[n.key] ??= ins(n).length ? 1 + Math.max(...ins(n).map(k => decDepth(D.N[k]))) : 0;
+  linked.filter(n => n.kind === 'decision').forEach(decDepth);
+  const hCol = hasDec ? Math.max(0, ...linked.filter(n => n.kind === 'decision').map(n => depth[n.key])) + 1 : 0;
+  if (inView.has('h')) depth.h = hCol;
+  const tDepth = n => depth[n.key] ??= 1 + (ins(n).length ? Math.max(...ins(n).map(k => k === 'h' ? hCol : tDepth(D.N[k]))) : hCol);
+  linked.filter(n => n.kind === 'ticket').forEach(tDepth);
+  const maxD = Math.max(0, ...linked.map(n => depth[n.key]));
+  const cols = Array.from({length: maxD + 1}, () => []);
+  linked.forEach(n => cols[depth[n.key]].push(n));
+  const row = {};
+  // whole-number rows: the gaps between cards line up across columns, so long edges can run through them
+  const set = c => c.forEach((n, i) => row[n.key] = i - Math.floor((c.length - 1) / 2));
+  const down = () => { for (let d = 1; d <= maxD; d++) { cols[d].sort((a, b) => avg(ins(a).map(k => row[k] ?? 0)) - avg(ins(b).map(k => row[k] ?? 0))); set(cols[d]); } };
+  cols.forEach(set); down();
+  cols[0].sort((a, b) => avg(outs(a).map(k => row[k])) - avg(outs(b).map(k => row[k]))); set(cols[0]); down();
+  const P = {};
+  linked.forEach(n => P[n.key] = {x: depth[n.key] * CX, y: row[n.key] * RY});
+  const ys = linked.map(n => P[n.key].y);
+  let maxY = ys.length ? Math.max(...ys) : 0, minY = ys.length ? Math.min(...ys) : 0, gridTop = null;
+  if (isolated.length) {
+    gridTop = maxY + H / 2 + 90;
+    const per = Math.max(3, Math.min(maxD + 1, 5));
+    isolated.forEach((n, i) => P[n.key] = {x: (i % per) * CX, y: gridTop + 30 + H / 2 + Math.floor(i / per) * RY});
+    maxY = Math.max(...isolated.map(n => P[n.key].y));
+  }
+  return {P, minY, maxY, maxX: maxD * CX, gridTop, isolated, hCol, inView, cols};
+}
+
+// ---------- render ----------
+let D, view = 'decide', sel = null, rtab = 'ticket', pz = null, lastP = {}, hideDone = false;
+const fitFn = all => pz?.fit(all);
+const W = 220, H = 84, CX = 280, RY = 104;
+
+function nodesFor(v, forCanvas) {
+  const all = v === 'decide' ? [...D.dec, D.h] : v === 'build' ? [D.h, ...D.tk] : [...D.dec, D.h, ...D.tk];
+  return forCanvas && hideDone ? all.filter(n => n.kind === 'handoff' || n.state !== 'done') : all;
+}
+
+function card(n, p) {
+  const meta = n.kind === 'decision' ? `<span class="badge" style="--tc:${TYPE[n.type]?.c || '#94a3b8'}">${esc(TYPE[n.type]?.ab || n.type.toUpperCase())}</span><span>${n.mode}</span>`
+    : n.kind === 'ticket' ? `<span class="badge" style="--tc:#94a3b8">BUILD</span>`
+    : `<span class="badge" style="--tc:var(--doc)">${n.path ? n.path.toUpperCase() : 'NEXT STEP'}</span>`;
+  const word = n.problems.length ? 'FIX FILE' : n === D.next ? '▶ NEXT' : WORD[n.kind][n.state];
+  const sub = n.kind === 'handoff' ? (n.doc ? `${n.doc.file} · ${n.path === 'plan' ? n.doc.steps.length + ' steps' : n.doc.lines + ' lines'}` : (n.state === 'blocked' ? 'after the map is clear' : '/to-spec or /to-plan')) : '';
+  const foot = n.kind === 'ticket' && n.checks[1]
+    ? `<div class="prog"><b><i style="width:${n.checks[0] / n.checks[1] * 100}%"></i></b><span>${n.checks[0]}/${n.checks[1]}</span></div>`
+    : n.kind === 'handoff' ? `<div class="prog"><span>${esc(sub)}</span></div>` : '<div class="bar"></div>';
+  return `<div class="card k-${n.kind} st-${n.state}${n === D.next ? ' is-next' : ''}${n.problems.length ? ' has-problem' : ''}" data-k="${n.key}" style="left:${p.x - W / 2}px;top:${p.y - H / 2}px"><div class="top">${n.id ? `<span>#${n.id}</span>` : ''}${meta}<span class="st">${word}</span></div><div class="title">${esc(n.kind === 'handoff' && n.doc ? n.doc.title : n.title)}</div>${foot}</div>`;
+}
+
+// polyline with soft corners
+function rounded(pts) {
+  pts = pts.filter((p, i) => !i || p[0] !== pts[i - 1][0] || p[1] !== pts[i - 1][1]);
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [ax, ay] = pts[i - 1], [bx, by] = pts[i], [cx, cy] = pts[i + 1];
+    const r = Math.min(8, Math.hypot(bx - ax, by - ay) / 2, Math.hypot(cx - bx, cy - by) / 2);
+    d += `L${bx - Math.sign(bx - ax) * r},${by - Math.sign(by - ay) * r}Q${bx},${by} ${bx + Math.sign(cx - bx) * r},${by + Math.sign(cy - by) * r}`;
+  }
+  const z = pts[pts.length - 1];
+  return d + `L${z[0]},${z[1]}`;
+}
+
+// one header per column; a dashed band marks the round you can run right now
+function rounds(L) {
+  const top = L.minY - H / 2 - 52;
+  let out = '';
+  L.cols.forEach((col, d) => {
+    if (!col.length || (col.length === 1 && col[0].kind === 'handoff')) return;
+    const kind = col[0].kind === 'handoff' ? col[1].kind : col[0].kind;
+    const no = kind === 'decision' ? d + 1 : d - L.hCol;
+    const c = st => col.filter(n => n.state === st).length;
+    const bits = [c('ready') && `${c('ready')} can run now`, c('review') && `${c('review')} needs review`, c('active') && `${c('active')} claimed`].filter(Boolean);
+    const sub = bits.join(', ') || (c('done') === col.length ? 'done' : 'waiting on earlier rounds');
+    const x = d * CX, ys = col.map(n => L.P[n.key].y);
+    if (c('ready') > 1) out += `<div class="band" style="left:${x - W / 2 - 12}px;top:${Math.min(...ys) - H / 2 - 12}px;width:${W + 24}px;height:${Math.max(...ys) - Math.min(...ys) + H + 24}px"></div>`;
+    out += `<div class="round ${c('ready') ? 'now' : ''}" style="left:${x - W / 2}px;top:${top}px"><b>Round ${no}</b><span>${sub}</span></div>`;
+  });
+  return out;
+}
+
+function renderCanvas() {
+  if (D.empty) {
+    const cmd = `/wayfinder ${D.base}/map.md`;
+    $('main').innerHTML = `${STARS}<div class="vp"><div class="content"></div></div><div class="blank"><h2>No decisions yet</h2><p>Chart the map to add the first decisions. They show up here as tickets.</p><div class="cmd" data-copy="${esc(cmd)}"><span>${esc(cmd)}</span><em>Copy</em></div></div>`;
+    pz = panZoom($('.vp'), $('.content'), null, {x: 0, y: 0, w: 1, h: 1});
+    return;
+  }
+  const nodes = nodesFor(view, true);
+  const L = layout(nodes, W, H, CX, RY), P = L.P;
+  const hits = (y, xa, xb) => Object.values(P).some(o => o.x - W / 2 < xb && o.x + W / 2 > xa && Math.abs(o.y - y) < H / 2 + 4);
+  const step = (p, q) => {
+    const x1 = p.x + W / 2, x2 = q.x - W / 2, gap = (CX - W) / 2, pts = [[x1, p.y]];
+    // an edge that skips a column would cross cards at its own height; drop it into the gap beside the target row
+    if (q.x - p.x > CX + 1 && hits(p.y, x1 + 1, x2 - gap - 1)) {
+      const lane = q.y + (p.y <= q.y ? -RY / 2 : RY / 2);
+      pts.push([x1 + gap, p.y], [x1 + gap, lane], [x2 - gap, lane]);
+    } else pts.push([x2 - gap, p.y]);
+    pts.push([x2 - gap, q.y], [x2, q.y]);
+    return rounded(pts);
+  };
+  const edges = nodes.flatMap(n => n.blockers.filter(k => L.inView.has(k) && P[k]).map(k => ({a: k, b: n.key})));
+  const met = e => D.N[e.a].state === 'done' || (D.N[e.a].kind === 'ticket' && D.N[e.a].state === 'review');
+  let zones = '';
+  // zone lines only when both sides are on the canvas (Hide done can empty the Decide side)
+  if (view === 'all' && nodes.some(n => n.kind === 'decision') && nodes.some(n => n.kind === 'ticket')) {
+    const gx = L.hCol * CX, top = L.minY - H / 2 - 60, bot = (L.gridTop ?? L.maxY) + H / 2;
+    zones += `<div class="zline" style="left:${gx - CX / 2}px;top:${top}px;height:${bot - top}px"></div><div class="zline" style="left:${gx + CX / 2}px;top:${top}px;height:${bot - top}px"></div>`;
+    zones += `<div class="zone" style="left:${-W / 2}px;top:${top - 40}px">1 · Decide</div><div class="zone" style="left:${gx - W / 2}px;top:${top - 40}px">2 · ${D.h.path || 'Spec / plan'}</div><div class="zone" style="left:${gx + CX - W / 2}px;top:${top - 40}px">3 · Build</div>`;
+  }
+  if (L.isolated.length) zones += `<div class="zone" style="left:${-W / 2}px;top:${L.gridTop}px">Standalone decisions<span>nothing blocks them and nothing waits on them, so any of them can run at any time</span></div>`;
+  zones += rounds(L);
+  $('main').innerHTML = `${STARS}<div class="vp"><div class="content dim">
+      ${zones}
+      <svg class="edges">${edges.map(e => `<path class="${met(e) ? 'met' : 'open'}" data-a="${e.a}" data-b="${e.b}" d="${step(P[e.a], P[e.b])}"/>`).join('')}</svg>
+      ${nodes.map(n => card(n, P[n.key])).join('')}
+    </div></div>
+    <div class="legend">${LEGEND()}</div>
+    <div class="tools"><button data-hide class="${hideDone ? 'on' : ''}">${hideDone ? 'Show' : 'Hide'} done</button><button data-fit>⤢ Fit all</button></div>`;
+  const xs = Object.values(P).map(p => p.x);
+  const fk = (sel && P[sel] ? sel : D.next && P[D.next.key] ? D.next.key : null);
+  lastP = P;
+  tipTruncated();
+  pz = panZoom($('.vp'), $('.content'), fk ? P[fk] : null, {x: Math.min(...xs) - W / 2 - 30, y: L.minY - H / 2 - 110, w: Math.max(...xs) - Math.min(...xs) + W + 60, h: L.maxY - L.minY + H + 140});
+  markSel();
+}
+
+function li(n) {
+  const aux = n.problems.length ? 'fix file' : n.kind === 'ticket' && n.checks[1] && n.state !== 'done' ? `${n.checks[0]}/${n.checks[1]}` : n.state === 'blocked' && n.kind !== 'handoff' ? `${n.open.length} open` : '';
+  return `<div class="li st-${n.state}" data-k="${n.key}"><span class="dot"></span><span class="num">${n.id ? '#' + n.id : '▤'}</span><span class="tt">${esc(n.kind === 'handoff' && n.doc ? n.doc.title : n.title)}</span><span class="aux">${aux}</span></div>`;
+}
+// a native tooltip only where the title is cut off; elsewhere it just repeated the card
+function tipTruncated() {
+  $$('.card .title, .li .tt, .mt h1').forEach(t => { if (t.scrollWidth > t.clientWidth) t.title = t.textContent; });
+}
+function renderLeft() {
+  const nodes = nodesFor(view).filter(n => !(n.kind === 'handoff' && n.state === 'done' && view !== 'build'));
+  const g = (title, list, fold) => `<div class="grp ${fold ? 'closed' : ''}"><h3 class="${fold ? 'fold' : ''}">${title}<span>${list.length}</span></h3>${list.map(li).join('') || '<p class="empty">none</p>'}</div>`;
+  const fix = nodes.filter(n => n.problems.length);
+  const by = (...s) => nodes.filter(n => s.includes(n.state) && !n.problems.length);
+  setTimeout(tipTruncated);
+  const ready = by('ready');
+  const par = ready.length > 1 ? `<p class="hint-row">None of these wait on each other. Run them in parallel, one session each.</p>` : '';
+  $('aside.left').innerHTML = `<div class="dim">${fix.length ? g('Fix first', fix) : ''}${g('Ready now', ready).replace('</h3>', '</h3>' + par)}${g('Needs review', by('review'))}${g('In progress', by('active'))}${g('Blocked', by('blocked'))}${g('Done', by('done'), true)}</div>`;
+}
+
+function links(keys) {
+  return keys.length ? keys.map(k => { const n = D.N[k]; return `<span class="link st-${n.state}" data-k="${k}"><i></i>${n.id ? '#' + n.id + ' ' : ''}${esc(n.kind === 'handoff' && n.doc ? n.doc.title : n.title)}</span>`; }).join('') : '<span class="none">None</span>';
+}
+function runBox(n) {
+  const cmd = cmdOf(n), note = noteOf(n);
+  if (!cmd && !note) return '';
+  return `<div class="run"><h4>${cmd ? 'Run next' : n.problems?.length ? 'Fix the file first' : 'Status'}</h4>
+    ${cmd ? `<div class="cmd" data-copy="${esc(cmd)}"><span>${wrapCmd(cmd)}</span><em>Copy</em></div>` : ''}
+    ${n.alt ? `<div class="cmd alt" data-copy="${esc(n.alt)}"><span>${wrapCmd(n.alt)}</span><em>Copy</em></div>` : ''}
+    ${note ? `<div class="${note.w ? 'warn' : 'hint'}">${esc(note.t)}</div>` : ''}</div>`;
+}
+function ticketView(n) {
+  const chips = n.kind === 'decision' ? `<span class="badge" style="--tc:${TYPE[n.type]?.c || '#94a3b8'}">${esc(TYPE[n.type]?.ab || n.type)}</span><span class="chip">${n.mode}</span>`
+    : n.kind === 'ticket' ? `<span class="badge" style="--tc:#94a3b8">BUILD</span>` : `<span class="badge" style="--tc:var(--doc)">${n.path ? n.path.toUpperCase() : 'NEXT STEP'}</span>`;
+  const file = n.kind === 'handoff' ? (n.doc ? `${D.base}/${n.doc.file}` : `${D.base}/spec.md or plan.md`) : `${D.base}/${n.file}`;
+  let body = '';
+  if (n.kind === 'decision') {
+    if (n.q) body += `<div class="sec"><h4>Question</h4><p>${esc(n.q)}</p></div>`;
+    if (n.a) body += `<div class="sec"><h4>Answer</h4><p>${esc(n.a)}</p></div>`;
+  } else if (n.kind === 'ticket') {
+    if (n.what) body += `<div class="sec"><h4>What to build</h4><p>${esc(n.what)}</p></div>`;
+    if (n.checks[1]) body += `<div class="sec"><h4>Acceptance</h4><div class="meter st-${n.state}"><b><i style="width:${n.checks[0] / n.checks[1] * 100}%"></i></b><span>${n.checks[0]} of ${n.checks[1]} checked</span></div></div>`;
+    if (n.statusText) body += `<div class="sec"><h4>Status line</h4><p>${esc(n.statusText)}</p></div>`;
+  } else if (n.doc) {
+    if (n.doc.goal) body += `<div class="sec"><h4>${n.path === 'plan' ? 'Goal' : 'Problem'}</h4><p>${esc(n.doc.goal)}</p></div>`;
+    if (n.path === 'plan') body += `<div class="sec"><h4>Steps</h4><ol class="outline">${n.doc.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>`;
+    else body += `<div class="sec"><h4>Sections</h4><ol class="outline">${n.doc.outline.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>`;
+    if (n.doc.status) body += `<div class="sec"><h4>Status line</h4><p>${esc(n.doc.status)}</p></div>`;
+  } else {
+    body += `<div class="sec"><h4>What happens here</h4><p>When every decision is resolved, the map hands off to a spec (multi-session build, then tickets) or a plan (fits one session).</p></div>`;
+  }
+  const waits = n.kind === 'handoff' ? (n.open.length ? links(n.open) : '<span class="none">Every decision on the map</span>') : links(n.blockers);
+  return `<div class="rbody"><div class="path" title="${esc(file)}">${esc(file)}</div><h2>${esc(n.kind === 'handoff' && n.doc ? n.doc.title : n.title)}</h2>
+    <div class="chips">${chips}<span class="stx st-${n.state}">${n === D.next ? 'NEXT · ' : ''}${WORD[n.kind][n.state]}</span></div>
+    ${runBox(n)}${body}
+    <div class="sec"><h4>Waits on</h4>${waits}</div>
+    <div class="sec"><h4>Unblocks</h4>${links(D.DEP[n.key])}</div></div>`;
+}
+function mapView() {
+  const r = D.raw, c = D.counts;
+  const meter = (label, a, b, st) => `<div class="meter st-${st}" style="margin-top:8px"><span style="width:64px;color:var(--text-2)">${label}</span><b><i style="width:${b ? a / b * 100 : 0}%"></i></b><span>${b ? `${a}/${b}` : '—'}</span></div>`;
+  const resolved = D.dec.filter(d => d.state === 'done');
+  return `<div class="rbody"><div class="path">${esc(D.base)}/map.md</div><h2>${esc(r.title)}</h2>
+    ${r.destination ? `<div class="sec"><h4>Destination</h4><p>${esc(r.destination)}</p></div>` : ''}
+    <div class="run"><h4>Take the next frontier ticket</h4><div class="cmd" data-copy="/wayfinder ${esc(D.base)}/map.md"><span>/wayfinder ${esc(D.base)}/map.md</span><em>Copy</em></div></div>
+    <div class="sec"><h4>Progress</h4>${meter('Decide', c.dDone, c.dTotal, D.decideDone ? 'done' : 'ready')}${meter(D.h.path === 'plan' ? 'Plan' : 'Spec', D.h.doc ? 1 : 0, 1, D.h.doc ? 'done' : 'blocked')}${D.h.path !== 'plan' ? meter('Build', c.tDone, c.tTotal, 'ready') : ''}</div>
+    <div class="sec"><h4>Decisions so far · ${resolved.length}</h4>${(showAllDec ? resolved : resolved.slice(-10)).map(d => `<div class="dec" data-k="${d.key}"><b>${esc(d.title)}</b><span>${esc(d.a)}</span></div>`).join('') || '<span class="none">None yet</span>'}${resolved.length > 10 ? `<button class="more" data-more>${showAllDec ? 'Show the last 10' : `Show all ${resolved.length}`}</button>` : ''}</div>
+    <div class="sec"><h4>Not yet specified</h4>${r.fog.map(f => `<div class="fog">${esc(f)}</div>`).join('') || '<span class="none">Nothing in the fog</span>'}</div>
+    <div class="sec"><h4>Out of scope</h4>${r.outOfScope.map(f => `<div class="oos">${esc(f)}</div>`).join('') || '<span class="none">None</span>'}</div></div>`;
+}
+let collapsed = false, showAllDec = false;
+try { const v = localStorage.getItem('wf-panel'); collapsed = v ? v === 'closed' : innerWidth < 900; } catch { collapsed = innerWidth < 900; }
+function setCollapsed(c) {
+  collapsed = c; $('#app').classList.toggle('rc', c);
+  try { localStorage.setItem('wf-panel', c ? 'closed' : 'open'); } catch {}
+  renderRight();
+}
+function renderRight() {
+  const n = sel && D.N[sel];
+  $('#app').classList.toggle('rc', collapsed);
+  if (collapsed) { $('aside.right').innerHTML = `<button class="rail" data-expand title="Show panel"><span>${n ? esc(label(n.key)) : 'Map overview'}</span></button>`; return; }
+  // ticket details only exist once a card is clicked; otherwise the panel is the map overview
+  $('aside.right').innerHTML = `<div class="rtabs">${n ? `<button data-rtab="ticket" class="${rtab === 'ticket' ? 'on' : ''}">#${n.id || '▤'} ${esc(n.kind === 'handoff' ? n.title : 'Ticket')}</button>` : ''}<button data-rtab="map" class="${rtab === 'map' || !n ? 'on' : ''}">Map overview</button>${n ? '<button data-close class="x" title="Close ticket (Esc)">✕</button>' : ''}<button data-collapse class="x" title="Hide panel">»</button></div>
+    ${rtab === 'map' || !n ? mapView() : ticketView(n)}`;
+}
+
+function renderHeader() {
+  const c = D.counts, h = D.h;
+  const phase = (key, no, label, ct, p, state) => `<button class="ph ${view === key ? 'on' : ''} ${state}" data-view="${key}"><span class="no">${state === 'complete' ? '✓' : no}</span>${label}<span class="ct">${ct}</span><span class="pb"><i style="width:${p}%"></i></span></button>`;
+  const buildCt = h.path === 'plan' ? (h.state === 'done' ? 'built' : h.state === 'review' ? 'review' : 'plan') : (c.tTotal ? `${c.tDone}/${c.tTotal}` : '—');
+  const buildP = h.path === 'plan' ? (h.state === 'done' ? 100 : h.state === 'review' ? 80 : 0) : (c.tTotal ? c.tDone / c.tTotal * 100 : 0);
+  const buildState = buildP === 100 ? 'complete' : D.phase === 'build' ? 'current' : '';
+  const fr = phases(), pct = Math.round((fr[0] + fr[1] + fr[2]) / 3 * 100);
+  const R = 15, C = 2 * Math.PI * R, gap = 3, len = C / 3 - gap;
+  const segState = i => fr[i] >= 1 ? 'complete' : 'current';
+  const arcs = fr.map((f, i) => {
+    const rot = `rotate(${-90 + i * 120 + gap / C * 180} 20 20)`;
+    return `<circle class="trk" r="${R}" cx="20" cy="20" stroke-dasharray="${len} ${C}" transform="${rot}"/>` +
+      (f > 0 ? `<circle class="seg ${segState(i)}" r="${R}" cx="20" cy="20" stroke-dasharray="${len * f} ${C}" transform="${rot}"/>` : '');
+  }).join('');
+  const tip = `Decide ${c.dDone}/${c.dTotal}, ${h.path === 'plan' ? 'plan' : 'spec'} ${h.doc ? 'written' : 'not yet'}, build ${buildCt}. Each phase is a third of the ring.`;
+  $('header').innerHTML = `<div class="logo">◢ WAYFINDER</div>
+    <div class="mt"><h1>${esc(D.raw.title)}</h1>${D.raw.destination ? `<span class="dest" data-map>⌖ ${esc(D.raw.destination)}</span>` : ''}</div>
+    <div class="ring" title="${esc(tip)}"><svg viewBox="0 0 40 40" aria-hidden="true">${arcs}</svg><b>${pct}<small>%</small></b></div>
+    <nav class="phases">
+      ${phase('decide', 1, 'Decide', `${c.dDone}/${c.dTotal}`, c.dTotal ? c.dDone / c.dTotal * 100 : 0, D.decideDone ? 'complete' : 'current')}
+      <span class="sep">›</span>
+      <button class="ph ${h.doc ? 'complete' : D.decideDone ? 'current' : ''} ${sel === 'h' ? 'focus' : ''}" data-k="h" data-focus><span class="no">${h.doc ? '✓' : 2}</span>${h.path === 'plan' ? 'Plan' : 'Spec'}<span class="ct">${h.doc ? h.doc.file : 'not yet'}</span></button>
+      <span class="sep">›</span>
+      ${phase('build', 3, 'Build', buildCt, buildP, buildState)}
+      <button class="ph ph-all ${view === 'all' ? 'on' : ''}" data-view="all">All</button>
+    </nav>`;
+}
+
+function markSel() {
+  $$('[data-k]').forEach(el => el.classList.toggle('sel', el.dataset.k === sel && (el.classList.contains('card') || el.classList.contains('li'))));
+}
+function select(k) { sel = k; rtab = 'ticket'; collapsed = false; renderRight(); markSel(); $('.ph[data-focus]')?.classList.toggle('focus', k === 'h'); }
+function deselect() { if (!sel) return; sel = null; rtab = 'map'; renderRight(); markSel(); $('.ph[data-focus]')?.classList.remove('focus'); }
+// pan the canvas to a node and pulse it, so a click in the header visibly lands somewhere
+function focusNode(k) {
+  if (!lastP[k]) return;
+  pz.focusOn(lastP[k]);
+  const el = $(`.card[data-k="${k}"]`);
+  el.classList.remove('ping'); void el.offsetWidth; el.classList.add('ping');
+}
+function setView(v) { view = v; renderHeader(); renderLeft(); renderCanvas(); }
+
+// ---------- hover: trace the whole chain, tag each ticket as before or after ----------
+const label = k => { const n = D.N[k]; return `${n.id ? '#' + n.id + ' ' : ''}${n.kind === 'handoff' && n.doc ? n.doc.title : n.title}`; };
+const ups = k => k === 'h' ? D.dec.map(d => d.key) : (D.N[k].blockers || []);
+function ancestors(k) {
+  const s = new Set();
+  const up = x => ups(x).forEach(b => { if (!s.has(b)) { s.add(b); if (b !== 'h') up(b); } });
+  up(k); return s;
+}
+function descendants(k) {
+  const s = new Set();
+  const dn = x => D.DEP[x].forEach(c => { if (!s.has(c)) { s.add(c); if (c !== 'h') dn(c); } });
+  dn(k); return s;
+}
+function light(k) {
+  const before = ancestors(k), after = descendants(k);
+  const tag = x => x === k ? 'self' : before.has(x) ? 'before' : after.has(x) ? 'after' : null;
+  $('#app').classList.add('focus');
+  $$('.dim [data-k]').forEach(el => {
+    const t = tag(el.dataset.k);
+    el.classList.toggle('lit', !!t);
+    if (t && t !== 'self') el.dataset.rel = t; else delete el.dataset.rel;
+  });
+  $$('.dim path').forEach(el => el.classList.toggle('lit', !!tag(el.dataset.a) && !!tag(el.dataset.b)));
+  const open = [...before].filter(x => D.N[x].state !== 'done').length;
+  const many = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`;
+  const lg = $('.legend');
+  if (lg) { lg.classList.add('live'); lg.innerHTML = `<span><b>${esc(label(k))}</b> has ${many(before.size, 'ticket')} before it${open ? ` (${open} still open)` : ''} and ${many(after.size, 'ticket')} after it.</span>`; }
+}
+function unlight() {
+  $('#app').classList.remove('focus');
+  $$('.lit').forEach(el => el.classList.remove('lit'));
+  $$('[data-rel]').forEach(el => delete el.dataset.rel);
+  const lg = $('.legend'); if (lg) { lg.classList.remove('live'); lg.innerHTML = LEGEND(); }
+}
+const LEGEND = () => `<span><i></i>waits on, done</span><span><i class="o"></i>waits on, still open</span><span>Each column is a round: tickets in it can run at the same time</span>`;
+
+// stars are generated once from a fixed seed, so they stay put across re-renders
+const STARS = (() => {
+  let seed = 7; const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  let out = '';
+  for (let i = 0; i < 900; i++) {
+    const tint = r() < .18 ? '#9ec5ff' : r() < .08 ? '#ffe3b0' : '#fff';
+    out += `<i style="left:${(r() * 100).toFixed(2)}%;top:${(r() * 100).toFixed(2)}%;--s:${(.3 + r() * .8).toFixed(2)};--o:${(.25 + r() * .6).toFixed(2)};--sc:${tint};--d:${(3 + r() * 6).toFixed(1)}s;--dl:-${(r() * 6).toFixed(1)}s"></i>`;
+  }
+  return `<div class="stars" aria-hidden="true">${out}</div>`;
+})();
+
+// ---------- pan / zoom ----------
+function panZoom(vp, content, focus, b) {
+  let s = 1, x = 0, y = 0, drag = null;
+  const stars = $('.stars');
+  const apply = () => { content.style.transform = `translate(${x}px,${y}px) scale(${s})`; stars.style.transform = `translate(${x * .12}px,${y * .12}px)`; };
+  function fit(all) {
+    const r = vp.getBoundingClientRect(), w = r.width - 40, h = r.height - 100;
+    s = Math.min(w / b.w, h / b.h, 1);
+    let cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    if (!all && focus && s < .7) { s = .85; cx = focus.x; cy = focus.y; }
+    x = 20 + w / 2 - cx * s; y = 20 + h / 2 - cy * s; apply();
+  }
+  vp.addEventListener('pointerdown', e => { if (e.target.closest('[data-k]')) return; drag = {sx: e.clientX - x, sy: e.clientY - y, cx: e.clientX, cy: e.clientY}; vp.setPointerCapture(e.pointerId); vp.classList.add('grabbing'); });
+  vp.addEventListener('pointermove', e => { if (!drag) return; x = e.clientX - drag.sx; y = e.clientY - drag.sy; apply(); });
+  // a click on empty canvas (not a drag) closes the ticket
+  vp.addEventListener('pointerup', e => { if (drag && Math.hypot(e.clientX - drag.cx, e.clientY - drag.cy) < 4) deselect(); drag = null; vp.classList.remove('grabbing'); });
+  vp.addEventListener('wheel', e => {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) {
+      const r = vp.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+      const ns = Math.min(2.5, Math.max(.2, s * Math.exp(-e.deltaY * .01)));
+      x = mx - (mx - x) * ns / s; y = my - (my - y) * ns / s; s = ns;
+    } else { x -= e.deltaX; y -= e.deltaY; }
+    apply();
+  }, {passive: false});
+  function focusOn(p) {
+    const r = vp.getBoundingClientRect();
+    s = Math.max(s, .9); x = r.width / 2 - p.x * s; y = r.height / 2 - p.y * s;
+    content.style.transition = 'transform .5s cubic-bezier(.2,.8,.2,1)'; apply();
+    setTimeout(() => content.style.transition = '', 520);
+  }
+  // after a reload, put the canvas back where it was
+  if (restore) { ({s, x, y} = restore); restore = null; apply(); } else fit();
+  return {fit, focusOn, at: () => ({s, x, y})};
+}
+
+// ---------- events (delegated once) ----------
+const app = $('#app');
+app.innerHTML = '<header></header><aside class="left"></aside><main></main><aside class="right"></aside>';
+app.addEventListener('pointerover', e => { const el = e.target.closest('[data-k]'); if (el && D.N[el.dataset.k]) light(el.dataset.k); });
+app.addEventListener('pointerout', e => { if (!e.target.closest('[data-k]')) return; if (e.relatedTarget?.closest?.('[data-k]')) return; unlight(); });
+app.addEventListener('click', e => {
+  const t = e.target;
+  const cp = t.closest('[data-copy]'); if (cp) { const n = sel && D.N[sel]; copy(cp.dataset.copy); toast('Copied', cp.dataset.copy, n && rtab === 'ticket' ? noteOf(n) : null); return; }
+  const v = t.closest('[data-view]'); if (v) return setView(v.dataset.view);
+  if (t.closest('[data-close]')) return deselect();
+  if (t.closest('[data-collapse]')) return setCollapsed(true);
+  if (t.closest('[data-expand]')) return setCollapsed(false);
+  if (t.closest('[data-more]')) { showAllDec = !showAllDec; return renderRight(); }
+  const rt = t.closest('[data-rtab]'); if (rt) { rtab = rt.dataset.rtab; return renderRight(); }
+  if (t.closest('[data-fit]')) return fitFn?.(true);
+  if (t.closest('[data-hide]')) { hideDone = !hideDone; return renderCanvas(); }
+  if (t.closest('[data-map]')) { rtab = 'map'; renderRight(); return run({title: 'Take the next frontier ticket'}, `/wayfinder ${D.base}/map.md`); }
+  const f = t.closest('h3.fold'); if (f) { f.parentElement.classList.toggle('closed'); f.parentElement.classList.toggle('open'); return; }
+  const el = t.closest('[data-k]'); if (!el) return;
+  const n = D.N[el.dataset.k];
+  select(n.key);
+  if (el.hasAttribute('data-focus')) return focusNode(n.key);
+  // canvas and list clicks copy straight away; header/panel links only select
+  if (el.classList.contains('card') || el.classList.contains('li')) run(n);
+});
+
+// ---------- boot ----------
+D = model(DATA);
+view = D.phase; rtab = 'map';
+// the page can't see the files change, so it reloads each time you come back to the tab and keeps your place
+const KEY = 'wf-state:' + DATA.slug;
+let restore = null;
+try {
+  const st = JSON.parse(sessionStorage.getItem(KEY) || 'null');
+  if (st) { ({view, rtab, hideDone, showAllDec} = st); sel = D.N[st.sel] ? st.sel : null; restore = st.pz; }
+} catch {}
+const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify({view, sel, rtab, hideDone, showAllDec, pz: pz?.at()})); } catch {} };
+document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' ? location.reload() : save());
+addEventListener('pagehide', save);
+document.title = `${D.raw.title} · Wayfinder`;
+renderHeader(); renderLeft(); renderRight(); renderCanvas();
+addEventListener('keydown', e => {
+  if (e.key === 'f' || e.key === 'F') fitFn?.(true);
+  else if (e.key === 'Escape') deselect();
+});
+addEventListener('resize', () => fitFn?.());
+</script>
+</body>
+</html>

@@ -43,7 +43,7 @@ Run typechecking regularly, single test files regularly, and the full test suite
 
 Ticket work stays uncommitted. Baseline **Fix first** and mechanical file changes are the only commits, through `/commit-msg`. After the slice is done, end by telling the user: run `/code-review` in a fresh turn.
 
-Close the ticket **on disk**: in the `work/<feature-slug>/tickets/` file this session implemented (or the plan file on the `/to-plan` path), mark this ticket's status (implemented / awaiting review) and name the next ticket in order. Status line only; `**Pre-existing failures:**` stays if present. **Done when**: a fresh session reading only that file can answer "what's next?", and the user was told to run `/code-review`.
+Close the ticket **on disk**: in the `work/<feature-slug>/tickets/` file this session implemented (or the plan file on the `/to-plan` path), mark this ticket's status (implemented / awaiting review) and name the next ticket in order. Status line only; `**Pre-existing failures:**` stays if present. If `work/<feature-slug>/map.md` and `<skill-dir>/../wayfinder/scripts/render_map.py` both exist, rerender the map (otherwise skip): `python3 <skill-dir>/../wayfinder/scripts/render_map.py work/<feature-slug>` (on Windows: `py` or `python`). **Done when**: a fresh session reading only that file can answer "what's next?", `map.html` is rerendered when the map and script exist, and the user was told to run `/code-review`.
 
 For a whole attached plan with council / best-practices / YAGNI, tell the user to use /implement-plan instead.
 
