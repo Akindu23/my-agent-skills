@@ -25,6 +25,19 @@ Ask: "What's the public interface, and which seams should we test?"
 
 When the shape of that interface is itself in question - how deep the module is, where the seam belongs, what the interface should expose - run the `/codebase-design` skill for the vocabulary. It is the shared source of the **module**, **interface**, **depth**, **seam**, **adapter**, **leverage** and **locality** terms, and it is a reference to consult, not a session to run.
 
+## Authoring gate
+
+Before writing any test, answer four questions; a missing answer means the test waits:
+
+1. What observable behavior, invariant, or independent contract does it protect?
+2. What credible regression makes it fail?
+3. Why does existing coverage not already catch that failure? Each contract has one primary test at the strongest seam; another layer needs its own distinct risk. Prefer extending a table-driven case or shared fixture over a near-duplicate test.
+4. Does it need a **backdoor** (an export, flag, wrapper, or injection point no production caller uses)? If yes, move the test to the real seam instead.
+
+Then check it against [`../test-audit/references/junk-patterns.md`](../test-audit/references/junk-patterns.md); a match fails the gate unless the test clears the retention bar in the same file.
+
+A bug regression test must go red on the pre-fix code for the intended reason. One regression at the owning seam covers the bug; the same scenario stays out of every other layer it crosses.
+
 ## Anti-patterns
 
 - **Implementation-coupled** - mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.

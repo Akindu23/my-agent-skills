@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "my-agent-skills",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "skills": [
     "skills/afk",
     "skills/architecture-decision-records",
@@ -39,6 +39,7 @@
     "skills/svg-diagrams",
     "skills/tdd",
     "skills/teach",
+    "skills/test-audit",
     "skills/to-plan",
     "skills/to-spec",
     "skills/to-tickets",
@@ -130,8 +131,14 @@
     "show-me": [
       "mermaid-diagrams"
     ],
+    "tdd": [
+      "test-audit"
+    ],
     "teach": [
       "svg-diagrams"
+    ],
+    "test-audit": [
+      "council"
     ],
     "to-spec": [
       "best-practices-research"
