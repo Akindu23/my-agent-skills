@@ -31,14 +31,18 @@ The report **retains P0 and P1**. When the user asks for a wider audit, retain P
 - `thermos-quality` finding and not a blocker → **Structure** only.
 - Neither → drop, unless a wider audit (then Findings as P2).
 
+[`../scripts/render_review.py`](../scripts/render_review.py) parses this shape into the HTML view: keep the headings, column names, and `path:line` locations exactly as written.
+
 ```markdown
+<One paragraph: scope, work items, standards file or its omission, baseline typecheck and test results.>
+
 ## Verdict
-<ship / fix-before-merge / needs discussion>. State the P0 and P1 counts (zero is a count).
+**<ship / fix-before-merge / needs discussion>.** P0: <n>. P1: <n>.
 
 ## Findings
-| Severity | Location | Lens | Finding |
-|----------|----------|------|---------|
-| P0/P1 | `path:line` | thermos-deep / thermos-quality / yagni / bpr / standards / fresh | … |
+| Severity | Location | Lens | Finding | Fix |
+|----------|----------|------|---------|-----|
+| P0/P1 | `path:line` | thermos-deep / thermos-quality / yagni / bpr / standards / fresh | what breaks and why | the change that fixes it |
 
 Sort P0 then P1 (then P2 when retained). Dedupe overlapping items into one row; list every contributing lens.
 

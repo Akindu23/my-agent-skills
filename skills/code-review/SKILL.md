@@ -1,10 +1,10 @@
 ---
 name: code-review
-description: "Diff/PR review: council → thermos deep + quality/yagni/slop-report → delta BPR → merge. P0/P1 + slop and structure tables; may nominate; may Run /remove-slop when the gate is empty."
+description: "Diff/PR review: council → thermos deep + quality/yagni/slop-report → delta BPR → merge. P0/P1 + slop and structure tables, rendered as an HTML checklist; may nominate; may Run /remove-slop when the gate is empty."
 disable-model-invocation: true
 ---
 
-Post-change **code review**. Report only through step 8. Edits only on an accepted Run `/remove-slop` (step 9), an accepted coding-standards nomination (step 8), or the work item's status line (step 7).
+Post-change **code review**. Report only through step 8. Edits only on an accepted Run `/remove-slop` (step 9), an accepted coding-standards nomination (step 8), or step 7's report files and work-item status line.
 
 Probe Task/Agent enums; route per [`../council/references/task-workflow.md`](../council/references/task-workflow.md), with these overrides:
 
@@ -46,7 +46,7 @@ Free-form answers stay in plain chat.
 
 6. **Fresh pass + merge.** One Task/Agent (portable role `general-purpose`, or a review/judge type if in the enum; readonly). Prompt must include the package, council brief, full thermos-deep / thermos-quality / yagni / BPR / slop-report outputs, and [`references/REPORT.md`](references/REPORT.md). Worker: (1) independent **fresh pass** over the package, (2) apply **every** rule in `CODING_STANDARDS.md` when that file is in the package (lens: `standards`), (3) merge - apply the **filter**, dedupe, calibrate onto the scale, attribute each finding's lens, apply the **gate** and **placement**. Model per the table above. **Done when**: a single report matching that file is ready, every specialist finding passed the filter or sits in Dismissed, and every standards rule was applied or the file was omitted.
 
-7. **Report.** Give the user the merged report ([shape](references/REPORT.md)). Do not fix. When step 1 found work items, update each status line: `reviewed: clean` or `reviewed: N findings` with a one-liner per open P0/P1. Status line only; `**Pre-existing failures:**` stays if present. If `work/<feature-slug>/map.md` and `<skill-dir>/../wayfinder/scripts/render_map.py` both exist, rerender the map (otherwise skip): `python3 <skill-dir>/../wayfinder/scripts/render_map.py work/<feature-slug>` (on Windows: `py` or `python`). **Done when**: the report matches that file, `map.html` is rerendered when the map and script exist, and each work item's file alone tells the next session whether it is commit-ready or needs fixes; or empty diff was already stated.
+7. **Report.** Write the merged report ([shape](references/REPORT.md)) to `work/<feature-slug>/review.md` when step 1 found work items, else `work/code-review/<branch-slug>.md`; it stays untracked. Render it: `python3 <skill-dir>/scripts/render_review.py <that file>` (on Windows: `py` or `python`) writes the `.html` beside it. Open the HTML (`open` / `xdg-open` / `start`). In chat give only the verdict with its P0 and P1 counts, one line per P0/P1 (`path:line` - what breaks), and the two file paths. Do not fix. When step 1 found work items, update each status line: `reviewed: clean` or `reviewed: N findings` with a one-liner per open P0/P1. Status line only; `**Pre-existing failures:**` stays if present. If `work/<feature-slug>/map.md` and `<skill-dir>/../wayfinder/scripts/render_map.py` both exist, rerender the map (otherwise skip): `python3 <skill-dir>/../wayfinder/scripts/render_map.py work/<feature-slug>` (on Windows: `py` or `python`). **Done when**: the report file matches that shape, its HTML is rendered and opened, `map.html` is rerendered when the map and script exist, and each work item's file alone tells the next session whether it is commit-ready or needs fixes; or empty diff was already stated.
 
 8. **Nominate.** After the report, check every **Findings** row against the membership preamble of `CODING_STANDARDS.md` (or [`references/coding-standards.md`](references/coding-standards.md) if the file is missing). At most 3 candidates. If none, say so.
 
@@ -58,6 +58,6 @@ End the report turn before the nomination MCQ. Put every candidate's accept / sk
 
 **Done when**: stopped on blockers or empty slop, Skip, or the Edit Task has returned.
 
-**Unattended** (the caller says so, e.g. `/afk`): step 1 takes the caller's scope and work items. Step 8 lists candidates in the report and writes nothing. Step 9 picks Run `/remove-slop` - narration whenever its gate passes.
+**Unattended** (the caller says so, e.g. `/afk`): step 1 takes the caller's scope and work items. Step 7 writes and renders the report but leaves it unopened. Step 8 lists candidates in the report and writes nothing. Step 9 picks Run `/remove-slop` - narration whenever its gate passes.
 
 Run council, BPR, yagni, and `/remove-slop` Edit in the parent. The merge Task is fresh-pass + merge only. Full BPR stays behind step 5.

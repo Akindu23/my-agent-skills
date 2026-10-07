@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code Review</title>
+<!-- Template for render_review.py. The script swaps the DATA placeholder for the parsed report. -->
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f0f2f5; --border: #dde1e7;
+  --text: #1c2330; --muted: #5d6879; --faint: #8a94a4;
+  --p0: #c62828; --p0-bg: #fde8e8;
+  --p1: #d14d00; --p1-bg: #fff0e4;
+  --slop: #7b4bc4; --slop-bg: #f2ebfc;
+  --struct: #1f6fb8; --struct-bg: #e6f0fa;
+  --dism: #6b7280; --dism-bg: #eef0f3;
+  --ok: #1b7f4b; --ok-bg: #e3f5eb;
+  --code-bg: #eef1f5;
+  --radius: 10px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1218; --surface: #171b23; --surface-2: #1e232d; --border: #2b3240;
+    --text: #e4e8ef; --muted: #9aa4b5; --faint: #6b7587;
+    --p0: #ff6b6b; --p0-bg: #3a1a1c;
+    --p1: #ff9a4d; --p1-bg: #3a2414;
+    --slop: #b994f5; --slop-bg: #2a2140;
+    --struct: #6cb0f0; --struct-bg: #16273a;
+    --dism: #9aa3b2; --dism-bg: #23272f;
+    --ok: #5fd197; --ok-bg: #15301f;
+    --code-bg: #232937;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--sans); }
+code { font: 0.86em var(--mono); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+h1, h2, h4 { line-height: 1.25; margin: 0; }
+details > summary { cursor: pointer; list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+.mono { font-family: var(--mono); font-size: 13px; }
+.muted { color: var(--muted); }
+.chip { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.k-p0 { color: var(--p0); background: var(--p0-bg); }
+.k-p1 { color: var(--p1); background: var(--p1-bg); }
+
+.page { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; overflow-wrap: anywhere; }
+.t-ok { --tone: var(--ok); --tone-bg: var(--ok-bg); }
+.t-p0 { --tone: var(--p0); --tone-bg: var(--p0-bg); }
+.t-p1 { --tone: var(--p1); --tone-bg: var(--p1-bg); }
+.t-neutral { --tone: var(--struct); --tone-bg: var(--struct-bg); }
+
+.hero { border-radius: var(--radius); padding: 22px 24px; background: var(--tone-bg); border: 1px solid var(--tone); margin-bottom: 18px; }
+.hero .eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--tone); }
+.hero h1 { font-size: 28px; margin: 4px 0 8px; }
+.hero p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 8px; }
+.stat { all: unset; box-sizing: border-box; cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+.stat:hover:not(:disabled) { border-color: var(--faint); }
+.stat:focus-visible, summary:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.stat:disabled { cursor: default; opacity: .55; }
+.stat .n { font-size: 28px; font-weight: 700; line-height: 1; }
+.stat .l { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.stat.p0 .n { color: var(--p0); } .stat.p1 .n { color: var(--p1); }
+.stat.sl .n { color: var(--slop); } .stat.st .n { color: var(--struct); } .stat.di .n { color: var(--dism); }
+
+.prog { position: sticky; top: 0; background: var(--bg); padding: 10px 0; margin-top: 8px; z-index: 2; }
+.prog .track { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.prog .fill { height: 100%; background: var(--ok); width: 0; transition: width .2s; }
+.prog .txt { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.empty { margin-top: 22px; padding: 22px; border-radius: var(--radius); background: var(--tone-bg); color: var(--tone); font-weight: 600; text-align: center; }
+
+.step { margin-top: 22px; scroll-margin-top: 60px; }
+.step > summary { display: flex; gap: 10px; align-items: center; font-size: 17px; font-weight: 700; }
+.step > summary .num { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; color: #fff; flex: none; }
+.step > summary .n { color: var(--muted); font-weight: 400; font-size: 14px; }
+.step > summary .left { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.step > summary .caret { color: var(--faint); transition: transform .15s; font-size: 13px; display: inline-block; width: 1em; line-height: 1; text-align: center; flex: none; }
+.step[open] > summary .caret { transform: rotate(90deg); }
+.step .why { color: var(--muted); font-size: 14px; margin: 4px 0 10px 36px; }
+
+.big { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; margin: 0 0 10px 36px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--p1); border-radius: var(--radius); padding: 16px 18px; }
+.big.sev-p0 { border-left-color: var(--p0); }
+.big .top { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.big .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+.big .cols.one { grid-template-columns: minmax(0, 1fr); }
+.big .cols h4 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.big .cols p { margin: 0; }
+.task { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin: 0 0 8px 36px; }
+.task .do { font-weight: 600; }
+.task .ctx { font-size: 13.5px; color: var(--muted); margin-top: 4px; }
+.task .loc { font: 12px var(--mono); color: var(--faint); margin-top: 6px; }
+.big input, .task input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--ok); cursor: pointer; }
+.big label, .task label { cursor: pointer; }
+.done { opacity: .5; }
+.task.done .do { text-decoration: line-through; }
+
+.rest { margin-top: 30px; }
+.rest h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+.sec { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; }
+.sec > summary { padding: 14px 18px; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.sec > summary .count { margin-left: auto; color: var(--muted); font-weight: 400; font-size: 13px; }
+.sec > summary::before { content: "▸"; color: var(--faint); transition: transform .15s; }
+.sec[open] > summary::before { transform: rotate(90deg); }
+.sec .hint { padding: 0 18px 8px; color: var(--muted); font-size: 13px; margin: 0; }
+.row { padding: 12px 18px; border-top: 1px solid var(--border); display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 16px; }
+.row .fix { margin-top: 6px; color: var(--muted); font-size: 14px; }
+.row .fix b { color: var(--text); }
+.sec ul { margin: 0; padding: 0 18px 14px 36px; font-size: 14px; }
+.sec li { margin: 6px 0; }
+
+@media (max-width: 760px) {
+  .stats { grid-template-columns: repeat(3, 1fr); }
+  .big, .task, .step .why { margin-left: 0; }
+  .big .cols, .row { grid-template-columns: minmax(0, 1fr); }
+  .row { gap: 4px; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const DATA = /*DATA*/null;
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const md = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+const loc = i => i.file + (i.line ? ':' + i.line : '');
+const byKind = k => DATA.items.filter(i => i.kind === k);
+const findings = byKind('finding'), slop = byKind('slop'), structure = byKind('structure'), dismissed = byKind('dismissed');
+const steps = { s1: findings, s2: slop, s3: structure };
+const todo = [...findings, ...slop, ...structure];
+const idx = i => DATA.items.indexOf(i);
+
+// ticks are kept per review in this browser only
+const storeKey = 'code-review:' + DATA.key;
+const done = new Set((() => { try { return JSON.parse(localStorage.getItem(storeKey)) || []; } catch { return []; } })());
+const save = () => { try { localStorage.setItem(storeKey, JSON.stringify([...done])); } catch {} };
+
+const verdict = (DATA.verdict || '').trim();
+const tone = DATA.p0 > 0 ? 't-p0' : DATA.p1 > 0 || /fix/i.test(verdict) ? 't-p1' : /^ship/i.test(verdict) ? 't-ok' : 't-neutral';
+const discuss = /discuss/i.test(verdict);
+const left = list => list.filter(i => !done.has(idx(i))).length;
+const leftText = list => left(list) ? left(list) + ' left' : '✓ done';
+const progText = () => `${done.size} of ${todo.length} done${findings.length && !left(findings) ? ' · blockers cleared' : ''}`;
+const pct = () => Math.round(done.size / todo.length * 100) + '%';
+const box = n => `<input type="checkbox" id="cb-${n}" data-n="${n}" ${done.has(n) ? 'checked' : ''}>`;
+
+const big = i => {
+  const n = idx(i);
+  return `<div class="big ${i.sev === 'P0' ? 'sev-p0' : ''} ${done.has(n) ? 'done' : ''}" data-n="${n}">
+    ${box(n)}
+    <div>
+      <div class="top"><span class="chip ${i.sev === 'P0' ? 'k-p0' : 'k-p1'}">${esc(i.sev)}</span><span class="mono">${esc(loc(i))}</span><span class="muted" style="font-size:13px">${esc(i.lens)}</span></div>
+      <div class="cols ${i.fix ? '' : 'one'}">
+        <div><h4><label for="cb-${n}">What breaks</label></h4><p>${md(i.text)}</p></div>
+        ${i.fix ? `<div><h4>Fix</h4><p>${md(i.fix)}</p></div>` : ''}
+      </div>
+    </div>
+  </div>`;
+};
+
+const small = i => {
+  const n = idx(i);
+  const remedy = i.kind === 'structure' && i.fix;
+  return `<div class="task ${done.has(n) ? 'done' : ''}" data-n="${n}">
+    ${box(n)}
+    <div><label class="do" for="cb-${n}">${md(remedy ? i.fix : i.text)}</label>${remedy ? `<div class="ctx">${md(i.text)}</div>` : ''}<div class="loc">${esc(loc(i))}${i.kind === 'slop' ? ' · ' + esc(i.lens) : ''}</div></div>
+  </div>`;
+};
+
+// steps with more than 10 rows start folded
+const step = (id, num, color, title, why, render) => steps[id].length ? `<details class="step" id="${id}" ${id === 's1' || steps[id].length <= 10 ? 'open' : ''}>
+    <summary><span class="num" style="background:${color}">${num}</span>${title} <span class="n">${steps[id].length}</span>
+      <span class="left" data-left="${id}">${leftText(steps[id])}</span><span class="caret">▸</span></summary>
+    <p class="why">${why}</p>${steps[id].map(render).join('')}
+  </details>` : '';
+
+const row = i => `<div class="row">
+    <div class="mono">${esc(loc(i))}<div class="muted" style="font-family:var(--sans);font-size:12px;margin-top:2px">${esc(i.lens)}</div></div>
+    <div>${md(i.text)}${i.why ? `<div class="fix"><b>Why dismissed:</b> ${md(i.why)}</div>` : ''}</div>
+  </div>`;
+
+const stat = (cls, n, label, target) => `<button class="stat ${cls}" data-go="${target}" ${n ? '' : 'disabled'}><div class="n">${n}</div><div class="l">${label}</div></button>`;
+
+document.title = 'Review · ' + (DATA.title || 'untitled');
+document.getElementById('app').innerHTML = `<div class="page ${tone}">
+  <div class="hero">
+    <div class="eyebrow">Code review · ${esc(DATA.title || 'untitled')}</div>
+    <h1>${verdict ? esc(verdict[0].toUpperCase() + verdict.slice(1)) : 'No verdict'}</h1>
+    <p>${md(DATA.intro)}</p>
+  </div>
+  <div class="stats">
+    ${stat('p0', DATA.p0, 'P0 blockers', 's1')}
+    ${stat('p1', DATA.p1, 'P1 severe', 's1')}
+    ${stat('sl', slop.length, 'Slop hits', 's2')}
+    ${stat('st', structure.length, 'Structure notes', 's3')}
+    ${stat('di', dismissed.length, 'Dismissed', 'dis')}
+  </div>
+  ${todo.length ? `<div class="prog"><div class="track"><div class="fill" style="width:${pct()}"></div></div><div class="txt">${progText()}</div></div>`
+    : `<div class="empty">${discuss ? 'Nothing to fix yet. See Notes for what needs discussing.' : 'Nothing to fix. Safe to merge.'}</div>`}
+  ${step('s1', '1', DATA.p0 > 0 ? 'var(--p0)' : 'var(--p1)', 'Fix before merge', 'These block the merge.', big)}
+  ${step('s2', '2', 'var(--slop)', 'Quick cleanup', 'Small wording and comment fixes. Run /remove-slop or do them by hand.', small)}
+  ${step('s3', '3', 'var(--struct)', 'Optional refactors', 'The code works. Do these if you will touch this area again soon.', small)}
+  <div class="rest">
+    ${dismissed.length || DATA.notes.length || DATA.skipped.length ? '<h2>Reference</h2>' : ''}
+    ${dismissed.length ? `<details class="sec" id="dis"><summary>Dismissed<span class="count">${dismissed.length}</span></summary>
+      <p class="hint">Rejected by the filter. Listed so you can override.</p>${dismissed.map(row).join('')}</details>` : ''}
+    ${DATA.notes.length || DATA.skipped.length ? `<details class="sec" ${discuss ? 'open' : ''}><summary>Notes and skipped<span class="count">${DATA.notes.length + DATA.skipped.length}</span></summary>
+      <ul>${[...DATA.notes, ...DATA.skipped].map(s => `<li>${md(s)}</li>`).join('')}</ul></details>` : ''}
+  </div>
+</div>`;
+
+// tick in place so open sections, scroll and keyboard focus survive
+document.querySelectorAll('input[type=checkbox]').forEach(c => c.onchange = () => {
+  c.checked ? done.add(+c.dataset.n) : done.delete(+c.dataset.n);
+  save();
+  c.closest('[data-n]').classList.toggle('done', c.checked);
+  document.querySelector('.fill').style.width = pct();
+  document.querySelector('.prog .txt').textContent = progText();
+  document.querySelectorAll('[data-left]').forEach(s => s.textContent = leftText(steps[s.dataset.left]));
+});
+document.querySelectorAll('.stat[data-go]').forEach(b => b.onclick = () => {
+  const d = document.getElementById(b.dataset.go);
+  if (!d) return;
+  if (d.tagName === 'DETAILS') d.open = true;
+  d.scrollIntoView({ behavior: 'smooth' });
+});
+</script>
+</body>
+</html>
